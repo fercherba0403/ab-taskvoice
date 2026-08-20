@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        TaskVoice | Test create-user
+    </title>
+
+
+    <style>
+
+        body {
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 20px;
+
+            font-family:
+                Arial,
+                sans-serif;
+
+            background:
+                #f4f7fb;
+        }
+
+
+        .card {
+            padding: 25px;
+
+            background:
+                white;
+
+            border:
+                1px solid
+                #ddd;
+
+            border-radius:
+                10px;
+        }
+
+
+        input,
+        select,
+        button {
+            box-sizing:
+                border-box;
+
+            width: 100%;
+
+            margin:
+                6px
+                0;
+
+            padding:
+                11px;
+        }
+
+
+        button {
+            cursor:
+                pointer;
+        }
+
+
+        pre {
+            min-height:
+                120px;
+
+            padding:
+                15px;
+
+            overflow:
+                auto;
+
+            background:
+                #111;
+
+            color:
+                #eee;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="card">
+
+
+    <h1>
+        Test create-user
+    </h1>
+
+
+    <p>
+        Debés estar previamente logueado como administrador en TaskVoice.
+    </p>
+
+
+    <input
+        id="nombre"
+        value="Usuario"
+        placeholder="Nombre"
+    >
+
+
+    <input
+        id="apellido"
+        value="Prueba Edge"
+        placeholder="Apellido"
+    >
+
+
+    <input
+        id="email"
+        value="usuario.edge@test.com"
+        type="email"
+        placeholder="Email"
+    >
+
+
+    <input
+        id="telefono"
+        placeholder="Teléfono"
+    >
+
+
+    <select id="rol" title="ts">
+
+        <option value="trabajador">
+            Trabajador
+        </option>
+
+        <option value="supervisor">
+            Supervisor
+        </option>
+
+        <option value="admin">
+            Administrador
+        </option>
+
+    </select>
+
+
+    <input
+        id="password"
+        type="password"
+        value="PruebaSegura123!"
+        placeholder="Contraseña"
+    >
+
+
+    <button id="testButton">
+
+        Crear usuario de prueba
+
+    </button>
+
+
+    <h2>
+        Resultado
+    </h2>
+
+
+    <pre id="result"></pre>
+
+
+</div>
+
+
+
+<script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+></script>
+
+
+<script
+    type="module"
+>
+
+import {
+    supabase
+} from '../js/core/supabase.js';
+
+
+
+const result =
+    document.getElementById(
+        'result'
+    );
+
+
+const button =
+    document.getElementById(
+        'testButton'
+    );
+
+
+
+// ============================================================
+// LOG
+// ============================================================
+
+function showResult(
+    data
+) {
+
+    result.textContent =
+        JSON.stringify(
+            data,
+            null,
+            2
+        );
+
+}
+
+
+
+// ============================================================
+// COMPROBAR SESIÓN
+// ============================================================
+
+async function checkSession() {
+
+    const {
+        data,
+        error
+    } = await supabase
+        .auth
+        .getSession();
+
+
+    if (error) {
+
+        showResult({
+
+            error:
+                error.message
+
+        });
+
+        return false;
+    }
+
+
+    if (
+        !data.session
+    ) {
+
+        showResult({
+
+            error:
+                'No existe una sesión activa. Iniciá sesión como administrador en TaskVoice.'
+
+        });
+
+        return false;
+    }
+
+
+    showResult({
+
+        sesion:
+            'OK',
+
+        usuario:
+            data.session
+                .user
+                .email
+
+    });
+
+
+    return true;
+}
+
+
+
+// ============================================================
+// CREAR USUARIO
+// ============================================================
+
+button.addEventListener(
+
+    'click',
+
+    async () => {
+
+
+        const sessionOk =
+            await checkSession();
+
+
+        if (!sessionOk) {
+
+            return;
+        }
+
+
+        button.disabled =
+            true;
+
+
+        button.textContent =
+            'Creando...';
+
+
+        result.textContent =
+            'Ejecutando create-user...';
+
+
+        try {
+
+
+            const {
+
+                data,
+
+                error
+
+            } =
+                await supabase
+                    .functions
+                    .invoke(
+
+                        'create-user',
+
+                        {
+
+                            body: {
+
+                                nombre:
+                                    document
+                                        .getElementById(
+                                            'nombre'
+                                        )
+                                        .value
+                                        .trim(),
+
+                                apellido:
+                                    document
+                                        .getElementById(
+                                            'apellido'
+                                        )
+                                        .value
+                                        .trim(),
+
+                                email:
+                                    document
+                                        .getElementById(
+                                            'email'
+                                        )
+                                        .value
+                                        .trim(),
+
+                                telefono:
+                                    document
+                                        .getElementById(
+                                            'telefono'
+                                        )
+                                        .value
+                                        .trim(),
+
+                                rol:
+                                    document
+                                        .getElementById(
+                                            'rol'
+                                        )
+                                        .value,
+
+                                password:
+                                    document
+                                        .getElementById(
+                                            'password'
+                                        )
+                                        .value
+
+                            }
+
+                        }
+
+                    );
+
+
+            if (error) {
+
+
+                showResult({
+
+                    ok:
+                        false,
+
+                    error:
+                        error.message,
+
+                    context:
+                        error.context
+                            ?? null
+
+                });
+
+
+                return;
+
+            }
+
+
+            showResult({
+
+                ok:
+                    true,
+
+                data
+
+            });
+
+
+        } catch (error) {
+
+
+            showResult({
+
+                ok:
+                    false,
+
+                error:
+                    error.message
+
+            });
+
+
+        } finally {
+
+
+            button.disabled =
+                false;
+
+
+            button.textContent =
+                'Crear usuario de prueba';
+
+        }
+
+    }
+
+);
+
+
+
+checkSession();
+
+</script>
+
+
+</body>
+
+</html>

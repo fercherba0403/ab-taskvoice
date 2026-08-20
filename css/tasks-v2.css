@@ -1,0 +1,3465 @@
+/* ============================================================
+   TASKVOICE
+   tasks.css
+   ============================================================ */
+
+:root {
+  --tv-primary: #2563eb;
+  --tv-primary-hover: #1d4ed8;
+
+  --tv-bg: #f4f7fb;
+
+  --tv-surface: #ffffff;
+
+  --tv-border: #e5e7eb;
+
+  --tv-text: #172033;
+
+  --tv-muted: #667085;
+
+  --tv-danger: #dc2626;
+
+  --tv-radius: 12px;
+}
+
+/* ============================================================
+   MENSAJE SUPERIOR
+   ============================================================ */
+
+.page-message {
+  margin-bottom: 1.25rem;
+
+  padding: 0.9rem 1rem;
+
+  border: 1px solid #bbf7d0;
+
+  border-radius: var(--tv-radius);
+
+  background: #f0fdf4;
+
+  color: #166534;
+
+  font-weight: 600;
+}
+
+/* ============================================================
+   FILTROS
+   ============================================================ */
+
+.filters-panel {
+  display: grid;
+
+  grid-template-columns: minmax(260px, 2fr) repeat(3, minmax(150px, 1fr)) auto;
+
+  gap: 1rem;
+
+  align-items: end;
+
+  margin-bottom: 1.5rem;
+
+  padding: 1.25rem;
+
+  border: 1px solid var(--tv-border);
+
+  border-radius: var(--tv-radius);
+
+  background: var(--tv-surface);
+}
+
+.filters-panel>div {
+  min-width: 0;
+}
+
+.filters-panel label {
+  display: block;
+
+  margin-bottom: 0.45rem;
+
+  color: var(--tv-muted);
+
+  font-size: 0.76rem;
+
+  font-weight: 700;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.025em;
+}
+
+.filters-panel input,
+.filters-panel select {
+  width: 100%;
+
+  min-height: 44px;
+
+  padding: 0.65rem 0.8rem;
+
+  border: 1px solid #d0d5dd;
+
+  border-radius: 8px;
+
+  outline: none;
+
+  background: #fff;
+
+  color: var(--tv-text);
+
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+
+.filters-panel input:focus,
+.filters-panel select:focus {
+  border-color: var(--tv-primary);
+
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* ============================================================
+   BOTÓN SECUNDARIO
+   ============================================================ */
+
+.secondary-button {
+  min-height: 44px;
+
+  padding: 0.65rem 1rem;
+
+  border: 1px solid #d0d5dd;
+
+  border-radius: 8px;
+
+  background: white;
+
+  color: #344054;
+
+  font-weight: 600;
+
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+
+.secondary-button:hover {
+  background: #f8fafc;
+
+  border-color: #98a2b3;
+}
+
+/* ============================================================
+   TABLA
+   ============================================================ */
+
+.tasks-table {
+  width: 100%;
+
+  border-collapse: separate;
+
+  border-spacing: 0;
+}
+
+.tasks-table th {
+  padding: 0.85rem 1.1rem;
+
+  border-bottom: 1px solid var(--tv-border);
+
+  background: #f8fafc;
+
+  color: var(--tv-muted);
+
+  font-size: 0.72rem;
+
+  font-weight: 700;
+
+  text-align: left;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.035em;
+}
+
+.tasks-table td {
+  padding: 1rem 1.1rem;
+
+  border-bottom: 1px solid #eef1f5;
+
+  vertical-align: middle;
+
+  color: var(--tv-text);
+
+  font-size: 0.88rem;
+}
+
+.tasks-table tbody tr {
+  transition: background 0.12s;
+}
+
+.tasks-table tbody tr:hover {
+  background: #f8fbff;
+}
+
+.tasks-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.tasks-table td strong {
+  display: block;
+
+  max-width: 320px;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+/* ============================================================
+   BOTÓN VER
+   ============================================================ */
+
+.detail-link {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  min-height: 34px;
+
+  padding: 0.4rem 0.75rem;
+
+  border: 1px solid #bfdbfe;
+
+  border-radius: 7px;
+
+  background: #eff6ff;
+
+  color: #1d4ed8;
+
+  font-size: 0.78rem;
+
+  font-weight: 700;
+
+  text-decoration: none;
+}
+
+.detail-link:hover {
+  background: #dbeafe;
+}
+
+/* ============================================================
+   FORMULARIOS
+   ============================================================ */
+
+.form-page {
+  width: 100%;
+
+  max-width: 1150px;
+
+  margin: 0 auto;
+
+  padding: 2.5rem;
+}
+
+.form-page-header {
+  margin-bottom: 1.5rem;
+}
+
+.form-page-header h1 {
+  margin: 0.4rem 0;
+
+  color: var(--tv-text);
+
+  font-size: 1.75rem;
+}
+
+.form-page-header p {
+  margin: 0;
+
+  color: var(--tv-muted);
+}
+
+.back-link {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 0.4rem;
+
+  color: var(--tv-primary);
+
+  font-size: 16px;
+
+  font-weight: 700;
+
+  text-decoration: none;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+/* ============================================================
+   TARJETA FORMULARIO
+   ============================================================ */
+
+.task-form-card {
+  padding: 1.75rem;
+
+  border: 1px solid var(--tv-border);
+
+  border-radius: var(--tv-radius);
+
+  background: var(--tv-surface);
+
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+}
+
+.task-form-card h2 {
+  margin: 0 0 1.5rem;
+
+  color: var(--tv-text);
+
+  font-size: 1.05rem;
+}
+
+.task-form-card .form-group {
+  margin-bottom: 1.25rem;
+}
+
+.task-form-card label {
+  margin-bottom: 0.45rem;
+
+  color: #344054;
+
+  font-size: 0.82rem;
+
+  font-weight: 650;
+}
+
+.task-form-card input,
+.task-form-card textarea,
+.task-form-card select {
+  border: 1px solid #d0d5dd;
+
+  border-radius: 8px;
+
+  background: white;
+}
+
+.task-form-card input:focus,
+.task-form-card textarea:focus,
+.task-form-card select:focus {
+  border-color: var(--tv-primary);
+
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.task-form-card textarea {
+  min-height: 130px;
+
+  resize: vertical;
+}
+
+/* ============================================================
+   GRID FORM
+   ============================================================ */
+
+.form-grid {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 0 1rem;
+}
+
+/* ============================================================
+   ACCIONES
+   ============================================================ */
+
+.form-actions {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: flex-end;
+
+  gap: 0.75rem;
+
+  margin-top: 1.75rem;
+
+  padding-top: 1.25rem;
+
+  border-top: 1px solid var(--tv-border);
+}
+
+/* ============================================================
+   DETALLE
+   ============================================================ */
+
+.task-detail-header {
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: space-between;
+
+  gap: 1rem;
+
+  margin-bottom: 1.5rem;
+}
+
+.task-detail-header h1 {
+  margin: 0.35rem 0 0.6rem;
+
+  color: var(--tv-text);
+
+  font-size: 1.7rem;
+}
+
+.task-detail-header>div>span {
+  color: var(--tv-muted);
+
+  font-size: 0.82rem;
+
+  font-weight: 600;
+}
+
+.detail-grid {
+  display: grid;
+
+  grid-template-columns: minmax(0, 1.7fr) minmax(300px, 0.8fr);
+
+  gap: 1.5rem;
+}
+
+/* ============================================================
+   CANCELAR
+   ============================================================ */
+
+.danger-button {
+  min-height: 42px;
+
+  padding: 0.6rem 1rem;
+
+  border: 1px solid #fecaca;
+
+  border-radius: 8px;
+
+  background: #fff;
+
+  color: var(--tv-danger);
+
+  font-size: 0.85rem;
+
+  font-weight: 650;
+}
+
+.danger-button:hover {
+  background: #fef2f2;
+}
+
+/* ============================================================
+   HISTORIAL
+   ============================================================ */
+
+.history-list {
+  display: flex;
+
+  flex-direction: column;
+}
+
+.history-item {
+  position: relative;
+
+  padding: 0 0 1.4rem 1.3rem;
+
+  border-left: 2px solid #e4e7ec;
+}
+
+.history-item:last-child {
+  padding-bottom: 0;
+}
+
+.history-item::before {
+  content: "";
+
+  position: absolute;
+
+  top: 3px;
+
+  left: -6px;
+
+  width: 10px;
+
+  height: 10px;
+
+  border-radius: 50%;
+
+  background: var(--tv-primary);
+
+  box-shadow: 0 0 0 4px #eff6ff;
+}
+
+.history-item strong {
+  display: block;
+
+  color: var(--tv-text);
+
+  font-size: 0.85rem;
+}
+
+.history-item small {
+  display: block;
+
+  margin-top: 0.2rem;
+
+  color: #98a2b3;
+
+  font-size: 0.72rem;
+}
+
+.history-item p {
+  margin: 0.45rem 0 0;
+
+  color: var(--tv-muted);
+
+  font-size: 0.82rem;
+
+  line-height: 1.45;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 1050px) {
+  .filters-panel {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .filter-search {
+    grid-column: 1 / -1;
+  }
+
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .form-page {
+    padding: 1rem;
+  }
+
+  .form-grid,
+  .filters-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-search {
+    grid-column: auto;
+  }
+
+  .task-detail-header {
+    flex-direction: column;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .form-actions>* {
+    width: 100%;
+  }
+}
+
+/* ============================================================
+   TASKVOICE
+   REDISEÑO VISUAL - LISTADO DE TAREAS
+   ------------------------------------------------------------
+   SOLO PRESENTACIÓN.
+   No modifica comportamiento ni JavaScript.
+   ============================================================ */
+
+/* ============================================================
+   ÁREA GENERAL
+   ============================================================ */
+
+.dashboard-content {
+  padding-top: 2rem;
+}
+
+/* ============================================================
+   PANEL DE FILTROS
+   ============================================================ */
+
+.filters-panel {
+  display: grid;
+  grid-template-columns:
+    minmax(280px, 2.2fr) minmax(150px, 1fr) minmax(150px, 1fr) minmax(180px, 1.2fr) auto;
+
+  align-items: end;
+  gap: 16px;
+
+  margin-bottom: 24px;
+  padding: 20px;
+
+  background: #ffffff;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.03),
+    0 4px 14px rgba(15, 23, 42, 0.025);
+}
+
+/* ============================================================
+   CAMPOS DEL FILTRO
+   ============================================================ */
+
+.filters-panel>div {
+  min-width: 0;
+}
+
+.filters-panel label {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #475569;
+
+  font-size: 12px;
+  line-height: 1.2;
+
+  font-weight: 700;
+
+  letter-spacing: 0.03em;
+
+  text-transform: uppercase;
+}
+
+.filters-panel input,
+.filters-panel select {
+  width: 100%;
+  height: 44px;
+
+  padding: 0 13px;
+
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+
+  background: #ffffff;
+
+  color: #0f172a;
+
+  font-size: 14px;
+
+  outline: none;
+
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.filters-panel input::placeholder {
+  color: #94a3b8;
+}
+
+.filters-panel input:hover,
+.filters-panel select:hover {
+  border-color: #94a3b8;
+}
+
+.filters-panel input:focus,
+.filters-panel select:focus {
+  border-color: #2563eb;
+
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.11);
+}
+
+/* ============================================================
+   BUSCADOR
+   ============================================================ */
+
+.filter-search {
+  position: relative;
+}
+
+.filter-search input {
+  padding-left: 40px;
+}
+
+/* Lupa creada solamente con CSS */
+
+.filter-search::after {
+  content: "";
+
+  position: absolute;
+
+  left: 15px;
+  bottom: 14px;
+
+  width: 12px;
+  height: 12px;
+
+  border: 2px solid #64748b;
+  border-radius: 50%;
+
+  pointer-events: none;
+}
+
+.filter-search::before {
+  content: "";
+
+  position: absolute;
+
+  left: 27px;
+  bottom: 12px;
+
+  width: 7px;
+  height: 2px;
+
+  background: #64748b;
+
+  transform: rotate(45deg);
+
+  border-radius: 2px;
+
+  pointer-events: none;
+}
+
+/* ============================================================
+   BOTÓN LIMPIAR
+   ============================================================ */
+
+.filters-panel .secondary-button {
+  height: 44px;
+
+  padding: 0 17px;
+
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+
+  background: #ffffff;
+
+  color: #334155;
+
+  font-size: 13px;
+  font-weight: 650;
+
+  white-space: nowrap;
+
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.filters-panel .secondary-button:hover {
+  border-color: #94a3b8;
+
+  background: #f8fafc;
+
+  color: #0f172a;
+}
+
+/* ============================================================
+   PANEL LISTADO
+   ============================================================ */
+
+.dashboard-panel {
+  overflow: hidden;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.03),
+    0 4px 14px rgba(15, 23, 42, 0.02);
+}
+
+/* ============================================================
+   ENCABEZADO DEL LISTADO
+   ============================================================ */
+
+.dashboard-panel .panel-header {
+  min-height: 82px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 18px 22px;
+
+  border-bottom: 1px solid #e2e8f0;
+
+  background: #ffffff;
+}
+
+.dashboard-panel .panel-header h2 {
+  margin: 0;
+
+  color: #0f172a;
+
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.dashboard-panel .panel-header p {
+  margin: 5px 0 0;
+
+  color: #64748b;
+
+  font-size: 13px;
+}
+
+/* ============================================================
+   TABLA
+   ============================================================ */
+
+.table-wrapper {
+  width: 100%;
+
+  overflow-x: auto;
+
+  background: #ffffff;
+}
+
+.tasks-table {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  table-layout: auto;
+}
+
+/* ============================================================
+   CABECERA TABLA
+   ============================================================ */
+
+.tasks-table thead {
+  background: #f8fafc;
+}
+
+.tasks-table th {
+  padding: 13px 20px;
+
+  border-bottom: 1px solid #e2e8f0;
+
+  color: #64748b;
+
+  font-size: 11px;
+  line-height: 1.2;
+
+  font-weight: 700;
+
+  letter-spacing: 0.045em;
+
+  text-align: left;
+  text-transform: uppercase;
+
+  white-space: nowrap;
+}
+
+/* ============================================================
+   FILAS
+   ============================================================ */
+
+.tasks-table td {
+  padding: 15px 20px;
+
+  border-bottom: 1px solid #edf2f7;
+
+  color: #334155;
+
+  font-size: 13px;
+
+  vertical-align: middle;
+}
+
+.tasks-table tbody tr {
+  transition: background-color 0.12s ease;
+}
+
+.tasks-table tbody tr:hover {
+  background: #f8fbff;
+}
+
+.tasks-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ============================================================
+   ID
+   ============================================================ */
+
+.tasks-table td:first-child {
+  color: #64748b;
+
+  font-size: 12px;
+
+  font-weight: 600;
+}
+
+/* ============================================================
+   NOMBRE DE LA TAREA
+   ============================================================ */
+
+.tasks-table td:nth-child(2) strong {
+  display: block;
+
+  max-width: 360px;
+
+  overflow: hidden;
+
+  color: #0f172a;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ============================================================
+   BADGES GENERALES
+   ============================================================ */
+
+.tasks-table .badge {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  min-height: 25px;
+
+  padding: 4px 9px;
+
+  border-radius: 999px;
+
+  font-size: 11px;
+  line-height: 1;
+
+  font-weight: 700;
+
+  white-space: nowrap;
+}
+
+/* ============================================================
+   PRIORIDADES
+   ============================================================ */
+
+.priority-baja,
+.priority-low {
+  color: #475569;
+
+  background: #f1f5f9;
+}
+
+.priority-normal {
+  color: #0369a1;
+
+  background: #e0f2fe;
+}
+
+.priority-alta,
+.priority-high {
+  color: #c2410c;
+
+  background: #ffedd5;
+}
+
+.priority-urgente,
+.priority-urgent {
+  color: #b91c1c;
+
+  background: #fee2e2;
+}
+
+/* ============================================================
+   ESTADOS
+   ============================================================ */
+
+.status-pending {
+  color: #92400e;
+
+  background: #fef3c7;
+}
+
+.status-accepted {
+  color: #4338ca;
+
+  background: #e0e7ff;
+}
+
+.status-progress {
+  color: #1d4ed8;
+
+  background: #dbeafe;
+}
+
+.status-completed {
+  color: #047857;
+
+  background: #d1fae5;
+}
+
+.status-cancelled {
+  color: #475569;
+
+  background: #f1f5f9;
+}
+
+.status-overdue {
+  color: #b91c1c;
+
+  background: #fee2e2;
+}
+
+/* ============================================================
+   BOTÓN VER
+   ============================================================ */
+
+.detail-link {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  min-width: 58px;
+  height: 34px;
+
+  padding: 0 12px;
+
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+
+  background: #eff6ff;
+
+  color: #1d4ed8;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  text-decoration: none;
+
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.1s ease;
+}
+
+.detail-link:hover {
+  border-color: #93c5fd;
+
+  background: #dbeafe;
+}
+
+.detail-link:active {
+  transform: scale(0.97);
+}
+
+/* ============================================================
+   CARGANDO
+   ============================================================ */
+
+.tasks-loading {
+  padding: 46px 20px;
+
+  color: #64748b;
+
+  font-size: 14px;
+
+  text-align: center;
+}
+
+/* ============================================================
+   SIN RESULTADOS
+   ============================================================ */
+
+.empty-state {
+  padding: 55px 20px;
+
+  text-align: center;
+}
+
+.empty-state strong {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #0f172a;
+
+  font-size: 15px;
+}
+
+.empty-state p {
+  margin: 0;
+
+  color: #64748b;
+
+  font-size: 13px;
+}
+
+/* ============================================================
+   MENSAJE DE OPERACIÓN EXITOSA
+   ============================================================ */
+
+.page-message {
+  position: relative;
+
+  margin-bottom: 20px;
+
+  padding: 13px 16px 13px 45px;
+
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+
+  background: #f0fdf4;
+
+  color: #166534;
+
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.page-message::before {
+  content: "✓";
+
+  position: absolute;
+
+  top: 50%;
+  left: 16px;
+
+  width: 20px;
+  height: 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transform: translateY(-50%);
+
+  border-radius: 50%;
+
+  background: #22c55e;
+
+  color: white;
+
+  font-size: 12px;
+
+  font-weight: 800;
+}
+
+/* ============================================================
+   TABLET
+   ============================================================ */
+
+@media (max-width: 1180px) {
+  .filters-panel {
+    grid-template-columns: 2fr 1fr 1fr;
+  }
+
+  .filter-search {
+    grid-column: span 1;
+  }
+}
+
+/* ============================================================
+   TABLET PEQUEÑA
+   ============================================================ */
+
+@media (max-width: 900px) {
+  .filters-panel {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .filter-search {
+    grid-column: 1 / -1;
+  }
+
+  .filters-panel .secondary-button {
+    width: 100%;
+  }
+}
+
+/* ============================================================
+   CELULAR
+   ============================================================ */
+
+@media (max-width: 620px) {
+  .dashboard-content {
+    padding: 16px 12px;
+  }
+
+  .filters-panel {
+    grid-template-columns: 1fr;
+
+    gap: 13px;
+
+    padding: 16px;
+
+    border-radius: 11px;
+  }
+
+  .filter-search {
+    grid-column: auto;
+  }
+
+  .filters-panel input,
+  .filters-panel select,
+  .filters-panel .secondary-button {
+    height: 46px;
+  }
+
+  .dashboard-panel {
+    border-radius: 11px;
+  }
+
+  .dashboard-panel .panel-header {
+    /*  min-height: auto;*/
+
+    padding: 16px;
+  }
+
+  .tasks-table th,
+  .tasks-table td {
+    padding: 13px 14px;
+  }
+}
+
+/* ============================================================
+   TASKVOICE
+   REDISEÑO VISUAL - NUEVA TAREA
+   ============================================================ */
+
+/* ============================================================
+   CONTENEDOR DE LA PÁGINA
+   ============================================================ */
+
+.form-page {
+  width: 100%;
+  max-width: 1050px;
+
+  margin: 0 auto;
+
+  padding: 32px 28px 50px;
+}
+
+/* ============================================================
+   ENCABEZADO
+   ============================================================ */
+
+.form-page-header {
+  margin-bottom: 22px;
+}
+
+.form-page-header .back-link {
+  display: inline-flex;
+
+  align-items: center;
+
+  margin-bottom: 18px;
+
+  color: #2563eb;
+
+  font-size: 13px;
+  font-weight: 650;
+
+  text-decoration: none;
+
+  transition: color 0.15s ease;
+}
+
+.form-page-header .back-link:hover {
+  color: #1d4ed8;
+
+  text-decoration: underline;
+}
+
+.form-page-header h1 {
+  margin: 0 0 6px;
+
+  color: #0f172a;
+
+  font-size: 26px;
+  line-height: 1.25;
+
+  font-weight: 750;
+}
+
+.form-page-header p {
+  margin: 0;
+
+  color: #64748b;
+
+  font-size: 14px;
+}
+
+/* ============================================================
+   TARJETA PRINCIPAL
+   Sólo afecta al formulario Nueva tarea
+   ============================================================ */
+
+#taskForm.task-form-card {
+  position: relative;
+
+  padding: 28px;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.03),
+    0 5px 18px rgba(15, 23, 42, 0.025);
+}
+
+/* ============================================================
+   GRUPOS
+   ============================================================ */
+
+#taskForm .form-group {
+  margin-bottom: 22px;
+}
+
+#taskForm .form-group label {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #334155;
+
+  font-size: 13px;
+  font-weight: 650;
+}
+
+/* ============================================================
+   INPUTS / SELECTS / TEXTAREA
+   ============================================================ */
+
+#taskForm input,
+#taskForm select,
+#taskForm textarea {
+  width: 100%;
+
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+
+  background: #ffffff;
+
+  color: #0f172a;
+
+  font-size: 14px;
+
+  outline: none;
+
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease;
+}
+
+#taskForm input,
+#taskForm select {
+  height: 46px;
+
+  padding: 0 13px;
+}
+
+#taskForm textarea {
+  min-height: 145px;
+
+  padding: 12px 13px;
+
+  line-height: 1.5;
+
+  resize: vertical;
+}
+
+#taskForm input:hover,
+#taskForm select:hover,
+#taskForm textarea:hover {
+  border-color: #94a3b8;
+}
+
+#taskForm input:focus,
+#taskForm select:focus,
+#taskForm textarea:focus {
+  border-color: #2563eb;
+
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.11);
+}
+
+/* ============================================================
+   GRID
+   Usuario | Prioridad
+   Fecha   | Hora
+   ============================================================ */
+
+#taskForm .form-grid {
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  column-gap: 20px;
+
+  row-gap: 0;
+}
+
+/* ============================================================
+   MENSAJES
+   ============================================================ */
+
+#taskForm .form-message {
+  min-height: 22px;
+
+  margin-top: 4px;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+#taskForm .form-message.error {
+  padding: 10px 12px;
+
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+
+  background: #fef2f2;
+
+  color: #b91c1c;
+}
+
+#taskForm .form-message.success {
+  padding: 10px 12px;
+
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+
+  background: #f0fdf4;
+
+  color: #166534;
+}
+
+/* ============================================================
+   ZONA DE BOTONES
+   ============================================================ */
+
+#taskForm .form-actions {
+  display: flex;
+
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 12px;
+
+  margin-top: 10px;
+
+  padding-top: 22px;
+
+  border-top: 1px solid #e2e8f0;
+}
+
+/* ============================================================
+   CANCELAR
+   ============================================================ */
+
+#taskForm .form-actions .secondary-button {
+  min-width: 110px;
+  height: 44px;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 0 18px;
+
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+
+  background: #ffffff;
+
+  color: #334155;
+
+  font-size: 13px;
+  font-weight: 650;
+
+  text-decoration: none;
+
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+#taskForm .form-actions .secondary-button:hover {
+  border-color: #94a3b8;
+
+  background: #f8fafc;
+}
+
+/* ============================================================
+   CREAR TAREA
+   ============================================================ */
+
+#taskForm .form-actions .new-task-button {
+  min-width: 140px;
+  height: 44px;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 0 20px;
+
+  border: none;
+  border-radius: 9px;
+
+  background: #2563eb;
+
+  color: #ffffff;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  box-shadow: 0 1px 2px rgba(37, 99, 235, 0.15);
+
+  transition:
+    background-color 0.15s ease,
+    transform 0.1s ease,
+    box-shadow 0.15s ease;
+}
+
+#taskForm .form-actions .new-task-button:hover {
+  background: #1d4ed8;
+
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.18);
+}
+
+#taskForm .form-actions .new-task-button:active {
+  transform: scale(0.98);
+}
+
+#taskForm .form-actions .new-task-button:disabled {
+  background: #93c5fd;
+
+  cursor: not-allowed;
+
+  box-shadow: none;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 760px) {
+  .form-page {
+    padding: 22px 16px 40px;
+  }
+
+  #taskForm.task-form-card {
+    padding: 20px;
+  }
+
+  #taskForm .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .form-page {
+    padding: 18px 12px 32px;
+  }
+
+  .form-page-header h1 {
+    font-size: 22px;
+  }
+
+  #taskForm.task-form-card {
+    padding: 17px;
+
+    border-radius: 11px;
+  }
+
+  #taskForm .form-actions {
+    flex-direction: column-reverse;
+  }
+
+  #taskForm .form-actions>* {
+    width: 100%;
+  }
+}
+
+/* ============================================================
+   TASKVOICE
+   REDISEÑO VISUAL - DETALLE DE TAREA
+   ------------------------------------------------------------
+   SOLO PRESENTACIÓN
+   ============================================================ */
+
+/* ============================================================
+   CONTENEDOR DETALLE
+   ============================================================ */
+
+.task-detail-loading {
+  padding: 40px 20px;
+
+  color: #64748b;
+
+  font-size: 14px;
+
+  text-align: center;
+}
+
+/* ============================================================
+   CABECERA DE LA TAREA
+   ============================================================ */
+
+.task-detail-header {
+  display: flex;
+
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 24px;
+
+  margin-bottom: 24px;
+  padding: 22px 24px;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.03),
+    0 4px 14px rgba(15, 23, 42, 0.025);
+}
+
+.task-detail-header>div {
+  min-width: 0;
+}
+
+.task-detail-header #taskId {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: #64748b;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  letter-spacing: 0.04em;
+
+  text-transform: uppercase;
+}
+
+.task-detail-header h1 {
+  margin: 0 0 12px;
+
+  color: #0f172a;
+
+  font-size: 25px;
+  line-height: 1.25;
+
+  font-weight: 750;
+
+  overflow-wrap: anywhere;
+}
+
+/* ============================================================
+   ESTADO + PRIORIDAD EN CABECERA
+   ============================================================ */
+
+#taskBadges {
+  display: inline-flex;
+
+  align-items: center;
+
+  min-height: 28px;
+
+  padding: 5px 11px;
+
+  border-radius: 999px;
+
+  background: #f1f5f9;
+
+  color: #475569;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  text-transform: capitalize;
+}
+
+/* ============================================================
+   BOTÓN CANCELAR TAREA
+   ============================================================ */
+
+.task-detail-header .danger-button {
+  flex: 0 0 auto;
+
+  min-height: 42px;
+
+  padding: 0 16px;
+
+  border: 1px solid #fecaca;
+  border-radius: 9px;
+
+  background: #ffffff;
+
+  color: #b91c1c;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.task-detail-header .danger-button:hover:not(:disabled) {
+  border-color: #fca5a5;
+
+  background: #fef2f2;
+
+  color: #991b1b;
+}
+
+.task-detail-header .danger-button:disabled {
+  border-color: #e2e8f0;
+
+  background: #f8fafc;
+
+  color: #94a3b8;
+
+  cursor: not-allowed;
+}
+
+/* ============================================================
+   GRID PRINCIPAL
+   ============================================================ */
+
+.detail-grid {
+  display: grid;
+
+  grid-template-columns: minmax(0, 1.65fr) minmax(300px, 0.75fr);
+
+  gap: 22px;
+
+  align-items: start;
+}
+
+/* ============================================================
+   TARJETAS DEL DETALLE
+   ============================================================ */
+
+.detail-grid>.task-form-card {
+  padding: 26px;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.03),
+    0 4px 14px rgba(15, 23, 42, 0.02);
+}
+
+.detail-grid>.task-form-card h2 {
+  margin: 0 0 22px;
+
+  padding-bottom: 14px;
+
+  border-bottom: 1px solid #e2e8f0;
+
+  color: #0f172a;
+
+  font-size: 17px;
+  font-weight: 750;
+}
+
+/* ============================================================
+   FORMULARIO DE EDICIÓN
+   ============================================================ */
+
+#editForm .form-group {
+  margin-bottom: 21px;
+}
+
+#editForm .form-group label {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #334155;
+
+  font-size: 13px;
+  font-weight: 650;
+}
+
+/* ============================================================
+   CAMPOS
+   ============================================================ */
+
+#editForm input,
+#editForm select,
+#editForm textarea {
+  width: 100%;
+
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+
+  background: #ffffff;
+
+  color: #0f172a;
+
+  font-size: 14px;
+
+  outline: none;
+
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease;
+}
+
+#editForm input,
+#editForm select {
+  height: 46px;
+
+  padding: 0 13px;
+}
+
+#editForm textarea {
+  min-height: 145px;
+
+  padding: 12px 13px;
+
+  line-height: 1.5;
+
+  resize: vertical;
+}
+
+#editForm input:hover:not(:disabled),
+#editForm select:hover:not(:disabled),
+#editForm textarea:hover:not(:disabled) {
+  border-color: #94a3b8;
+}
+
+#editForm input:focus,
+#editForm select:focus,
+#editForm textarea:focus {
+  border-color: #2563eb;
+
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.11);
+}
+
+/* ============================================================
+   CAMPOS DESHABILITADOS
+   Tareas completadas/canceladas
+   ============================================================ */
+
+#editForm input:disabled,
+#editForm select:disabled,
+#editForm textarea:disabled {
+  border-color: #e2e8f0;
+
+  background: #f8fafc;
+
+  color: #64748b;
+
+  cursor: not-allowed;
+
+  opacity: 1;
+}
+
+/* ============================================================
+   GRID INTERNO
+   ============================================================ */
+
+#editForm .form-grid {
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  column-gap: 20px;
+
+  row-gap: 0;
+}
+
+/* ============================================================
+   MENSAJE
+   ============================================================ */
+
+#editForm .form-message {
+  min-height: 20px;
+
+  margin: 5px 0 14px;
+
+  color: #166534;
+
+  font-size: 13px;
+  font-weight: 650;
+}
+
+/* ============================================================
+   BOTÓN GUARDAR
+   ============================================================ */
+
+#editForm #saveButton {
+  min-width: 150px;
+  height: 44px;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 0 20px;
+
+  border: none;
+  border-radius: 9px;
+
+  background: #2563eb;
+
+  color: #ffffff;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  box-shadow: 0 1px 2px rgba(37, 99, 235, 0.16);
+
+  transition:
+    background-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.1s ease;
+}
+
+#editForm #saveButton:hover:not(:disabled) {
+  background: #1d4ed8;
+
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.18);
+}
+
+#editForm #saveButton:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+#editForm #saveButton:disabled {
+  background: #cbd5e1;
+
+  color: #64748b;
+
+  box-shadow: none;
+
+  cursor: not-allowed;
+}
+
+/* ============================================================
+   HISTORIAL
+   ============================================================ */
+
+.history-list {
+  position: relative;
+
+  display: flex;
+
+  flex-direction: column;
+
+  padding-top: 3px;
+}
+
+.history-item {
+  position: relative;
+
+  margin-left: 6px;
+
+  padding: 0 0 24px 25px;
+
+  border-left: 2px solid #e2e8f0;
+}
+
+.history-item:last-child {
+  padding-bottom: 4px;
+
+  border-left-color: transparent;
+}
+
+/* Punto de la línea de tiempo */
+
+.history-item::before {
+  content: "";
+
+  position: absolute;
+
+  top: 3px;
+  left: -7px;
+
+  width: 12px;
+  height: 12px;
+
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+
+  background: #2563eb;
+
+  box-shadow: 0 0 0 2px #bfdbfe;
+}
+
+.history-item strong {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #0f172a;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  text-transform: capitalize;
+}
+
+.history-item small {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: #94a3b8;
+
+  font-size: 11px;
+}
+
+.history-item p {
+  margin: 5px 0 0;
+
+  padding: 7px 9px;
+
+  border-radius: 7px;
+
+  background: #f8fafc;
+
+  color: #475569;
+
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+/* ============================================================
+   VOLVER A TAREAS EN DETALLE
+   ============================================================ */
+
+.form-page>.back-link {
+  display: inline-flex;
+
+  align-items: center;
+
+  margin-bottom: 20px;
+
+  color: #2563eb;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  text-decoration: none;
+}
+
+.form-page>.back-link:hover {
+  color: #1d4ed8;
+
+  text-decoration: underline;
+}
+
+/* ============================================================
+   TABLET
+   ============================================================ */
+
+@media (max-width: 1050px) {
+  .detail-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 0.65fr);
+  }
+}
+
+/* ============================================================
+   TABLET / CELULAR
+   ============================================================ */
+
+@media (max-width: 850px) {
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .task-detail-header {
+    flex-direction: column;
+  }
+
+  .task-detail-header .danger-button {
+    align-self: flex-start;
+  }
+}
+
+/* ============================================================
+   CELULAR
+   ============================================================ */
+
+@media (max-width: 620px) {
+  .task-detail-header {
+    padding: 18px;
+
+    border-radius: 11px;
+  }
+
+  .task-detail-header h1 {
+    font-size: 21px;
+  }
+
+  .detail-grid>.task-form-card {
+    padding: 18px;
+
+    border-radius: 11px;
+  }
+
+  #editForm .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  #editForm #saveButton {
+    width: 100%;
+  }
+
+  .task-detail-header .danger-button {
+    width: 100%;
+  }
+}
+
+/* ============================================================
+   TASKVOICE
+   NUEVA TAREA - MULTI TÉCNICO / CATÁLOGOS
+   ============================================================ */
+
+/* ============================================================
+   SEPARACIÓN DE BLOQUES
+   ============================================================ */
+
+#taskForm .task-secondary-fields {
+  margin-top: 4px;
+}
+
+#taskForm .task-time-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+#taskForm .task-time-grid>.form-group {
+  grid-column: 1 / 2;
+}
+
+/* ============================================================
+   FIELDSET TÉCNICOS
+   ============================================================ */
+
+#taskForm .technicians-fieldset {
+  min-width: 0;
+
+  margin: 2px 0 24px;
+
+  padding: 0;
+
+  border: none;
+}
+
+#taskForm .technicians-fieldset legend {
+  margin-bottom: 5px;
+
+  padding: 0;
+
+  color: #334155;
+
+  font-size: 13px;
+
+  font-weight: 700;
+}
+
+#taskForm .technicians-help {
+  margin: 0 0 10px;
+
+  color: #64748b;
+
+  font-size: 12px;
+
+  line-height: 1.45;
+}
+
+/* ============================================================
+   LISTA DE TÉCNICOS
+   ============================================================ */
+
+#taskForm .technicians-list {
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 9px;
+
+  max-height: 260px;
+
+  padding: 10px;
+
+  overflow-y: auto;
+
+  border: 1px solid #cbd5e1;
+
+  border-radius: 10px;
+
+  background: #f8fafc;
+}
+
+/* ============================================================
+   TÉCNICO
+   ============================================================ */
+
+#taskForm .technician-option {
+  min-width: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 11px;
+
+  min-height: 58px;
+
+  padding: 9px 12px;
+
+  border: 1px solid #e2e8f0;
+
+  border-radius: 9px;
+
+  background: #ffffff;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+#taskForm .technician-option:hover {
+  border-color: #93c5fd;
+
+  background: #f8fbff;
+}
+
+#taskForm .technician-option:has(input:checked) {
+  border-color: #60a5fa;
+
+  background: #eff6ff;
+
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.08);
+}
+
+/* ============================================================
+   CHECKBOX
+   ============================================================ */
+
+#taskForm .technician-option input {
+  width: 18px;
+  height: 18px;
+
+  flex: 0 0 18px;
+
+  margin: 0;
+
+  accent-color: #2563eb;
+
+  cursor: pointer;
+}
+
+/* ============================================================
+   DATOS DEL TÉCNICO
+   ============================================================ */
+
+#taskForm .technician-data {
+  min-width: 0;
+
+  display: block;
+}
+
+#taskForm .technician-data strong {
+  display: block;
+
+  overflow: hidden;
+
+  color: #0f172a;
+
+  font-size: 13px;
+
+  font-weight: 700;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+#taskForm .technician-data small {
+  display: block;
+
+  margin-top: 3px;
+
+  overflow: hidden;
+
+  color: #64748b;
+
+  font-size: 11px;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+/* ============================================================
+   RESUMEN
+   ============================================================ */
+
+#taskForm .technicians-summary {
+  margin-top: 8px;
+
+  color: #64748b;
+
+  font-size: 12px;
+
+  font-weight: 600;
+}
+
+#taskForm .technicians-summary.has-selection {
+  color: #1d4ed8;
+}
+
+/* ============================================================
+   ESTADOS DE CARGA
+   ============================================================ */
+
+#taskForm .technicians-loading,
+#taskForm .technicians-empty {
+  grid-column: 1 / -1;
+
+  padding: 20px;
+
+  color: #64748b;
+
+  font-size: 13px;
+
+  text-align: center;
+}
+
+/* ============================================================
+   TABLET
+   ============================================================ */
+
+@media (max-width: 760px) {
+  #taskForm .technicians-list {
+    grid-template-columns: 1fr;
+  }
+
+  #taskForm .task-time-grid {
+    grid-template-columns: 1fr;
+  }
+
+  #taskForm .task-time-grid>.form-group {
+    grid-column: auto;
+  }
+}
+
+/* ============================================================
+   TASKVOICE
+   LISTADO MULTI-TÉCNICO
+   ============================================================ */
+
+.tasks-table .task-technicians {
+  min-width: 180px;
+
+  max-width: 260px;
+
+  color: #334155;
+
+  font-weight: 600;
+
+  line-height: 1.45;
+}
+
+.tasks-table .task-ticket {
+  min-width: 100px;
+
+  color: #475569;
+
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+
+  font-size: 12px;
+
+  font-weight: 600;
+}
+
+.tasks-table td:nth-child(3) {
+  min-width: 120px;
+}
+
+@media (max-width: 760px) {
+  .tasks-table .task-technicians {
+    min-width: 170px;
+  }
+}
+
+/* ============================================================
+   FILTROS - CON LUGAR
+   ============================================================ */
+
+.filters-panel {
+  grid-template-columns:
+    minmax(240px, 2fr) minmax(150px, 1fr) minmax(150px, 1fr) minmax(150px, 1fr) minmax(180px, 1.2fr) auto;
+}
+
+/* ============================================================
+   TASKVOICE
+   TAREAS - CANVAS ADMINISTRATIVO AMPLIO
+   ============================================================ */
+
+/* Aprovechar todo el espacio disponible dentro del Admin */
+
+.admin-body .admin-main .tasks-page-content {
+  width: 100%;
+
+  max-width: none;
+
+  margin: 0;
+
+  padding: 28px 32px 48px;
+}
+
+/* Los paneles utilizan todo el ancho disponible */
+
+.tasks-page-content .filters-panel,
+.tasks-page-content .dashboard-panel {
+  width: 100%;
+
+  max-width: none;
+
+  margin-left: 0;
+
+  margin-right: 0;
+}
+
+/* Tabla completamente integrada al canvas */
+
+.tasks-page-content .table-wrapper {
+  width: 100%;
+}
+
+/* Pantallas grandes */
+
+@media (min-width: 1500px) {
+  .admin-body .admin-main .tasks-page-content {
+    padding-left: 36px;
+
+    padding-right: 36px;
+  }
+}
+
+/* Tablet */
+
+@media (max-width: 900px) {
+  .admin-body .admin-main .tasks-page-content {
+    padding: 22px 20px 40px;
+  }
+}
+
+/* Celular */
+
+@media (max-width: 620px) {
+  .admin-body .admin-main .tasks-page-content {
+    padding: 16px 12px 32px;
+  }
+}
+
+/* ============================================================
+   TASKVOICE
+   DETALLE - MULTI TÉCNICO
+   ============================================================ */
+
+/* ============================================================
+   FIELDSET
+   ============================================================ */
+
+#editForm .detail-technicians-fieldset {
+  min-width: 0;
+
+  margin: 4px 0 24px;
+
+  padding: 0;
+
+  border: none;
+}
+
+#editForm .detail-technicians-fieldset legend {
+  margin-bottom: 5px;
+
+  padding: 0;
+
+  color: #334155;
+
+  font-size: 13px;
+
+  font-weight: 700;
+}
+
+#editForm .detail-technicians-help {
+  margin: 0 0 10px;
+
+  color: #64748b;
+
+  font-size: 12px;
+
+  line-height: 1.45;
+}
+
+/* ============================================================
+   LISTA
+   ============================================================ */
+
+#editForm .detail-technicians-list {
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 9px;
+
+  max-height: 310px;
+
+  padding: 10px;
+
+  overflow-y: auto;
+
+  border: 1px solid #cbd5e1;
+
+  border-radius: 10px;
+
+  background: #f8fafc;
+}
+
+/* ============================================================
+   TÉCNICO
+   ============================================================ */
+
+#editForm .detail-technician-option {
+  min-width: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 11px;
+
+  min-height: 62px;
+
+  padding: 10px 12px;
+
+  border: 1px solid #e2e8f0;
+
+  border-radius: 9px;
+
+  background: #ffffff;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+#editForm .detail-technician-option:hover {
+  border-color: #93c5fd;
+
+  background: #f8fbff;
+}
+
+#editForm .detail-technician-option:has(input:checked) {
+  border-color: #60a5fa;
+
+  background: #eff6ff;
+
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.08);
+}
+
+/* ============================================================
+   CHECKBOX
+   ============================================================ */
+
+#editForm .detail-technician-option input[type="checkbox"] {
+  width: 18px;
+
+  height: 18px;
+
+  flex: 0 0 18px;
+
+  margin: 0;
+
+  padding: 0;
+
+  accent-color: #2563eb;
+
+  cursor: pointer;
+}
+
+#editForm .detail-technician-option input[type="checkbox"]:disabled {
+  cursor: not-allowed;
+}
+
+/* ============================================================
+   DATOS
+   ============================================================ */
+
+#editForm .detail-technician-data {
+  min-width: 0;
+
+  flex: 1;
+}
+
+#editForm .detail-technician-top {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 8px;
+}
+
+#editForm .detail-technician-data strong {
+  min-width: 0;
+
+  overflow: hidden;
+
+  color: #0f172a;
+
+  font-size: 13px;
+
+  font-weight: 700;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+#editForm .detail-technician-data small {
+  display: block;
+
+  margin-top: 4px;
+
+  overflow: hidden;
+
+  color: #64748b;
+
+  font-size: 11px;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+/* ============================================================
+   ESTADO INDIVIDUAL
+   ============================================================ */
+
+#editForm .technician-state {
+  flex: 0 0 auto;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  min-height: 22px;
+
+  padding: 3px 7px;
+
+  border-radius: 999px;
+
+  font-size: 10px;
+
+  font-weight: 700;
+
+  white-space: nowrap;
+}
+
+#editForm .technician-state-pending {
+  background: #fef3c7;
+
+  color: #92400e;
+}
+
+#editForm .technician-state-accepted {
+  background: #e0e7ff;
+
+  color: #4338ca;
+}
+
+#editForm .technician-state-progress {
+  background: #dbeafe;
+
+  color: #1d4ed8;
+}
+
+#editForm .technician-state-completed {
+  background: #d1fae5;
+
+  color: #047857;
+}
+
+#editForm .technician-state-cancelled {
+  background: #f1f5f9;
+
+  color: #475569;
+}
+
+/* ============================================================
+   RESUMEN
+   ============================================================ */
+
+#editForm .detail-technicians-summary {
+  margin-top: 8px;
+
+  color: #64748b;
+
+  font-size: 12px;
+
+  font-weight: 600;
+}
+
+#editForm .detail-technicians-summary.has-selection {
+  color: #1d4ed8;
+}
+
+/* ============================================================
+   BLOQUEO DE TÉCNICOS
+   ============================================================ */
+
+#editForm .technicians-lock-message {
+  margin-top: 10px;
+
+  padding: 9px 11px;
+
+  border: 1px solid #fde68a;
+
+  border-radius: 8px;
+
+  background: #fffbeb;
+
+  color: #92400e;
+
+  font-size: 12px;
+
+  line-height: 1.45;
+}
+
+/* ============================================================
+   CARGANDO / VACÍO
+   ============================================================ */
+
+#editForm .detail-technicians-loading,
+#editForm .detail-technicians-empty {
+  grid-column: 1 / -1;
+
+  padding: 20px;
+
+  color: #64748b;
+
+  font-size: 13px;
+
+  text-align: center;
+}
+
+/* ============================================================
+   HORA
+   ============================================================ */
+
+#editForm .detail-time-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+#editForm .detail-time-grid .form-group {
+  grid-column: 1 / 2;
+}
+
+/* ============================================================
+   MENSAJE ERROR
+   ============================================================ */
+
+#editForm .form-message.error {
+  padding: 10px 12px;
+
+  border: 1px solid #fecaca;
+
+  border-radius: 8px;
+
+  background: #fef2f2;
+
+  color: #b91c1c;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 760px) {
+  #editForm .detail-technicians-list {
+    grid-template-columns: 1fr;
+  }
+
+  #editForm .detail-time-grid {
+    grid-template-columns: 1fr;
+  }
+
+  #editForm .detail-time-grid .form-group {
+    grid-column: auto;
+  }
+}
+
+/* ============================================================
+   ADMIN - EJECUCIONES / TRABAJO REALIZADO
+   ============================================================ */
+
+.task-executions-card {
+  margin-top: 22px;
+}
+
+.task-executions-header {
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: space-between;
+
+  gap: 20px;
+
+  margin-bottom: 18px;
+}
+
+.task-executions-header h2 {
+  margin: 0;
+}
+
+.task-executions-header p {
+  margin: 5px 0 0;
+
+  color: #64748b;
+
+  font-size: 12px;
+}
+
+.task-executions-count {
+  flex: 0 0 auto;
+
+  padding: 5px 10px;
+
+  border-radius: 999px;
+
+  background: #eff6ff;
+
+  color: #2563eb;
+
+  font-size: 11px;
+
+  font-weight: 750;
+}
+
+.task-executions-loading,
+.task-executions-empty {
+  padding: 30px 15px;
+
+  color: #64748b;
+
+  text-align: center;
+
+  font-size: 13px;
+}
+
+/* ============================================================
+   LISTA
+   ============================================================ */
+
+.admin-executions-list {
+  display: grid;
+
+  gap: 16px;
+}
+
+/* ============================================================
+   CARD EJECUCIÓN
+   ============================================================ */
+
+.admin-execution-card {
+  padding: 20px;
+
+  border: 1px solid #e2e8f0;
+
+  border-radius: 12px;
+
+  background: #ffffff;
+}
+
+.admin-execution-header {
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: space-between;
+
+  gap: 15px;
+
+  padding-bottom: 15px;
+
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.admin-execution-technician {
+  display: flex;
+
+  flex-direction: column;
+}
+
+.admin-execution-technician strong {
+  color: #0f172a;
+
+  font-size: 14px;
+}
+
+.admin-execution-technician small {
+  margin-top: 3px;
+
+  color: #64748b;
+
+  font-size: 11px;
+}
+
+/* ============================================================
+   ESTADO
+   ============================================================ */
+
+.admin-execution-status {
+  display: inline-flex;
+
+  align-items: center;
+
+  min-height: 25px;
+
+  padding: 4px 9px;
+
+  border-radius: 999px;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  text-transform: uppercase;
+}
+
+.admin-execution-status.completed {
+  background: #d1fae5;
+
+  color: #047857;
+}
+
+.admin-execution-status.progress {
+  background: #dbeafe;
+
+  color: #1d4ed8;
+}
+
+/* ============================================================
+   SECCIONES
+   ============================================================ */
+
+.admin-execution-section,
+.admin-execution-audio {
+  margin-top: 17px;
+}
+
+.admin-execution-section-label {
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: #94a3b8;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  letter-spacing: 0.04em;
+
+  text-transform: uppercase;
+}
+
+/* ============================================================
+   TIPOS DE TRABAJO
+   ============================================================ */
+
+.admin-execution-work-types {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 7px;
+}
+
+.admin-execution-work-chip {
+  display: inline-flex;
+
+  align-items: center;
+
+  min-height: 28px;
+
+  padding: 4px 9px;
+
+  border: 1px solid #bfdbfe;
+
+  border-radius: 999px;
+
+  background: #eff6ff;
+
+  color: #1d4ed8;
+
+  font-size: 11px;
+
+  font-weight: 700;
+}
+
+/* ============================================================
+   DESCRIPCIÓN / TRANSCRIPCIÓN
+   ============================================================ */
+
+.admin-execution-description,
+.admin-execution-transcription {
+  margin: 0;
+
+  color: #334155;
+
+  font-size: 13px;
+
+  line-height: 1.6;
+
+  white-space: pre-wrap;
+}
+
+.admin-execution-transcription {
+  padding: 13px;
+
+  border-left: 3px solid #93c5fd;
+
+  border-radius: 0 8px 8px 0;
+
+  background: #f8fbff;
+}
+
+.admin-execution-muted {
+  margin: 0;
+
+  color: #94a3b8;
+
+  font-size: 12px;
+}
+
+/* ============================================================
+   AUDIO
+   ============================================================ */
+
+.admin-execution-audio-button {
+  min-height: 39px;
+
+  padding: 0 14px;
+
+  border: 1px solid #bfdbfe;
+
+  border-radius: 8px;
+
+  background: #eff6ff;
+
+  color: #1d4ed8;
+
+  font-size: 12px;
+
+  font-weight: 750;
+}
+
+.admin-execution-audio-player {
+  width: 100%;
+
+  max-width: 500px;
+}
+
+/* ============================================================
+   DATOS DE TIEMPO
+   ============================================================ */
+
+.admin-execution-meta {
+  display: grid;
+
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  gap: 10px;
+
+  margin-top: 19px;
+
+  padding-top: 15px;
+
+  border-top: 1px solid #e2e8f0;
+}
+
+.admin-execution-meta-item {
+  padding: 11px;
+
+  border-radius: 8px;
+
+  background: #f8fafc;
+}
+
+.admin-execution-meta-item span {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #94a3b8;
+
+  font-size: 9px;
+
+  font-weight: 800;
+
+  text-transform: uppercase;
+}
+
+.admin-execution-meta-item strong {
+  color: #334155;
+
+  font-size: 11px;
+}
+
+/* Rechazo individual técnico */
+
+.technician-state-rejected {
+  background: #fee2e2;
+
+  color: #b91c1c;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 700px) {
+  .task-executions-header {
+    flex-direction: column;
+  }
+
+  .admin-execution-meta {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-execution-card {
+    padding: 16px;
+  }
+}
+
+/* ============================================================
+   ADMIN - REINTENTO DE TRANSCRIPCIÓN
+   ============================================================ */
+
+.admin-execution-transcription-content {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: flex-start;
+
+  gap: 10px;
+}
+
+.admin-execution-transcription-pending {
+  margin: 0;
+
+  color: #64748b;
+
+  font-size: 12px;
+
+  line-height: 1.5;
+}
+
+.admin-execution-transcription-button {
+  min-height: 39px;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 0 14px;
+
+  border: 1px solid #bfdbfe;
+
+  border-radius: 8px;
+
+  background: #eff6ff;
+
+  color: #1d4ed8;
+
+  font-size: 12px;
+
+  font-weight: 750;
+}
+
+.admin-execution-transcription-button:hover:not(:disabled) {
+  background: #dbeafe;
+}
+
+.admin-execution-transcription-status {
+  min-height: 18px;
+
+  color: #64748b;
+
+  font-size: 11px;
+
+  font-weight: 650;
+}
+
+.admin-execution-transcription-status.error {
+  padding: 8px 10px;
+
+  border-radius: 7px;
+
+  background: #fef2f2;
+
+  color: #b91c1c;
+}
+
+/* ============================================================
+   TASKVOICE
+   ADMIN TAREAS - RESPONSIVE CELULAR
+   ============================================================ */
+
+/* Evita que el contenido obligue a ensanchar toda la página */
+
+.admin-main,
+.dashboard-content {
+  min-width: 0;
+}
+
+/* ============================================================
+   TABLET
+   ============================================================ */
+
+@media (max-width: 900px) {
+  .filters-panel {
+    width: 100%;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 14px;
+  }
+
+  .filters-panel>* {
+    min-width: 0;
+  }
+}
+
+/* ============================================================
+   CELULAR
+   ============================================================ */
+
+@media (max-width: 600px) {
+  /* --------------------------------------------------------
+       CONTENIDO
+       -------------------------------------------------------- */
+
+  .dashboard-content {
+    width: 100%;
+
+    padding-left: 12px;
+
+    padding-right: 12px;
+  }
+
+  /* --------------------------------------------------------
+       FILTROS
+       Una columna completa.
+       -------------------------------------------------------- */
+
+  .filters-panel {
+    width: 100%;
+
+    max-width: 100%;
+
+    display: grid;
+
+    grid-template-columns: minmax(0, 1fr);
+
+    gap: 14px;
+
+    padding: 16px;
+
+    overflow: hidden;
+  }
+
+  .filters-panel>* {
+    width: 100%;
+
+    max-width: 100%;
+
+    min-width: 0;
+  }
+
+  /* --------------------------------------------------------
+       INPUTS / SELECTS
+       -------------------------------------------------------- */
+
+  .filters-panel input,
+  .filters-panel select {
+    width: 100%;
+
+    max-width: 100%;
+
+    min-width: 0;
+  }
+
+  /* --------------------------------------------------------
+       BOTÓN LIMPIAR
+       -------------------------------------------------------- */
+
+  .filters-panel button {
+    width: 100%;
+
+    max-width: 100%;
+  }
+
+  /* --------------------------------------------------------
+       TABLA
+       La página no se ensancha.
+       Solo la tabla puede desplazarse horizontalmente.
+       -------------------------------------------------------- */
+
+  .table-wrapper {
+    width: 100%;
+
+    max-width: 100%;
+
+    overflow-x: auto;
+
+    overflow-y: hidden;
+
+    /*webkit-overflow-scrolling: touch;*/
+  }
+
+  .table-wrapper table {
+    min-width: 900px;
+  }
+}
+
+/* ============================================================
+   TASKVOICE
+   EVIDENCIA FOTOGRÁFICA - DETALLE ADMIN
+   ============================================================ */
+
+.admin-execution-photos-content {
+  margin-top: 2px;
+}
+
+.admin-execution-photos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  max-width: 720px;
+}
+
+.admin-execution-photo {
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+  aspect-ratio: 4 / 3;
+  border: 1px solid #dbe3ee;
+  border-radius: 10px;
+  background: #f8fafc;
+  text-decoration: none;
+}
+
+.admin-execution-photo img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  transition: transform 0.18s ease;
+}
+
+.admin-execution-photo:hover img {
+  transform: scale(1.025);
+}
+
+.admin-execution-photo span {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  min-height: 25px;
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 7px;
+  background: rgba(15, 23, 42, 0.82);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.admin-execution-photo.is-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-style: dashed;
+  cursor: default;
+}
+
+.admin-execution-photo.is-error img {
+  display: none;
+}
+
+.admin-execution-photo.is-error span {
+  position: static;
+  background: transparent;
+  color: #94a3b8;
+}
+
+.admin-execution-photo-error {
+  color: #b91c1c;
+}
+
+@media (max-width: 760px) {
+  .admin-execution-photos-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 460px) {
+  .admin-execution-photos-grid {
+    grid-template-columns: 1fr;
+  }
+}

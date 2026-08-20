@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="TaskVoice - Sistema de gestión y seguimiento de tareas" />
+  <link rel="manifest" href="/manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="AB TaskVoice">
+  <link rel="apple-touch-icon" href="img/icon-192.png">
+  <title>AB TaskVoice | Iniciar sesión</title>
+  <link rel="icon" href="img/icon-512.png" sizes="any">
+  <link rel="stylesheet" href="./css/base.css" />
+  <link rel="stylesheet" href="./css/login.css" />
+</head>
+<body class="login-page">
+  <main class="login-container">
+    <section class="login-card">
+      <div class="login-brand">
+        <div class="brand-icon">TV</div>
+        <h1>AB TaskVoice</h1>
+        <p>Gestión y seguimiento de tareas</p>
+      </div>
+      <form id="loginForm" class="login-form">
+        <div class="form-group">
+          <label for="email"> Correo electrónico </label>
+          <input type="email" id="email" name="email" autocomplete="username" placeholder="usuario@empresa.com" required />
+        </div>
+        <div class="form-group">
+          <label for="password"> Contraseña </label>
+          <div class="password-wrapper">
+            <input type="password" id="password" name="password" autocomplete="current-password" placeholder="Ingresá tu contraseña" required />
+            <button type="button" id="togglePassword" class="password-toggle" aria-label="Mostrar contraseña">Ver</button>
+          </div>
+        </div>
+        <div id="loginMessage" class="form-message" aria-live="polite"></div>
+        <button type="submit" id="loginButton" class="btn btn-primary">Ingresar</button>
+      </form>
+      <footer class="login-footer">
+        <p>AB TaskVoice</p>
+        <small> Sistema de gestión de tareas </small>
+        <small> Diseño : Fernando J. Cherbavaz </small>
+      </footer>
+    </section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="./js/pages/login-v3.js"></script>
+</body>
+</html>

@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskVoice - Backend Test</title>
+    
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        h1 {
+            margin-bottom: 5px;
+        }
+
+        .box {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        input,
+        textarea,
+        button {
+            box-sizing: border-box;
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        pre {
+            background: #111;
+            color: #eee;
+            padding: 15px;
+            overflow: auto;
+            min-height: 100px;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<h1>TaskVoice</h1>
+
+<p>
+    Prueba completa del backend
+</p>
+
+
+<!-- ====================================================== -->
+<!-- CONFIGURACIÓN -->
+<!-- ====================================================== -->
+
+<div class="box">
+
+    <h2>1. Configuración Supabase</h2>
+
+    <input
+        id="supabaseUrl"
+        placeholder="https://zcslynhqyleicpqcjgzk.supabase.co"
+    >
+
+    <input
+        id="supabaseKey"
+        placeholder="sb_publishable_F8JxOeebrBESip8LC6CjVA_LR7dlntZ"
+    >
+
+    <button onclick="conectarSupabase()">
+        Conectar
+    </button>
+
+</div>
+
+
+
+<!-- ====================================================== -->
+<!-- LOGIN -->
+<!-- ====================================================== -->
+
+<div class="box">
+
+    <h2>2. Login</h2>
+
+    <input
+        id="email"
+        type="email"
+        placeholder="Email"
+    >
+
+    <input
+        id="password"
+        type="password"
+        placeholder="Contraseña"
+    >
+
+    <div class="row">
+
+        <button onclick="login()">
+            Login
+        </button>
+
+        <button onclick="logout()">
+            Logout
+        </button>
+
+    </div>
+
+    <button onclick="verPerfil()">
+        Ver mi perfil
+    </button>
+
+</div>
+
+
+
+<!-- ====================================================== -->
+<!-- USUARIOS -->
+<!-- ====================================================== -->
+
+<div class="box">
+
+    <h2>3. Usuarios de la empresa</h2>
+
+    <button onclick="listarUsuarios()">
+        Listar usuarios
+    </button>
+
+    <p>
+        Copiá el UUID del trabajador para crear la tarea.
+    </p>
+
+</div>
+
+
+
+<!-- ====================================================== -->
+<!-- CREAR TAREA -->
+<!-- ====================================================== -->
+
+<div class="box">
+
+    <h2>4. Crear tarea como administrador</h2>
+
+    <input
+        id="workerId"
+        placeholder="UUID trabajador"
+    >
+
+    <input
+        id="titulo"
+        value="Prueba TaskVoice"
+    >
+
+    <textarea id="descripcion">Realizar prueba completa del sistema.</textarea>
+
+    <button onclick="crearTarea()">
+        Crear tarea
+    </button>
+
+</div>
+
+
+
+<!-- ====================================================== -->
+<!-- TRABAJADOR -->
+<!-- ====================================================== -->
+
+<div class="box">
+
+    <h2>5. Operaciones del trabajador</h2>
+
+    <input
+        id="taskId"
+        placeholder="ID de tarea"
+    >
+
+    <button onclick="aceptarTarea()">
+        Aceptar tarea
+    </button>
+
+    <button onclick="iniciarTarea()">
+        Iniciar tarea
+    </button>
+
+    <input
+        id="executionId"
+        placeholder="ID ejecución"
+    >
+
+    <textarea id="resultado">Prueba realizada correctamente desde TaskVoice.</textarea>
+
+    <button onclick="completarTarea()">
+        Completar tarea
+    </button>
+
+</div>
+
+
+
+<!-- ====================================================== -->
+<!-- CONSULTAS -->
+<!-- ====================================================== -->
+
+<div class="box">
+
+    <h2>6. Consultas</h2>
+
+    <button onclick="listarTareas()">
+        Ver tareas
+    </button>
+
+    <button onclick="verHistorial()">
+        Ver historial
+    </button>
+
+    <button onclick="verNotificaciones()">
+        Ver notificaciones
+    </button>
+
+</div>
+
+
+
+<!-- ====================================================== -->
+<!-- PRUEBA DE SEGURIDAD -->
+<!-- ====================================================== -->
+
+<div class="box">
+
+    <h2>7. Prueba de seguridad</h2>
+
+    <p>
+        Como trabajador, este botón debe FALLAR.
+    </p>
+
+    <button onclick="intentoIlegal()">
+        Intentar completar tarea directamente
+    </button>
+
+</div>
+
+
+
+<!-- ====================================================== -->
+<!-- CONSOLA -->
+<!-- ====================================================== -->
+
+<div class="box">
+
+    <h2>Resultado</h2>
+
+    <pre id="log"></pre>
+
+</div>
+
+
+
+<!-- ====================================================== -->
+<!-- SUPABASE -->
+<!-- ====================================================== -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+</script>
+
+
+<script>
+
+let db = null;
+
+
+
+// ==========================================================
+// LOG
+// ==========================================================
+
+function log(titulo, datos = '') {
+
+    const salida =
+        document.getElementById('log');
+
+    let texto =
+        '\n\n=== ' + titulo + ' ===\n';
+
+    if (datos instanceof Error) {
+
+        texto += datos.message;
+
+    } else {
+
+        try {
+
+            texto += JSON.stringify(
+                datos,
+                null,
+                2
+            );
+
+        } catch {
+
+            texto += String(datos);
+
+        }
+
+    }
+
+    salida.textContent += texto;
+
+    // Mostrar automáticamente el resultado
+    salida.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+    });
+
+}
+
+
+
+// ==========================================================
+// CONECTAR
+// ==========================================================
+
+function conectarSupabase() {
+
+    try {
+
+        const url =
+            document.getElementById(
+                'supabaseUrl'
+            ).value.trim();
+
+        const key =
+            document.getElementById(
+                'supabaseKey'
+            ).value.trim();
+
+        if (!url || !key) {
+
+            alert(
+                'Ingresá URL y Publishable Key.'
+            );
+
+            return;
+
+        }
+
+        if (!window.supabase) {
+
+            throw new Error(
+                'La librería Supabase no se cargó correctamente.'
+            );
+
+        }
+
+        db =
+            window.supabase.createClient(
+                url,
+                key
+            );
+
+        log(
+            'CONEXIÓN OK',
+            {
+                mensaje:
+                    'Cliente Supabase inicializado correctamente.'
+            }
+        );
+
+    } catch (error) {
+
+        log(
+            'ERROR AL CONECTAR',
+            error
+        );
+
+    }
+
+}
+
+
+// ==========================================================
+// LOGIN
+// ==========================================================
+
+async function login() {
+
+    if (!db) {
+
+        alert(
+            'Primero conectá Supabase.'
+        );
+
+        return;
+
+    }
+
+
+    const email =
+        document.getElementById(
+            'email'
+        ).value.trim();
+
+
+    const password =
+        document.getElementById(
+            'password'
+        ).value;
+
+
+    const {
+        data,
+        error
+    } = await db.auth.signInWithPassword({
+
+        email,
+        password
+
+    });
+
+
+    if (error) {
+
+        log(
+            'ERROR LOGIN',
+            error
+        );
+
+        return;
+
+    }
+
+
+    log(
+        'LOGIN OK',
+        {
+            id: data.user.id,
+            email: data.user.email
+        }
+    );
+
+}
+
+
+
+// ==========================================================
+// LOGOUT
+// ==========================================================
+
+async function logout() {
+
+    const {
+        error
+    } = await db.auth.signOut();
+
+
+    if (error) {
+
+        log(
+            'ERROR LOGOUT',
+            error
+        );
+
+        return;
+
+    }
+
+
+    log(
+        'LOGOUT OK'
+    );
+
+}
+
+
+
+// ==========================================================
+// PERFIL
+// ==========================================================
+
+async function verPerfil() {
+
+    const {
+        data: userData
+    } = await db.auth.getUser();
+
+
+    if (!userData.user) {
+
+        log(
+            'No hay usuario autenticado'
+        );
+
+        return;
+
+    }
+
+
+    const {
+        data,
+        error
+    } = await db
+
+        .from('profiles')
+
+        .select('*')
+
+        .eq(
+            'id',
+            userData.user.id
+        )
+
+        .single();
+
+
+    if (error) {
+
+        log(
+            'ERROR PERFIL',
+            error
+        );
+
+        return;
+
+    }
+
+
+    log(
+        'PERFIL',
+        data
+    );
+
+}
+
+
+
+// ==========================================================
+// USUARIOS
+// ==========================================================
+
+async function listarUsuarios() {
+
+    const {
+        data,
+        error
+    } = await db
+
+        .from('profiles')
+
+        .select(
+            'id,nombre,apellido,email,rol,activo'
+        )
+
+        .order(
+            'nombre'
+        );
+
+
+    if (error) {
+
+        log(
+            'ERROR USUARIOS',
+            error
+        );
+
+        return;
+
+    }
+
+
+    log(
+        'USUARIOS',
+        data
+    );
+
+}
+
+
+
+// ==========================================================
+// CREAR TAREA
+// ==========================================================
+
+async function crearTarea() {
+
+    const workerId =
+        document.getElementById(
+            'workerId'
+        ).value.trim();
+
+
+    const titulo =
+        document.getElementById(
+            'titulo'
+        ).value.trim();
+
+
+    const descripcion =
+        document.getElementById(
+            'descripcion'
+        ).value.trim();
+
+
+    const {
+        data,
+        error
+    } = await db.rpc(
+
+        'create_task',
+
+        {
+
+            p_titulo:
+                titulo,
+
+            p_asignado_a:
+                workerId,
+
+            p_descripcion:
+                descripcion,
+
+            p_prioridad:
+                'normal',
+
+            p_fecha_limite:
+                null,
+
+            p_hora_limite:
+                null,
+
+            p_template_id:
+                null
+
+        }
+
+    );
+
+
+    if (error) {
+
+        log(
+            'ERROR CREAR TAREA',
+            error
+        );
+
+        return;
+
+    }
+
+
+    document.getElementById(
+        'taskId'
+    ).value = data;
+
+
+    log(
+        'TAREA CREADA',
+        {
+            task_id: data
+        }
+    );
+
+}
+
+
+
+// ==========================================================
+// ACEPTAR TAREA
+// ==========================================================
+
+async function aceptarTarea() {
+
+    const taskId =
+        Number(
+            document.getElementById(
+                'taskId'
+            ).value
+        );
+
+
+    const {
+        error
+    } = await db.rpc(
+
+        'accept_task',
+
+        {
+            p_task_id:
+                taskId
+        }
+
+    );
+
+
+    if (error) {
+
+        log(
+            'ERROR ACEPTAR',
+            error
+        );
+
+        return;
+
+    }
+
+
+    log(
+        'TAREA ACEPTADA'
+    );
+
+}
+
+
+
+// ==========================================================
+// INICIAR TAREA
+// ==========================================================
+
+async function iniciarTarea() {
+
+    const taskId =
+        Number(
+            document.getElementById(
+                'taskId'
+            ).value
+        );
+
+
+    const {
+        data,
+        error
+    } = await db.rpc(
+
+        'start_task',
+
+        {
+            p_task_id:
+                taskId
+        }
+
+    );
+
+
+    if (error) {
+
+        log(
+            'ERROR INICIAR',
+            error
+        );
+
+        return;
+
+    }
+
+
+    document.getElementById(
+        'executionId'
+    ).value = data;
+
+
+    log(
+        'TAREA INICIADA',
+        {
+            execution_id: data
+        }
+    );
+
+}
+
+
+
+// ==========================================================
+// COMPLETAR
+// ==========================================================
+
+async function completarTarea() {
+
+    const executionId =
+        Number(
+            document.getElementById(
+                'executionId'
+            ).value
+        );
+
+
+    const descripcion =
+        document.getElementById(
+            'resultado'
+        ).value.trim();
+
+
+    const {
+        error
+    } = await db.rpc(
+
+        'complete_task',
+
+        {
+
+            p_execution_id:
+                executionId,
+
+            p_descripcion:
+                descripcion,
+
+            p_transcripcion:
+                null,
+
+            p_audio_path:
+                null
+
+        }
+
+    );
+
+
+    if (error) {
+
+        log(
+            'ERROR COMPLETAR',
+            error
+        );
+
+        return;
+
+    }
+
+
+    log(
+        'TAREA COMPLETADA'
+    );
+
+}
+
+
+
+// ==========================================================
+// LISTAR TAREAS
+// ==========================================================
+
+async function listarTareas() {
+
+    const {
+        data,
+        error
+    } = await db
+
+        .from('tasks')
+
+        .select(
+            'id,titulo,estado,prioridad,asignado_a,created_at'
+        )
+
+        .order(
+            'created_at',
+            {
+                ascending: false
+            }
+        );
+
+
+    if (error) {
+
+        log(
+            'ERROR TAREAS',
+            error
+        );
+
+        return;
+
+    }
+
+
+    log(
+        'TAREAS',
+        data
+    );
+
+}
+
+
+
+// ==========================================================
+// HISTORIAL
+// ==========================================================
+
+async function verHistorial() {
+
+    const taskId =
+        Number(
+            document.getElementById(
+                'taskId'
+            ).value
+        );
+
+
+    const {
+        data,
+        error
+    } = await db
+
+        .from('task_history')
+
+        .select('*')
+
+        .eq(
+            'task_id',
+            taskId
+        )
+
+        .order(
+            'created_at'
+        );
+
+
+    if (error) {
+
+        log(
+            'ERROR HISTORIAL',
+            error
+        );
+
+        return;
+
+    }
+
+
+    log(
+        'HISTORIAL',
+        data
+    );
+
+}
+
+
+
+// ==========================================================
+// NOTIFICACIONES
+// ==========================================================
+
+async function verNotificaciones() {
+
+    const {
+        data,
+        error
+    } = await db
+
+        .from('notifications')
+
+        .select('*')
+
+        .order(
+            'created_at',
+            {
+                ascending: false
+            }
+        );
+
+
+    if (error) {
+
+        log(
+            'ERROR NOTIFICACIONES',
+            error
+        );
+
+        return;
+
+    }
+
+
+    log(
+        'NOTIFICACIONES',
+        data
+    );
+
+}
+
+
+
+// ==========================================================
+// PRUEBA DE SEGURIDAD
+//
+// Esto DEBE fallar para el trabajador.
+// ==========================================================
+
+async function intentoIlegal() {
+
+    const taskId =
+        Number(
+            document.getElementById(
+                'taskId'
+            ).value
+        );
+
+
+    const {
+        data,
+        error
+    } = await db
+
+        .from('tasks')
+
+        .update({
+
+            estado:
+                'completada'
+
+        })
+
+        .eq(
+            'id',
+            taskId
+        );
+
+
+    if (error) {
+
+        log(
+            'SEGURIDAD CORRECTA - OPERACIÓN BLOQUEADA',
+            {
+                mensaje:
+                    error.message
+            }
+        );
+
+        return;
+
+    }
+
+
+    log(
+        'ATENCIÓN - LA OPERACIÓN NO FUE BLOQUEADA',
+        data
+    );
+
+}
+
+</script>
+
+
+</body>
+
+</html>

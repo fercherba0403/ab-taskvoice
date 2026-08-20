@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="TaskVoice - Selección de perfil" />
+  <title>AB TaskVoice | Seleccionar perfil</title>
+  <link rel="icon" href="img/icon-512.png" sizes="any">
+  <link rel="stylesheet" href="./css/base.css" />
+  <link rel="stylesheet" href="./css/login.css" />
+  <link rel="stylesheet" href="./css/profile-selector.css" />
+</head>
+
+<body class="login-page">
+
+  <main class="login-container profile-selector-container">
+
+    <section class="login-card profile-selector-card">
+
+      <div class="login-brand">
+        <div class="brand-icon">TV</div>
+        <h1>Elegir perfil</h1>
+        <p>
+          Hola <strong id="profileUserName">...</strong>.
+          Seleccioná cómo querés ingresar.
+        </p>
+      </div>
+
+      <div id="profileSelectorLoading" class="profile-selector-loading">
+        Cargando perfiles...
+      </div>
+
+      <div id="profileSelectorContent" class="hidden">
+        <div id="profileOptions" class="profile-options"></div>
+
+        <button
+          type="button"
+          id="profileLogoutButton"
+          class="profile-logout-button"
+        >
+          Cerrar sesión
+        </button>
+      </div>
+
+      <footer class="login-footer">
+        <p>AB TaskVoice</p>
+        <small>Acceso según perfil habilitado</small>
+      </footer>
+
+    </section>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="./js/pages/profile-selector-v1.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,581 @@
+<!doctype html>
+
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AB TaskVoice | Reportes
+    </title>
+    <link rel="icon" href="img/icon-512.png" sizes="any">
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="../css/reports-v2.css">
+
+</head>
+
+<body class="admin-body">
+
+    <aside id="adminSidebar"></aside>
+
+    <div class="admin-main">
+
+        <header id="adminTopbar"></header>
+
+        <main class="reports-page">
+
+            <!-- ==================================================
+                 FILTROS
+            =================================================== -->
+
+            <section class="reports-filter-card">
+
+                <div class="reports-section-header">
+
+                    <div>
+
+                        <h2>
+                            Búsqueda operativa
+                        </h2>
+
+                        <p>
+                            Filtrá intervenciones, técnicos y trabajos realizados.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <form id="reportsFilterForm">
+
+                    <div class="reports-filters-grid">
+
+                        <!-- DESDE -->
+
+                        <div class="reports-filter-group">
+
+                            <label for="reportDateFrom">
+                                Desde
+                            </label>
+
+                            <input id="reportDateFrom" type="date">
+
+                        </div>
+
+                        <!-- HASTA -->
+
+                        <div class="reports-filter-group">
+
+                            <label for="reportDateTo">
+                                Hasta
+                            </label>
+
+                            <input id="reportDateTo" type="date">
+
+                        </div>
+
+                        <!-- TÉCNICO -->
+
+                        <div class="reports-filter-group">
+
+                            <label for="reportTechnician">
+                                Técnico
+                            </label>
+
+                            <select id="reportTechnician">
+
+                                <option value="">
+                                    Todos
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        <!-- LUGAR -->
+
+                        <div class="reports-filter-group">
+
+                            <label for="reportLocation">
+                                Lugar
+                            </label>
+
+                            <select id="reportLocation">
+
+                                <option value="">
+                                    Todos
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        <!-- TURNO -->
+
+                        <div class="reports-filter-group">
+
+                            <label for="reportShift">
+                                Turno
+                            </label>
+
+                            <select id="reportShift">
+
+                                <option value="">
+                                    Todos
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        <!-- MANTENIMIENTO -->
+
+                        <div class="reports-filter-group">
+
+                            <label for="reportMaintenance">
+                                Tipo de mantenimiento
+                            </label>
+
+                            <select id="reportMaintenance">
+
+                                <option value="">
+                                    Todos
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        <!-- TRABAJO REALIZADO -->
+
+                        <div class="reports-filter-group">
+
+                            <label for="reportWorkType">
+                                Trabajo realizado
+                            </label>
+
+                            <select id="reportWorkType">
+
+                                <option value="">
+                                    Todos
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        <!-- ESTADO TAREA -->
+
+                        <div class="reports-filter-group">
+
+                            <label for="reportTaskStatus">
+                                Estado de tarea
+                            </label>
+
+                            <select id="reportTaskStatus">
+
+                                <option value="">
+                                    Todos
+                                </option>
+
+                                <option value="pendiente">
+                                    Pendiente
+                                </option>
+
+                                <option value="aceptada">
+                                    Aceptada
+                                </option>
+
+                                <option value="en_progreso">
+                                    En progreso
+                                </option>
+
+                                <option value="completada">
+                                    Completada
+                                </option>
+
+                                <option value="cancelada">
+                                    Cancelada
+                                </option>
+
+                                <option value="vencida">
+                                    Vencida
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        <!-- ESTADO TÉCNICO -->
+
+                        <div class="reports-filter-group">
+
+                            <label for="reportTechnicianStatus">
+                                Estado del técnico
+                            </label>
+
+                            <select id="reportTechnicianStatus">
+
+                                <option value="">
+                                    Todos
+                                </option>
+
+                                <option value="pendiente">
+                                    Pendiente
+                                </option>
+
+                                <option value="aceptada">
+                                    Aceptada
+                                </option>
+
+                                <option value="en_progreso">
+                                    En progreso
+                                </option>
+
+                                <option value="completada">
+                                    Completada
+                                </option>
+
+                                <option value="rechazada">
+                                    Rechazada
+                                </option>
+
+                                <option value="cancelada">
+                                    Cancelada
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        <!-- TICKET -->
+
+                        <div class="reports-filter-group reports-ticket-filter">
+
+                            <label for="reportTicket">
+                                N° Ticket
+                            </label>
+
+                            <input id="reportTicket" type="search" maxlength="100" placeholder="Buscar ticket..."
+                                autocomplete="off">
+
+                        </div>
+
+                    </div>
+
+                    <!-- ACCIONES -->
+
+                    <div class="reports-filter-actions">
+
+                        <button id="clearReportsButton" class="reports-clear-button" type="button">
+                            Limpiar filtros
+                        </button>
+
+
+                        <button id="searchReportsButton" class="reports-search-button" type="submit">
+                            Buscar
+                        </button>
+
+                    </div>
+
+                    <div id="reportsMessage" class="reports-message" aria-live="polite"></div>
+
+                </form>
+
+            </section>
+
+            <!-- ==================================================
+                 INDICADORES
+            =================================================== -->
+
+            <section class="reports-stats">
+
+
+                <article class="report-stat-card">
+
+                    <span>
+                        Intervenciones
+                    </span>
+
+                    <strong id="reportTotal">
+                        0
+                    </strong>
+
+                </article>
+
+                <article class="report-stat-card stat-completed">
+
+                    <span>
+                        Completadas
+                    </span>
+
+                    <strong id="reportCompleted">
+                        0
+                    </strong>
+
+                </article>
+
+                <article class="report-stat-card stat-progress">
+
+                    <span>
+                        En progreso
+                    </span>
+
+                    <strong id="reportProgress">
+                        0
+                    </strong>
+
+                </article>
+
+                <article class="report-stat-card stat-participations">
+
+                    <span>
+                        Participaciones
+                    </span>
+
+                    <strong id="reportParticipations">
+                        0
+                    </strong>
+
+                </article>
+
+                <article class="report-stat-card stat-time">
+
+                    <span>
+                        Tiempo promedio
+                    </span>
+
+                    <strong id="reportAverageTime">
+                        -
+                    </strong>
+
+                </article>
+
+            </section>
+
+            <!-- ==================================================
+     ANÁLISIS OPERATIVO
+=================================================== -->
+
+            <section class="reports-analysis">
+
+                <div class="reports-analysis-header">
+
+                    <div>
+
+                        <h2>
+                            Análisis operativo
+                        </h2>
+
+                        <p>
+                            Las intervenciones se cuentan una sola vez; el ranking de técnicos refleja participaciones.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="reports-analysis-grid">
+
+                    <!-- LUGARES -->
+
+                    <article class="reports-analysis-card">
+
+                        <div class="reports-analysis-card-header">
+
+                            <span class="reports-analysis-kicker">
+                                Actividad
+                            </span>
+
+                            <h3>
+                                Lugares con más intervenciones
+                            </h3>
+
+                        </div>
+
+                        <div id="reportLocationsRanking" class="reports-ranking"></div>
+
+                    </article>
+
+                    <!-- TÉCNICOS -->
+
+                    <article class="reports-analysis-card">
+
+                        <div class="reports-analysis-card-header">
+
+                            <span class="reports-analysis-kicker">
+                                Personal
+                            </span>
+
+                            <h3>
+                                Técnicos con más participaciones completadas
+                            </h3>
+
+                        </div>
+
+                        <div id="reportTechniciansRanking" class="reports-ranking"></div>
+
+                    </article>
+
+                    <!-- TRABAJOS -->
+
+                    <article class="reports-analysis-card">
+
+                        <div class="reports-analysis-card-header">
+
+                            <span class="reports-analysis-kicker">
+                                Intervenciones
+                            </span>
+
+                            <h3>
+                                Trabajos más realizados
+                            </h3>
+
+                        </div>
+
+                        <div id="reportWorkTypesRanking" class="reports-ranking"></div>
+
+                    </article>
+
+                    <!-- MANTENIMIENTO -->
+
+                    <article class="reports-analysis-card">
+
+                        <div class="reports-analysis-card-header">
+
+                            <span class="reports-analysis-kicker">
+                                Mantenimiento
+                            </span>
+
+                            <h3>
+                                Distribución por tipo
+                            </h3>
+
+                        </div>
+
+                        <div id="reportMaintenanceRanking" class="reports-ranking"></div>
+
+                    </article>
+
+                </div>
+
+            </section>
+
+            <!-- ==================================================
+                 RESULTADOS
+            =================================================== -->
+
+            <section class="reports-results-card">
+
+                <div class="reports-results-header">
+
+                    <div>
+
+                        <h2>
+                            Resultados
+                        </h2>
+
+                        <p id="reportsResultCount">
+                            Cargando...
+                        </p>
+
+                    </div>
+
+                    <div class="reports-export-actions">
+
+                        <button id="exportCsvButton" class="reports-export-button" type="button" disabled>
+                            ↓ Exportar CSV
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <div id="reportsLoading" class="reports-loading">
+                    Cargando reporte...
+                </div>
+
+                <div id="reportsEmpty" class="reports-empty hidden">
+
+                    <strong>
+                        No se encontraron resultados
+                    </strong>
+
+                    <p>
+                        Probá modificando los filtros de búsqueda.
+                    </p>
+
+                </div>
+
+                <div id="reportsTableWrapper" class="reports-table-wrapper hidden">
+
+                    <table class="reports-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Fecha
+                                </th>
+
+                                <th>
+                                    Tarea
+                                </th>
+
+                                <th>
+                                    Ticket
+                                </th>
+
+                                <th>
+                                    Técnico
+                                </th>
+
+                                <th>
+                                    Lugar
+                                </th>
+
+                                <th>
+                                    Mantenimiento
+                                </th>
+
+                                <th>
+                                    Trabajo realizado
+                                </th>
+
+                                <th>
+                                    Estado
+                                </th>
+
+                                <th>
+                                    Tiempo
+                                </th>
+
+                                <th></th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="reportsTableBody"></tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script type="module" src="../js/pages/admin-reports-v4.js"></script>
+
+</body>
+
+</html>

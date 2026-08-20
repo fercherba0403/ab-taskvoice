@@ -1,0 +1,593 @@
+<!doctype html>
+
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>AB TaskVoice | Reportes</title>
+
+    <link rel="icon" href="img/icon-512.png" sizes="any">
+
+    <link
+        rel="stylesheet"
+        href="../css/base.css"
+    >
+
+
+    <link
+        rel="stylesheet"
+        href="../css/worker.css"
+    >
+
+
+    <link
+        rel="stylesheet"
+        href="../css/technician-layout-v1.css"
+    >
+
+
+    <link
+        rel="stylesheet"
+        href="../css/technician-reports-v2.css"
+    >
+
+</head>
+
+
+<body
+    class="worker-body"
+    data-technician-page="reports"
+>
+
+
+    <aside id="technicianSidebar"></aside>
+
+
+    <div class="technician-page-shell">
+
+
+        <header class="worker-topbar">
+
+            <div class="worker-brand">
+
+                <div class="worker-brand-logo">
+                    AB
+                </div>
+
+
+                <div class="worker-brand-text">
+
+                    <strong>
+                        AB TaskVoice
+                    </strong>
+
+                    <small>
+                        Panel operativo
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <div class="worker-user-area">
+
+                <div class="worker-user">
+
+                    <strong id="topbarUserName">
+                        ...
+                    </strong>
+
+                    <span class="worker-role">
+                        Técnico
+                    </span>
+
+                </div>
+
+
+                <button
+                    id="logoutButton"
+                    class="worker-logout"
+                    type="button"
+                >
+                    Cerrar sesión
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <main class="worker-main technician-reports-main">
+
+
+            <section class="technician-reports-hero">
+
+                <span class="worker-eyebrow">
+                    Reportes
+                </span>
+
+                <h1>
+                    Búsqueda Operativa
+                </h1>
+
+                <p>
+                    Consultá las tareas e intervenciones de todos los técnicos de tu empresa.
+                </p>
+
+            </section>
+
+
+            <section class="technician-reports-card">
+
+                <div class="technician-reports-card-header">
+
+                    <div>
+
+                        <h2>
+                            Filtros
+                        </h2>
+
+                        <p>
+                            Combiná uno o varios criterios para consultar la actividad del equipo.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <form
+                    id="technicianReportsForm"
+                    class="technician-reports-form"
+                >
+
+
+                    <div class="technician-reports-grid">
+
+
+                        <div class="technician-reports-field">
+
+                            <label for="reportDateFrom">
+                                Desde
+                            </label>
+
+                            <input
+                                id="reportDateFrom"
+                                type="date"
+                            >
+
+                        </div>
+
+
+                        <div class="technician-reports-field">
+
+                            <label for="reportDateTo">
+                                Hasta
+                            </label>
+
+                            <input
+                                id="reportDateTo"
+                                type="date"
+                            >
+
+                        </div>
+
+
+                        <div class="technician-reports-field">
+
+                            <label for="reportTechnician">
+                                Técnico
+                            </label>
+
+                            <select id="reportTechnician">
+
+                                <option value="">
+                                    Todos los técnicos
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="technician-reports-field">
+
+                            <label for="reportTicket">
+                                N° Ticket
+                            </label>
+
+                            <input
+                                id="reportTicket"
+                                type="text"
+                                maxlength="100"
+                                autocomplete="off"
+                                placeholder="Ej.: 89898"
+                            >
+
+                        </div>
+
+
+                        <div class="technician-reports-field">
+
+                            <label for="reportLocation">
+                                Lugar
+                            </label>
+
+                            <select id="reportLocation">
+
+                                <option value="">
+                                    Todos
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="technician-reports-field">
+
+                            <label for="reportShift">
+                                Turno
+                            </label>
+
+                            <select id="reportShift">
+
+                                <option value="">
+                                    Todos
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="technician-reports-field">
+
+                            <label for="reportMaintenance">
+                                Tipo de mantenimiento
+                            </label>
+
+                            <select id="reportMaintenance">
+
+                                <option value="">
+                                    Todos
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="technician-reports-field">
+
+                            <label for="reportWorkType">
+                                Trabajo realizado
+                            </label>
+
+                            <select id="reportWorkType">
+
+                                <option value="">
+                                    Todos
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="technician-reports-field">
+
+                            <label for="reportTaskStatus">
+                                Estado de tarea
+                            </label>
+
+                            <select id="reportTaskStatus">
+
+                                <option value="">
+                                    Todos
+                                </option>
+
+                                <option value="pendiente">
+                                    Pendiente
+                                </option>
+
+                                <option value="aceptada">
+                                    Aceptada
+                                </option>
+
+                                <option value="en_progreso">
+                                    En progreso
+                                </option>
+
+                                <option value="completada">
+                                    Completada
+                                </option>
+
+                                <option value="cancelada">
+                                    Cancelada
+                                </option>
+
+                                <option value="vencida">
+                                    Vencida
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="technician-reports-field">
+
+                            <label for="reportTechnicianStatus">
+                                Estado del técnico
+                            </label>
+
+                            <select id="reportTechnicianStatus">
+
+                                <option value="">
+                                    Todos
+                                </option>
+
+                                <option value="pendiente">
+                                    Pendiente
+                                </option>
+
+                                <option value="aceptada">
+                                    Aceptada
+                                </option>
+
+                                <option value="en_progreso">
+                                    En progreso
+                                </option>
+
+                                <option value="completada">
+                                    Completada
+                                </option>
+
+                                <option value="rechazada">
+                                    Rechazada
+                                </option>
+
+                                <option value="cancelada">
+                                    Cancelada
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <div
+                        id="reportsMessage"
+                        class="technician-reports-message"
+                        aria-live="polite"
+                    ></div>
+
+
+                    <div class="technician-reports-actions">
+
+                        <button
+                            id="clearReportsButton"
+                            class="technician-reports-button secondary"
+                            type="button"
+                        >
+                            Limpiar
+                        </button>
+
+
+                        <button
+                            id="searchReportsButton"
+                            class="technician-reports-button primary"
+                            type="submit"
+                        >
+                            Buscar
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </section>
+
+
+            <section class="technician-results-card">
+
+
+                <div class="technician-results-header">
+
+                    <div>
+
+                        <h2>
+                            Resultados
+                        </h2>
+
+                        <p id="reportsResultCount">
+                            0 resultados
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        id="exportReportsButton"
+                        class="technician-reports-export"
+                        type="button"
+                        disabled
+                    >
+                        Exportar CSV
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="reportsLoading"
+                    class="worker-loading"
+                >
+                    Buscando intervenciones...
+                </div>
+
+
+                <div
+                    id="reportsEmpty"
+                    class="technician-reports-empty hidden"
+                >
+
+                    <strong>
+                        No hay registros para mostrar
+                    </strong>
+
+                    <p>
+                        Probá cambiando los filtros de búsqueda.
+                    </p>
+
+                </div>
+
+
+                <div
+                    id="reportsTableWrapper"
+                    class="technician-reports-table-wrapper hidden"
+                >
+
+                    <table class="technician-reports-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Fecha
+                                </th>
+
+                                <th>
+                                    Técnico
+                                </th>
+
+                                <th>
+                                    Tarea
+                                </th>
+
+                                <th>
+                                    Ticket
+                                </th>
+
+                                <th>
+                                    Lugar
+                                </th>
+
+                                <th>
+                                    Turno
+                                </th>
+
+                                <th>
+                                    Mantenimiento
+                                </th>
+
+                                <th>
+                                    Trabajo realizado
+                                </th>
+
+                                <th>
+                                    Estado
+                                </th>
+
+                                <th>
+                                    Duración
+                                </th>
+
+                                <th>
+                                    Acción
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="reportsTableBody"></tbody>
+
+                    </table>
+
+                </div>
+
+
+                <p class="technician-reports-security-note">
+                    Esta búsqueda está limitada por servidor a los Técnicos de tu misma empresa.
+                </p>
+
+
+            </section>
+
+
+        
+            <dialog
+                id="reportDetailDialog"
+                class="technician-report-dialog"
+            >
+
+                <div class="technician-report-dialog-card">
+
+                    <div class="technician-report-dialog-topbar">
+
+                        <strong>
+                            Registro operativo
+                        </strong>
+
+                        <button
+                            id="reportDetailClose"
+                            class="technician-report-dialog-close"
+                            type="button"
+                            aria-label="Cerrar"
+                        >
+                            ×
+                        </button>
+
+                    </div>
+
+
+                    <div
+                        id="reportDetailBody"
+                        class="technician-report-detail-body"
+                    ></div>
+
+                </div>
+
+            </dialog>
+
+        </main>
+
+
+    </div>
+
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
+
+
+    <script
+        type="module"
+        src="../js/components/technician-layout-v1.js"
+    ></script>
+
+
+    <script
+        type="module"
+        src="../js/pages/technician-reports-v2.js"
+    ></script>
+
+
+</body>
+
+</html>

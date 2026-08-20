@@ -1,0 +1,761 @@
+<!doctype html>
+
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AB TaskVoice | Tarea
+    </title>
+    <link rel="icon" href="img/icon-512.png" sizes="any">
+
+    <link rel="stylesheet" href="../css/base.css">
+
+
+    <link rel="stylesheet" href="../css/worker-v2.css">
+
+
+    <link
+        rel="stylesheet"
+        href="../css/technician-layout-v1.css"
+    >
+
+</head>
+
+
+<body class="worker-body" data-technician-page="tasks">
+
+    <aside id="technicianSidebar"></aside>
+
+    <div class="technician-page-shell">
+
+
+
+    <header class="worker-topbar">
+
+        <div class="worker-brand">
+
+            <div class="worker-brand-logo">
+                AB
+            </div>
+
+
+            <div class="worker-brand-text">
+
+                <strong>
+                    AB TaskVoice
+                </strong>
+
+                <small>
+                    Panel operativo
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="worker-user-area">
+
+            <div class="worker-user">
+
+                <strong id="topbarUserName">
+                    ...
+                </strong>
+
+                <span class="worker-role">
+                    Técnico
+                </span>
+
+            </div>
+
+
+            <a href="./inicio.html" class="worker-back-button">
+                Mis tareas
+            </a>
+
+        </div>
+
+    </header>
+
+
+
+    <main class="worker-main worker-task-detail-page">
+
+
+        <a href="./inicio.html" class="worker-detail-back">
+            ← Volver a mis tareas
+        </a>
+
+
+
+        <div id="loading" class="worker-loading">
+            Cargando tarea...
+        </div>
+
+
+
+        <div id="content" class="hidden">
+
+
+            <!-- ================================================
+             CABECERA
+        ================================================= -->
+
+            <section class="worker-detail-header">
+
+
+                <div>
+
+                    <span id="taskNumber" class="worker-detail-number"></span>
+
+
+                    <h1 id="taskTitle"></h1>
+
+
+                    <span id="assignmentState" class="worker-state"></span>
+
+                </div>
+
+
+            </section>
+
+
+
+            <!-- ================================================
+             DATOS
+        ================================================= -->
+
+            <section class="worker-detail-card">
+
+
+                <h2>
+                    Información de la tarea
+                </h2>
+
+
+                <div class="worker-detail-data">
+
+
+                    <div class="worker-detail-item">
+
+                        <span>
+                            Lugar
+                        </span>
+
+                        <strong id="taskLocation">
+                            -
+                        </strong>
+
+                    </div>
+
+
+
+                    <div class="worker-detail-item">
+
+                        <span>
+                            Turno
+                        </span>
+
+                        <strong id="taskShift">
+                            -
+                        </strong>
+
+                    </div>
+
+
+
+                    <div class="worker-detail-item">
+
+                        <span>
+                            N° Ticket
+                        </span>
+
+                        <strong id="taskTicket">
+                            -
+                        </strong>
+
+                    </div>
+
+
+
+                    <div class="worker-detail-item">
+
+                        <span>
+                            Tipo de mantenimiento
+                        </span>
+
+                        <strong id="taskMaintenance">
+                            -
+                        </strong>
+
+                    </div>
+
+
+
+                    <div class="worker-detail-item">
+
+                        <span>
+                            Prioridad
+                        </span>
+
+                        <strong id="taskPriority">
+                            -
+                        </strong>
+
+                    </div>
+
+
+
+                    <div class="worker-detail-item">
+
+                        <span>
+                            Vencimiento
+                        </span>
+
+                        <strong id="taskDue">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <div class="worker-detail-description">
+
+                    <span>
+                        Descripción
+                    </span>
+
+                    <p id="taskDescription"></p>
+
+                </div>
+
+
+            </section>
+
+
+
+            <!-- ================================================
+             DECISIÓN DEL TÉCNICO
+        ================================================= -->
+
+            <section id="decisionPanel" class="worker-decision-card">
+
+
+                <div class="worker-decision-content">
+
+                    <span class="worker-decision-eyebrow">
+                        Tarea pendiente
+                    </span>
+
+
+                    <h2>
+                        ¿Aceptás esta tarea?
+                    </h2>
+
+
+                    <p>
+                        Revisá la información antes de confirmar.
+                        Si no podés realizarla, podés rechazarla
+                        indicando el motivo.
+                    </p>
+
+                </div>
+
+
+
+                <div class="worker-decision-actions">
+
+                    <button id="rejectButton" class="worker-reject-button" type="button">
+                        Rechazar
+                    </button>
+
+
+                    <button id="acceptButton" class="worker-accept-button" type="button">
+                        Aceptar tarea
+                    </button>
+
+                </div>
+
+
+            </section>
+
+
+
+            <!-- ================================================
+             ESTADO POSTERIOR
+        ================================================= -->
+
+            <section id="statusPanel" class="worker-status-card hidden">
+
+                <h2 id="statusTitle"></h2>
+
+                <p id="statusText"></p>
+
+                <div id="statusActions" class="worker-status-actions hidden">
+
+                    <button id="startTaskButton" class="worker-start-button" type="button">
+                        Iniciar trabajo
+                    </button>
+
+                </div>
+
+
+                <div id="rejectionReasonBox" class="worker-rejection-reason hidden">
+
+                    <span>
+                        Motivo
+                    </span>
+
+                    <p id="rejectionReason"></p>
+
+                </div>
+
+            </section>
+
+            <!-- ======================================================
+     MI TRABAJO REALIZADO
+     Solo lectura para tareas completadas
+======================================================= -->
+
+            <section id="completedWorkPanel" class="worker-completed-work-card hidden">
+
+                <div class="worker-completed-work-header">
+
+                    <div>
+
+                        <span class="worker-work-eyebrow">
+                            Registro de intervención
+                        </span>
+
+                        <h2>
+                            Trabajo realizado
+                        </h2>
+
+                        <p>
+                            Este es el registro compartido de la intervención
+                            realizada por el equipo.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- ==================================================
+         TIPOS DE TRABAJO
+    =================================================== -->
+
+                <div class="worker-completed-section">
+
+                    <span class="worker-completed-label">
+                        Tipo de trabajo realizado
+                    </span>
+
+
+                    <div id="completedWorkTypes" class="worker-completed-work-types"></div>
+
+                </div>
+
+
+
+                <!-- ==================================================
+         DESCRIPCIÓN
+    =================================================== -->
+
+                <div class="worker-completed-section">
+
+                    <span class="worker-completed-label">
+                        Descripción del trabajo
+                    </span>
+
+
+                    <p id="completedDescription" class="worker-completed-description"></p>
+
+                </div>
+
+
+                <div class="worker-completed-section">
+
+                    <span class="worker-completed-label">
+                        Fotografías del trabajo
+                    </span>
+
+                    <div
+                        id="completedPhotos"
+                        class="worker-photo-grid worker-photo-grid-readonly"
+                    ></div>
+
+                    <p
+                        id="completedPhotosEmpty"
+                        class="worker-completed-muted"
+                    >
+                        Sin fotografías registradas
+                    </p>
+
+                </div>
+
+
+
+                <!-- ==================================================
+         AUDIO
+    =================================================== -->
+
+                <div class="worker-completed-section">
+
+                    <span class="worker-completed-label">
+                        Informe de voz
+                    </span>
+
+
+                    <div id="completedAudio">
+
+                        <span class="worker-completed-muted">
+                            Sin audio registrado
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <!-- ==================================================
+     TRANSCRIPCIÓN DEL INFORME
+=================================================== -->
+
+<div
+    id="completedTranscriptionSection"
+    class="worker-completed-section hidden"
+>
+
+    <span class="worker-completed-label">
+        Transcripción del informe
+    </span>
+
+
+    <div class="worker-completed-transcription-box">
+
+        <p
+            id="completedTranscription"
+            class="worker-completed-transcription"
+        ></p>
+
+    </div>
+
+</div>
+
+
+                <!-- ==================================================
+         FECHAS
+    =================================================== -->
+
+                <div class="worker-completed-meta">
+
+                    <div>
+
+                        <span>
+                            Inicio
+                        </span>
+
+                        <strong id="completedStart">
+                            -
+                        </strong>
+
+                    </div>
+                    
+                    <div>
+
+                        <span>
+                            Finalización
+                        </span>
+
+                        <strong id="completedEnd">
+                            -
+                        </strong>
+
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Duración
+                        </span>
+
+                        <strong id="completedDuration">
+                            -
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- ======================================================
+     REGISTRO DEL TRABAJO
+======================================================= -->
+
+            <section id="workPanel" class="worker-work-card hidden">
+
+                <div class="worker-work-header">
+
+                    <div>
+
+                        <span class="worker-work-eyebrow">
+                            Ejecución en curso
+                        </span>
+
+                        <h2>
+                            Registrar trabajo realizado
+                        </h2>
+
+                        <p>
+                            Describí lo realizado, agregá hasta 3 fotos y grabá el informe de voz.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ==================================================
+         DESCRIPCIÓN
+    =================================================== -->
+
+                <!-- ==================================================
+     TIPO DE TRABAJO REALIZADO
+=================================================== -->
+
+                <fieldset class="worker-work-types">
+
+                    <legend>
+                        Tipo de trabajo realizado
+                        <span class="worker-required">*</span>
+                    </legend>
+
+
+                    <p class="worker-work-types-help">
+                        Seleccioná una o varias opciones según el trabajo realizado.
+                    </p>
+
+
+                    <div id="workTypesList" class="worker-work-types-list">
+                        Cargando opciones...
+                    </div>
+
+
+                    <div id="workTypesSummary" class="worker-work-types-summary">
+                        Ningún tipo seleccionado
+                    </div>
+
+                </fieldset>
+
+                <div class="worker-work-field">
+
+                    <label for="workDescription">
+                        Descripción del trabajo
+                    </label>
+
+                    <textarea id="workDescription" rows="5" maxlength="3000"
+                        placeholder="Ej.: Se verificó el tablero, se reemplazó el componente y se realizaron pruebas de funcionamiento..."></textarea>
+
+                </div>
+
+
+                <div class="worker-photos-block">
+
+                    <div class="worker-photos-header">
+
+                        <div>
+                            <span class="worker-recorder-label">
+                                Fotografías del trabajo
+                            </span>
+
+                            <strong>
+                                Evidencia fotográfica
+                            </strong>
+                        </div>
+
+                        <span id="photoCounter" class="worker-photo-counter">
+                            0 / 3
+                        </span>
+
+                    </div>
+
+                    <p class="worker-photos-help">
+                        Podés cargar hasta 3 fotos por intervención. Son compartidas por todo el equipo.
+                    </p>
+
+                    <div class="worker-photo-actions">
+
+                        <button
+                            id="photoCameraButton"
+                            class="worker-photo-button"
+                            type="button"
+                        >
+                            📷 Tomar foto
+                        </button>
+
+                        <button
+                            id="photoGalleryButton"
+                            class="worker-photo-button worker-photo-button-secondary"
+                            type="button"
+                        >
+                            🖼 Elegir de galería
+                        </button>
+
+                        <input
+                            id="photoCameraInput"
+                            class="hidden"
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            capture="environment"
+                        >
+
+                        <input
+                            id="photoGalleryInput"
+                            class="hidden"
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                        >
+
+                    </div>
+
+                    <div id="photoGrid" class="worker-photo-grid"></div>
+
+                    <p id="photoEmpty" class="worker-photos-empty">
+                        Todavía no hay fotografías cargadas.
+                    </p>
+
+                </div>
+
+
+                <!-- ==================================================
+         GRABADOR
+    =================================================== -->
+
+                <div class="worker-recorder">
+
+                    <div class="worker-recorder-header">
+
+                        <div>
+
+                            <span class="worker-recorder-label">
+                                Informe de voz
+                            </span>
+
+                            <strong id="recordingStatus">
+                                Sin grabación
+                            </strong>
+
+                        </div>
+
+
+                        <span id="recordingTimer" class="worker-recording-timer">
+                            00:00
+                        </span>
+
+                    </div>
+
+
+                    <div class="worker-recorder-actions">
+
+                        <button id="recordButton" class="worker-record-button" type="button">
+                            🎙 Grabar informe
+                        </button>
+
+
+                        <button id="stopRecordButton" class="worker-stop-button" type="button" disabled>
+                            Detener
+                        </button>
+
+
+                        <button id="discardRecordButton" class="worker-discard-button hidden" type="button">
+                            Descartar y volver a grabar
+                        </button>
+
+                    </div>
+
+
+                    <audio id="audioPreview" class="worker-audio-preview hidden" controls></audio>
+
+
+                    <p class="worker-recorder-help">
+                        Podés escuchar la grabación antes de completar la tarea.
+                        Duración máxima: 5 minutos.
+                    </p>
+
+                </div>
+
+
+                <!-- ==================================================
+         MENSAJE
+    =================================================== -->
+
+                <div id="workMessage" class="worker-work-message" aria-live="polite"></div>
+
+
+                <!-- ==================================================
+         FINALIZAR
+    =================================================== -->
+
+                <div class="worker-complete-area">
+
+                    <div>
+
+                        <strong>
+                            ¿Terminaste el trabajo?
+                        </strong>
+
+                        <p>
+                            Al completar, la intervención quedará registrada
+                            para todo el equipo con fecha y hora.
+                        </p>
+
+                    </div>
+
+
+                    <button id="completeWorkButton" class="worker-complete-button" type="button">
+                        Completar tarea
+                    </button>
+
+                </div>
+
+            </section>
+
+
+        </div>
+
+
+    </main>
+
+
+
+        </div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+
+    <script
+        type="module"
+        src="../js/components/technician-layout-v1.js"
+    ></script>
+
+<script
+    type="module"
+    src="../js/pages/worker-task-detail-v4.js"
+></script>
+
+
+</body>
+
+</html>

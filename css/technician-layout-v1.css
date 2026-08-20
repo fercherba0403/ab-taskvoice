@@ -1,0 +1,300 @@
+/* ============================================================
+   AB TASKVOICE
+   technician-layout-v1.css
+
+   Sidebar profesional del Panel Técnico.
+   ============================================================ */
+
+:root {
+  --technician-sidebar-width: 236px;
+  --technician-sidebar-bg: #101d38;
+  --technician-sidebar-border: rgba(255, 255, 255, 0.08);
+  --technician-sidebar-text: #dbe7ff;
+  --technician-sidebar-muted: #8ea2c6;
+  --technician-sidebar-active: rgba(59, 130, 246, 0.18);
+  --technician-sidebar-active-border: #60a5fa;
+}
+
+.technician-layout-enabled {
+  min-width: 0;
+}
+
+.technician-page-shell {
+  min-width: 0;
+  min-height: 100vh;
+  margin-left: var(--technician-sidebar-width);
+}
+
+.technician-sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 160;
+  width: var(--technician-sidebar-width);
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--technician-sidebar-border);
+  background: var(--technician-sidebar-bg);
+  color: #ffffff;
+  box-shadow: 14px 0 35px rgba(15, 23, 42, 0.08);
+}
+
+.technician-sidebar-header {
+  min-height: 78px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 16px 17px;
+  border-bottom: 1px solid var(--technician-sidebar-border);
+}
+
+.technician-sidebar-logo {
+  width: 41px;
+  height: 41px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 11px;
+  background: #ffffff;
+  color: #101d38;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.technician-sidebar-brand {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.technician-sidebar-brand strong {
+  overflow: hidden;
+  color: #ffffff;
+  font-size: 14px;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.technician-sidebar-brand span {
+  margin-top: 3px;
+  color: var(--technician-sidebar-muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+}
+
+.technician-sidebar-close {
+  display: none;
+  width: 36px;
+  height: 36px;
+  margin-left: auto;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.technician-sidebar-section-label {
+  padding: 22px 18px 9px;
+  color: var(--technician-sidebar-muted);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.technician-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 0 11px;
+}
+
+.technician-nav-item {
+  min-height: 45px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  color: var(--technician-sidebar-text);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.technician-nav-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+}
+
+.technician-nav-item.active {
+  border-color: rgba(96, 165, 250, 0.2);
+  border-left-color: var(--technician-sidebar-active-border);
+  background: var(--technician-sidebar-active);
+  color: #ffffff;
+}
+
+.technician-nav-icon {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.technician-nav-icon svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.technician-sidebar-footer {
+  margin-top: auto;
+  padding: 17px 18px 20px;
+  border-top: 1px solid var(--technician-sidebar-border);
+}
+
+.technician-sidebar-role {
+  display: inline-flex;
+  min-height: 25px;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(96, 165, 250, 0.16);
+  color: #bfdbfe;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.technician-sidebar-footer small {
+  display: block;
+  margin-top: 8px;
+  color: var(--technician-sidebar-muted);
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.technician-menu-button {
+  display: none;
+  width: 39px;
+  height: 39px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0;
+  border: 1px solid #dbe3ef;
+  border-radius: 9px;
+  background: #ffffff;
+}
+
+.technician-menu-button span {
+  width: 17px;
+  height: 2px;
+  border-radius: 2px;
+  background: #334155;
+}
+
+.technician-sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  display: none;
+  border: 0;
+  background: rgba(15, 23, 42, 0.45);
+}
+
+/* El topbar permanece dentro del área útil, no debajo del sidebar. */
+.technician-page-shell > .worker-topbar {
+  z-index: 100;
+}
+
+/* ============================================================
+   TABLET / MÓVIL
+   ============================================================ */
+
+@media (max-width: 900px) {
+
+  .technician-page-shell {
+    margin-left: 0;
+  }
+
+  .technician-sidebar {
+    width: min(286px, 86vw);
+    transform: translateX(-105%);
+    transition: transform 0.2s ease;
+  }
+
+  .technician-sidebar-open .technician-sidebar {
+    transform: translateX(0);
+  }
+
+  .technician-sidebar-open .technician-sidebar-overlay {
+    display: block;
+  }
+
+  .technician-sidebar-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .technician-menu-button {
+    display: flex;
+  }
+
+}
+
+/* ============================================================
+   CELULAR
+   ============================================================ */
+
+@media (max-width: 650px) {
+
+  .technician-menu-button {
+    width: 38px;
+    height: 38px;
+  }
+
+  .technician-layout-enabled .worker-topbar {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .technician-layout-enabled .worker-brand {
+    gap: 8px;
+  }
+
+  .technician-layout-enabled .worker-brand-logo {
+    width: 38px;
+    height: 38px;
+  }
+
+  .technician-layout-enabled .worker-brand-text strong {
+    font-size: 14px;
+  }
+
+  .technician-layout-enabled .worker-brand-text small {
+    display: none;
+  }
+
+}

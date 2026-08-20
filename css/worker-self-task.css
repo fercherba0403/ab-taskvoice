@@ -1,0 +1,428 @@
+/* ============================================================
+   TASKVOICE
+   worker-self-task.css
+
+   Complemento aislado para:
+   - botón Nueva tarea en Mis tareas
+   - formulario de autocreación del técnico
+
+   No modifica el detalle, fotos, audio ni ejecución.
+   ============================================================ */
+
+
+/* ============================================================
+   BOTÓN NUEVA TAREA - INICIO
+   ============================================================ */
+
+.worker-hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    margin-top: 16px;
+}
+
+
+.worker-new-task-link {
+    min-height: 42px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0 16px;
+
+    border: 1px solid #2563eb;
+    border-radius: 9px;
+
+    background: #2563eb;
+
+    color: #ffffff;
+
+    font-size: 12px;
+    font-weight: 750;
+
+    text-decoration: none;
+
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease,
+        transform 0.1s ease;
+}
+
+
+.worker-new-task-link:hover {
+    border-color: #1d4ed8;
+
+    background: #1d4ed8;
+}
+
+
+.worker-new-task-link:active {
+    transform: scale(0.98);
+}
+
+
+
+/* ============================================================
+   PÁGINA NUEVA TAREA
+   ============================================================ */
+
+.worker-self-task-main {
+    max-width: 920px;
+}
+
+
+.worker-self-task-back {
+    display: inline-flex;
+
+    margin-bottom: 18px;
+
+    color: #2563eb;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    text-decoration: none;
+}
+
+
+.worker-self-task-back:hover {
+    text-decoration: underline;
+}
+
+
+.worker-self-task-card {
+    padding: 26px;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 15px;
+
+    background: #ffffff;
+
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.025);
+}
+
+
+.worker-self-task-header {
+    margin-bottom: 26px;
+    padding-bottom: 21px;
+
+    border-bottom: 1px solid #e2e8f0;
+}
+
+
+.worker-self-task-header h1 {
+    margin: 2px 0 7px;
+
+    color: #0f172a;
+
+    font-size: 27px;
+    line-height: 1.2;
+
+    font-weight: 750;
+}
+
+
+.worker-self-task-header p {
+    max-width: 680px;
+
+    margin: 0;
+
+    color: #64748b;
+
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+
+
+/* ============================================================
+   FORMULARIO
+   ============================================================ */
+
+.worker-self-task-form {
+    width: 100%;
+}
+
+
+.worker-self-task-grid {
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 0 16px;
+}
+
+
+.worker-self-task-time-grid {
+    max-width: calc(50% - 8px);
+}
+
+
+.worker-self-task-field {
+    min-width: 0;
+
+    margin-bottom: 21px;
+}
+
+
+.worker-self-task-field label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #334155;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+
+.worker-self-task-required {
+    color: #dc2626;
+}
+
+
+.worker-self-task-field input,
+.worker-self-task-field textarea,
+.worker-self-task-field select {
+    width: 100%;
+
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+
+    outline: none;
+
+    background: #ffffff;
+
+    color: #0f172a;
+
+    font-size: 14px;
+
+    transition:
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+
+.worker-self-task-field input,
+.worker-self-task-field select {
+    min-height: 45px;
+
+    padding: 0 12px;
+}
+
+
+.worker-self-task-field textarea {
+    min-height: 130px;
+
+    padding: 12px;
+
+    resize: vertical;
+
+    line-height: 1.55;
+}
+
+
+.worker-self-task-field input:focus,
+.worker-self-task-field textarea:focus,
+.worker-self-task-field select:focus {
+    border-color: #2563eb;
+
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+}
+
+
+.worker-self-task-field input::placeholder,
+.worker-self-task-field textarea::placeholder {
+    color: #94a3b8;
+}
+
+
+
+/* ============================================================
+   MENSAJES
+   ============================================================ */
+
+.worker-self-task-message {
+    min-height: 20px;
+
+    margin-top: 2px;
+
+    font-size: 12px;
+    font-weight: 650;
+}
+
+
+.worker-self-task-message.error {
+    padding: 11px 12px;
+
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+
+    background: #fef2f2;
+
+    color: #b91c1c;
+}
+
+
+.worker-self-task-message.success {
+    padding: 11px 12px;
+
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+
+    background: #f0fdf4;
+
+    color: #166534;
+}
+
+
+
+/* ============================================================
+   ACCIONES
+   ============================================================ */
+
+.worker-self-task-actions {
+    display: flex;
+
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    margin-top: 20px;
+    padding-top: 20px;
+
+    border-top: 1px solid #e2e8f0;
+}
+
+
+.worker-self-task-cancel,
+.worker-self-task-submit {
+    min-height: 44px;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 0 17px;
+
+    border-radius: 9px;
+
+    font-size: 12px;
+    font-weight: 750;
+}
+
+
+.worker-self-task-cancel {
+    border: 1px solid #cbd5e1;
+
+    background: #ffffff;
+
+    color: #475569;
+
+    text-decoration: none;
+}
+
+
+.worker-self-task-cancel:hover {
+    background: #f8fafc;
+}
+
+
+.worker-self-task-submit {
+    border: none;
+
+    background: #2563eb;
+
+    color: #ffffff;
+}
+
+
+.worker-self-task-submit:hover:not(:disabled) {
+    background: #1d4ed8;
+}
+
+
+.worker-self-task-submit:disabled {
+    opacity: 0.65;
+
+    cursor: wait;
+}
+
+
+
+/* ============================================================
+   CELULAR
+   ============================================================ */
+
+@media (max-width: 650px) {
+
+    .worker-hero-actions {
+        width: 100%;
+    }
+
+
+    .worker-new-task-link {
+        width: 100%;
+        min-height: 46px;
+    }
+
+
+    .worker-self-task-main {
+        padding-top: 18px;
+    }
+
+
+    .worker-self-task-card {
+        padding: 18px;
+
+        border-radius: 12px;
+    }
+
+
+    .worker-self-task-header {
+        margin-bottom: 21px;
+        padding-bottom: 17px;
+    }
+
+
+    .worker-self-task-header h1 {
+        font-size: 24px;
+    }
+
+
+    .worker-self-task-grid {
+        grid-template-columns: 1fr;
+
+        gap: 0;
+    }
+
+
+    .worker-self-task-time-grid {
+        max-width: none;
+    }
+
+
+    .worker-self-task-field input,
+    .worker-self-task-field select {
+        min-height: 48px;
+    }
+
+
+    .worker-self-task-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+
+    .worker-self-task-cancel,
+    .worker-self-task-submit {
+        width: 100%;
+        min-height: 48px;
+    }
+
+}

@@ -1,0 +1,232 @@
+/* ============================================================
+   TASKVOICE
+   login.css
+   ============================================================ */
+
+
+.login-page {
+
+    min-height: 100vh;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 1.5rem;
+
+    background:
+        linear-gradient(
+            135deg,
+            #eef3ff,
+            #f8fafc
+        );
+
+}
+
+
+.login-container {
+
+    width: 100%;
+
+    max-width: 430px;
+
+}
+
+
+.login-card {
+
+    padding: 2.5rem;
+
+    background: white;
+
+    border-radius: 16px;
+
+    box-shadow:
+        0 20px 50px
+        rgba(15, 23, 42, 0.10);
+
+}
+
+
+.login-brand {
+
+    text-align: center;
+
+    margin-bottom: 2rem;
+
+}
+
+
+.brand-icon {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 58px;
+
+    height: 58px;
+
+    margin:
+        0 auto
+        1rem;
+
+    border-radius: 14px;
+
+    color: white;
+
+    background: #1f5eff;
+
+    font-weight: 700;
+
+    font-size: 1.1rem;
+
+}
+
+
+.login-brand h1 {
+
+    margin: 0;
+
+    font-size: 2rem;
+
+}
+
+
+.login-brand p {
+
+    margin:
+        0.5rem
+        0
+        0;
+
+    color: #64748b;
+
+}
+
+
+.login-form {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 1.25rem;
+
+}
+
+
+.password-wrapper {
+
+    position: relative;
+
+}
+
+
+.password-wrapper input {
+
+    padding-right: 80px;
+
+}
+
+
+.password-toggle {
+
+    position: absolute;
+
+    top: 50%;
+
+    right: 10px;
+
+    transform:
+        translateY(-50%);
+
+    border: none;
+
+    background: transparent;
+
+    color: #1f5eff;
+
+    font-size: 0.85rem;
+
+    font-weight: 600;
+
+}
+
+
+.login-footer {
+
+    margin-top: 2rem;
+
+    padding-top: 1.25rem;
+
+    border-top:
+        1px solid #e2e8f0;
+
+    text-align: center;
+
+    color: #94a3b8;
+
+}
+
+
+.login-footer p {
+
+    margin: 0;
+
+    font-weight: 600;
+
+}
+
+
+.login-footer small {
+
+    display: block;
+
+    margin-top: 0.2rem;
+
+}
+
+
+
+/* ============================================================
+   CELULAR
+   ============================================================ */
+
+
+@media (
+    max-width: 520px
+) {
+
+    .login-page {
+
+        padding: 0;
+
+        background: white;
+
+    }
+
+
+    .login-card {
+
+        min-height: 100vh;
+
+        display: flex;
+
+        flex-direction: column;
+
+        justify-content: center;
+
+        border-radius: 0;
+
+        box-shadow: none;
+
+        padding: 2rem;
+
+    }
+
+}

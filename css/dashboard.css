@@ -1,0 +1,82 @@
+/* ============================================================
+   TASKVOICE
+   dashboard.css
+   ============================================================ */
+
+
+.temporary-dashboard {
+
+    min-height: 100vh;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 2rem;
+
+}
+
+
+.dashboard-card {
+
+    width: 100%;
+
+    max-width: 600px;
+
+    padding: 2.5rem;
+
+    background: white;
+
+    border-radius: 16px;
+
+    box-shadow:
+        0 15px 40px
+        rgba(15, 23, 42, 0.08);
+
+}
+
+
+.dashboard-card h1 {
+
+    margin-top: 1rem;
+
+}
+
+
+.dashboard-card p {
+
+    color: #64748b;
+
+}
+
+
+.dashboard-card .btn {
+
+    margin-top: 1rem;
+
+}
+
+
+.status {
+
+    display: inline-block;
+
+    padding:
+        0.4rem
+        0.75rem;
+
+    border-radius: 999px;
+
+    background: #eef3ff;
+
+    color: #1f5eff;
+
+    font-size: 0.75rem;
+
+    font-weight: 700;
+
+    letter-spacing: 0.05em;
+
+}

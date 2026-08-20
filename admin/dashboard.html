@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AB TaskVoice | Dashboard</title>
+    <link rel="icon" href="img/icon-512.png" sizes="any">
+
+    <link rel="stylesheet" href="../css/base.css">
+
+    <link rel="stylesheet" href="../css/admin.css">
+</head>
+
+<body class="admin-body">
+
+    <aside id="adminSidebar"></aside>
+
+    <div class="admin-main">
+
+        <header id="adminTopbar"></header>
+
+        <main class="dashboard-content">
+
+            <!-- ESTADÍSTICAS -->
+            <section class="stats-grid">
+
+                <article class="stat-card">
+
+                    <div class="stat-header">
+
+                        <span>Pendientes</span>
+
+                        <div class="stat-icon pending">
+                            !
+                        </div>
+
+                    </div>
+
+                    <strong id="pendingCount" class="stat-number">
+                        ...
+                    </strong>
+
+                    <small>
+                        Pendientes o aceptadas
+                    </small>
+
+                </article>
+
+
+                <article class="stat-card">
+
+                    <div class="stat-header">
+
+                        <span>En progreso</span>
+
+                        <div class="stat-icon progress">
+                            ▶
+                        </div>
+
+                    </div>
+
+                    <strong id="progressCount" class="stat-number">
+                        ...
+                    </strong>
+
+                    <small>
+                        Trabajos en ejecución
+                    </small>
+
+                </article>
+
+
+                <article class="stat-card">
+
+                    <div class="stat-header">
+
+                        <span>Completadas</span>
+
+                        <div class="stat-icon completed">
+                            ✓
+                        </div>
+
+                    </div>
+
+                    <strong id="completedCount" class="stat-number">
+                        ...
+                    </strong>
+
+                    <small>
+                        Tareas finalizadas
+                    </small>
+
+                </article>
+
+
+                <article class="stat-card">
+
+                    <div class="stat-header">
+
+                        <span>Vencidas</span>
+
+                        <div class="stat-icon overdue">
+                            ⏱
+                        </div>
+
+                    </div>
+
+                    <strong id="overdueCount" class="stat-number">
+                        ...
+                    </strong>
+
+                    <small>
+                        Con fecha límite superada
+                    </small>
+
+                </article>
+
+            </section>
+
+
+            <!-- ÚLTIMAS TAREAS -->
+            <section class="dashboard-panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>
+                            Últimas tareas
+                        </h2>
+
+                        <p>
+                            Actividad reciente de la empresa
+                        </p>
+
+                    </div>
+
+
+                    <button type="button" id="viewTasksButton" class="text-button">
+                        Ver todas
+                    </button>
+
+                </div>
+
+
+                <div id="tasksLoading" class="tasks-loading">
+                    Cargando tareas...
+                </div>
+
+
+                <div id="tasksEmpty" class="empty-state hidden">
+
+                    <div class="empty-icon">
+                        ✓
+                    </div>
+
+                    <strong>
+                        Todavía no hay tareas
+                    </strong>
+
+                    <p>
+                        Las tareas que se creen aparecerán acá.
+                    </p>
+
+                </div>
+
+
+                <div id="tasksTableWrapper" class="table-wrapper hidden">
+
+                    <table class="tasks-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Tarea</th>
+
+                                <th>Asignada a</th>
+
+                                <th>Prioridad</th>
+
+                                <th>Estado</th>
+
+                                <th>Fecha límite</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="recentTasksBody"></tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script type="module" src="../js/pages/admin-dashboard-v2.js"></script>
+
+</body>
+
+</html>

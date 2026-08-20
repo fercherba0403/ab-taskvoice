@@ -1,0 +1,920 @@
+/* ============================================================
+   TASKVOICE
+   admin.css
+   ============================================================ */
+
+:root {
+  --sidebar-width: 260px;
+
+  --primary: #1f5eff;
+
+  --primary-soft: #eef3ff;
+
+  --background: #f5f7fb;
+
+  --surface: #ffffff;
+
+  --border: #e5e9f0;
+
+  --text: #172033;
+
+  --text-secondary: #667085;
+
+  --sidebar: #111827;
+
+  --sidebar-text: #d1d5db;
+}
+
+/* ============================================================
+   GENERAL
+   ============================================================ */
+
+.admin-body {
+  min-height: 100vh;
+
+  background: var(--background);
+
+  color: var(--text);
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
+
+.sidebar {
+  position: fixed;
+
+  top: 0;
+
+  bottom: 0;
+
+  left: 0;
+
+  z-index: 100;
+
+  width: var(--sidebar-width);
+
+  display: flex;
+
+  flex-direction: column;
+
+  background: var(--sidebar);
+
+  color: white;
+}
+
+.sidebar-brand {
+  min-height: 82px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 0.8rem;
+
+  padding: 1.1rem 1.25rem;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-logo {
+  width: 42px;
+
+  height: 42px;
+
+  flex: 0 0 42px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 10px;
+
+  background: var(--primary);
+
+  font-weight: 800;
+}
+
+.sidebar-brand strong {
+  display: block;
+
+  font-size: 1.05rem;
+}
+
+.sidebar-brand span {
+  display: block;
+
+  max-width: 150px;
+
+  margin-top: 0.15rem;
+
+  color: #9ca3af;
+
+  font-size: 0.75rem;
+
+  white-space: nowrap;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+}
+
+/* ============================================================
+   NAVEGACIÓN
+   ============================================================ */
+
+.sidebar-nav {
+  flex: 1;
+
+  padding: 1rem 0.75rem;
+}
+
+.nav-item {
+  min-height: 46px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 0.8rem;
+
+  margin-bottom: 0.25rem;
+
+  padding: 0.7rem 0.85rem;
+
+  border-radius: 8px;
+
+  color: var(--sidebar-text);
+
+  text-decoration: none;
+
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.07);
+
+  color: white;
+}
+
+.nav-item.active {
+  color: white;
+
+  background: var(--primary);
+}
+
+.nav-icon {
+  width: 22px;
+
+  text-align: center;
+
+  font-size: 1rem;
+}
+
+.nav-divider {
+  height: 1px;
+
+  margin: 1rem 0.5rem;
+
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ============================================================
+   USUARIO SIDEBAR
+   ============================================================ */
+
+.sidebar-footer {
+  padding: 1rem;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-user {
+  display: flex;
+
+  align-items: center;
+
+  gap: 0.7rem;
+}
+
+.user-avatar {
+  width: 40px;
+
+  height: 40px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: #374151;
+
+  font-weight: 700;
+}
+
+.user-info {
+  min-width: 0;
+}
+
+.user-info strong {
+  display: block;
+
+  max-width: 150px;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+
+  font-size: 0.85rem;
+}
+
+.user-info span {
+  display: block;
+
+  margin-top: 0.1rem;
+
+  color: #9ca3af;
+
+  font-size: 0.72rem;
+}
+
+.logout-button {
+  width: 100%;
+
+  margin-top: 0.9rem;
+
+  padding: 0.65rem;
+
+  border: 1px solid rgba(255, 255, 255, 0.15);
+
+  border-radius: 7px;
+
+  background: transparent;
+
+  color: #d1d5db;
+}
+
+.logout-button:hover {
+  color: white;
+
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* ============================================================
+   MAIN
+   ============================================================ */
+
+.admin-main {
+  min-height: 100vh;
+
+  margin-left: var(--sidebar-width);
+}
+
+/* ============================================================
+   TOPBAR
+   ============================================================ */
+
+.topbar {
+  min-height: 82px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 1rem;
+
+  padding: 1rem 2rem;
+
+  border-bottom: 1px solid var(--border);
+
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.topbar-left {
+  display: flex;
+
+  align-items: center;
+
+  gap: 1rem;
+}
+
+.topbar h1 {
+  margin: 0;
+
+  font-size: 1.45rem;
+}
+
+.topbar p {
+  margin: 0.25rem 0 0;
+
+  color: var(--text-secondary);
+
+  font-size: 0.85rem;
+}
+
+.menu-button {
+  display: none;
+
+  width: 42px;
+
+  height: 42px;
+
+  border: 1px solid var(--border);
+
+  border-radius: 8px;
+
+  background: white;
+}
+
+.new-task-button {
+  min-height: 44px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 0.5rem;
+
+  padding: 0.65rem 1rem;
+
+  border: none;
+
+  border-radius: 8px;
+
+  background: var(--primary);
+
+  color: white;
+
+  font-weight: 600;
+}
+
+.new-task-button span {
+  font-size: 1.3rem;
+}
+
+/* ============================================================
+   CONTENT
+   ============================================================ */
+
+.dashboard-content {
+  max-width: 1500px;
+
+  margin: 0 auto;
+
+  padding: 2rem;
+}
+
+/* ============================================================
+   ESTADÍSTICAS
+   ============================================================ */
+
+.stats-grid {
+  display: grid;
+
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+
+  gap: 1rem;
+
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  padding: 1.3rem;
+
+  border: 1px solid var(--border);
+
+  border-radius: 12px;
+
+  background: var(--surface);
+}
+
+.stat-header {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 1rem;
+
+  color: var(--text-secondary);
+
+  font-size: 0.85rem;
+
+  font-weight: 600;
+}
+
+.stat-icon {
+  width: 34px;
+
+  height: 34px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 8px;
+
+  font-weight: 700;
+}
+
+.stat-icon.pending {
+  color: #92400e;
+
+  background: #fef3c7;
+}
+
+.stat-icon.progress {
+  color: #1d4ed8;
+
+  background: #dbeafe;
+}
+
+.stat-icon.completed {
+  color: #047857;
+
+  background: #d1fae5;
+}
+
+.stat-icon.overdue {
+  color: #b91c1c;
+
+  background: #fee2e2;
+}
+
+.stat-number {
+  display: block;
+
+  margin-top: 0.75rem;
+
+  font-size: 2rem;
+}
+
+.stat-card small {
+  display: block;
+
+  margin-top: 0.25rem;
+
+  color: var(--text-secondary);
+}
+
+/* ============================================================
+   PANEL
+   ============================================================ */
+
+.dashboard-panel {
+  overflow: hidden;
+
+  border: 1px solid var(--border);
+
+  border-radius: 12px;
+
+  background: var(--surface);
+}
+
+.panel-header {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 1rem;
+
+  padding: 1.3rem 1.4rem;
+
+  border-bottom: 1px solid var(--border);
+}
+
+.panel-header h2 {
+  margin: 0;
+
+  font-size: 1.05rem;
+}
+
+.panel-header p {
+  margin: 0.25rem 0 0;
+
+  color: var(--text-secondary);
+
+  font-size: 0.8rem;
+}
+
+.text-button {
+  border: none;
+
+  background: transparent;
+
+  color: var(--primary);
+
+  font-weight: 600;
+}
+
+/* ============================================================
+   TABLA
+   ============================================================ */
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.tasks-table {
+  width: 100%;
+
+  border-collapse: collapse;
+}
+
+.tasks-table th {
+  padding: 0.9rem 1.4rem;
+
+  text-align: left;
+
+  border-bottom: 1px solid var(--border);
+
+  background: #fafbfc;
+
+  color: var(--text-secondary);
+
+  font-size: 0.72rem;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.03em;
+}
+
+.tasks-table td {
+  padding: 1rem 1.4rem;
+
+  border-bottom: 1px solid var(--border);
+
+  font-size: 0.85rem;
+}
+
+.tasks-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.tasks-table tbody tr:hover {
+  background: #fafcff;
+}
+
+.task-title {
+  display: block;
+
+  max-width: 300px;
+}
+
+.task-id {
+  display: block;
+
+  margin-top: 0.25rem;
+
+  color: var(--text-secondary);
+}
+
+/* ============================================================
+   BADGES
+   ============================================================ */
+
+.badge {
+  display: inline-flex;
+
+  align-items: center;
+
+  padding: 0.3rem 0.55rem;
+
+  border-radius: 999px;
+
+  font-size: 0.7rem;
+
+  font-weight: 700;
+
+  white-space: nowrap;
+}
+
+.status-pending {
+  background: #fef3c7;
+
+  color: #92400e;
+}
+
+.status-accepted {
+  background: #e0e7ff;
+
+  color: #4338ca;
+}
+
+.status-progress {
+  background: #dbeafe;
+
+  color: #1d4ed8;
+}
+
+.status-completed {
+  background: #d1fae5;
+
+  color: #047857;
+}
+
+.status-cancelled {
+  background: #f3f4f6;
+
+  color: #4b5563;
+}
+
+.status-overdue {
+  background: #fee2e2;
+
+  color: #b91c1c;
+}
+
+.priority-low {
+  background: #f3f4f6;
+
+  color: #4b5563;
+}
+
+.priority-normal {
+  background: #e0f2fe;
+
+  color: #0369a1;
+}
+
+.priority-high {
+  background: #ffedd5;
+
+  color: #c2410c;
+}
+
+.priority-urgent {
+  background: #fee2e2;
+
+  color: #b91c1c;
+}
+
+/* ============================================================
+   CARGA / VACÍO
+   ============================================================ */
+
+.tasks-loading {
+  padding: 2rem;
+
+  text-align: center;
+
+  color: var(--text-secondary);
+}
+
+.empty-state {
+  padding: 3rem 1rem;
+
+  text-align: center;
+}
+
+.empty-icon {
+  width: 48px;
+
+  height: 48px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  margin: 0 auto 1rem;
+
+  border-radius: 50%;
+
+  color: var(--primary);
+
+  background: var(--primary-soft);
+
+  font-weight: 700;
+}
+
+.empty-state p {
+  margin: 0.35rem 0 0;
+
+  color: var(--text-secondary);
+}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+
+.toast {
+  position: fixed;
+
+  right: 1.5rem;
+
+  bottom: 1.5rem;
+
+  z-index: 500;
+
+  max-width: 360px;
+
+  padding: 0.8rem 1rem;
+
+  border-radius: 8px;
+
+  background: #111827;
+
+  color: white;
+
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+
+  opacity: 0;
+
+  transform: translateY(15px);
+
+  pointer-events: none;
+
+  transition:
+    opacity 0.2s,
+    transform 0.2s;
+}
+
+.toast.show {
+  opacity: 1;
+
+  transform: translateY(0);
+}
+
+/* ============================================================
+   OVERLAY
+   ============================================================ */
+
+.sidebar-overlay {
+  display: none;
+}
+
+/* ============================================================
+   TABLET
+   ============================================================ */
+
+@media (max-width: 1100px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 760px) {
+  .sidebar {
+    transform: translateX(-100%);
+
+    transition: transform 0.25s;
+  }
+
+  .sidebar-open .sidebar {
+    transform: translateX(0);
+  }
+
+  .sidebar-overlay {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 90;
+
+    background: rgba(0, 0, 0, 0.35);
+  }
+
+  .sidebar-open .sidebar-overlay {
+    display: block;
+  }
+
+  .admin-main {
+    margin-left: 0;
+  }
+
+  .menu-button {
+    display: block;
+  }
+
+  .topbar {
+    padding: 1rem;
+  }
+
+  .dashboard-content {
+    padding: 1rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .new-task-button {
+    font-size: 0.8rem;
+  }
+}
+
+/* ============================================================
+   MOBILE PEQUEÑO
+   ============================================================ */
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .topbar {
+    align-items: flex-start;
+  }
+
+  .topbar p {
+    display: none;
+  }
+
+  .new-task-button {
+    padding: 0.6rem 0.75rem;
+  }
+
+  .dashboard-content {
+    padding: 0.75rem;
+  }
+}
+
+/* ============================================================
+   ADMIN LAYOUT - COMPONENTE COMPARTIDO
+   ============================================================ */
+
+.sidebar-brand-text {
+  min-width: 0;
+}
+
+.nav-icon {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  width: 22px;
+
+  height: 22px;
+
+  flex: 0 0 22px;
+}
+
+.nav-icon svg {
+  width: 17px;
+
+  height: 17px;
+}
+
+.new-task-button {
+  text-decoration: none;
+}
+
+.admin-topbar-action {
+  white-space: nowrap;
+}
+
+.form-page-embedded {
+  padding: 0;
+}
+
+.toast-success {
+  background: #166534;
+}
+
+.toast-error {
+  background: #991b1b;
+}
+
+.toast-info {
+  background: #111827;
+}
+
+@media (max-width: 760px) {
+  .admin-topbar-action span:last-child {
+    display: inline;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-topbar-action span:last-child {
+    display: none;
+  }
+}

@@ -1,0 +1,19 @@
+# Secretos y variables de entorno
+.env
+.env.*
+!.env.example
+.dev.vars
+
+# Dependencias / herramientas
+node_modules/
+.wrangler/
+
+# Sistemas operativos
+.DS_Store
+Thumbs.db
+
+# Builds temporales
+dist/
+
+# Configuración local de VS Code
+.vscode/

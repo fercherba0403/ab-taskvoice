@@ -1,0 +1,320 @@
+<!doctype html>
+
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>AB TaskVoice | Detalle de tarea</title>
+    <link rel="icon" href="img/icon-512.png" sizes="any">
+
+    <link rel="stylesheet" href="../css/base.css" />
+
+    <link rel="stylesheet" href="../css/admin.css" />
+
+    <link rel="stylesheet" href="../css/tasks-v2.css" />
+</head>
+
+<body class="admin-body">
+    <aside id="adminSidebar"></aside>
+
+    <div class="admin-main">
+
+        <header id="adminTopbar"></header>
+
+        <main class="dashboard-content">
+
+            <div class="form-page form-page-embedded">
+                <a href="./tareas.html" class="back-link"> ← Volver a tareas </a>
+
+                <div id="loading" class="task-detail-loading">Cargando...</div>
+
+                <div id="content" class="hidden">
+                    <section class="task-detail-header">
+                        <div>
+                            <span id="taskId"> </span>
+
+                            <h1 id="taskTitle"></h1>
+
+                            <div id="taskBadges"></div>
+                        </div>
+
+                        <button id="cancelTaskButton" class="danger-button">
+                            Cancelar tarea
+                        </button>
+                    </section>
+
+                    <div class="detail-grid">
+                        <!-- DATOS -->
+
+                        <section class="task-form-card">
+                            <h2>Información</h2>
+
+                            <form id="editForm">
+
+                                <!-- ========== TÍTULO ========== -->
+
+                                <div class="form-group">
+
+                                    <label for="titulo">
+                                        Título
+                                    </label>
+
+                                    <input id="titulo" type="text" maxlength="150" required />
+
+                                </div>
+
+                                <!-- ========== DESCRIPCIÓN ========== -->
+
+                                <div class="form-group">
+
+                                    <label for="descripcion">
+                                        Descripción
+                                    </label>
+
+                                    <textarea id="descripcion" rows="6"></textarea>
+
+                                </div>
+
+                                <!-- ========== LUGAR / TURNO ========== -->
+
+                                <div class="form-grid">
+
+                                    <div class="form-group">
+
+                                        <label for="lugar">
+                                            Lugar
+                                        </label>
+
+                                        <select id="lugar">
+
+                                            <option value="">
+                                                Sin lugar
+                                            </option>
+
+                                        </select>
+
+                                    </div>
+
+                                    <div class="form-group">
+
+                                        <label for="turno">
+                                            Turno
+                                        </label>
+
+                                        <select id="turno">
+
+                                            <option value="">
+                                                Sin turno
+                                            </option>
+
+                                        </select>
+
+                                    </div>
+
+                                </div>
+
+                                <!-- ======== TICKET / TIPO DE MANTENIMIENTO ======= -->
+
+                                <div class="form-grid">
+
+                                    <div class="form-group">
+
+                                        <label for="ticketNumber">
+                                            N° Ticket
+                                        </label>
+
+                                        <input id="ticketNumber" type="text" maxlength="100" autocomplete="off" />
+
+                                    </div>
+
+                                    <div class="form-group">
+
+                                        <label for="maintenanceType">
+                                            Tipo de mantenimiento
+                                        </label>
+
+                                        <select id="maintenanceType">
+
+                                            <option value="">
+                                                Sin tipo
+                                            </option>
+
+                                        </select>
+
+                                    </div>
+
+                                </div>
+
+                                <!-- ============ TÉCNICOS ============= -->
+
+                                <fieldset class="detail-technicians-fieldset">
+
+                                    <legend>
+                                        Técnicos asignados
+                                    </legend>
+
+                                    <p class="detail-technicians-help">
+                                        Esta tarea puede estar asignada a uno o varios técnicos.
+                                    </p>
+
+                                    <div id="techniciansList" class="detail-technicians-list">
+
+                                        <div class="detail-technicians-loading">
+                                            Cargando técnicos...
+                                        </div>
+
+                                    </div>
+
+                                    <div id="techniciansSummary" class="detail-technicians-summary" aria-live="polite">
+                                    </div>
+
+                                    <div id="techniciansLockMessage" class="technicians-lock-message hidden">
+                                        Los técnicos no pueden modificarse mientras la tarea está en progreso.
+                                    </div>
+
+                                </fieldset>
+
+                                <!-- ============ PRIORIDAD / FECHA =================== -->
+
+                                <div class="form-grid">
+
+                                    <div class="form-group">
+
+                                        <label for="prioridad">
+                                            Prioridad
+                                        </label>
+
+                                        <select id="prioridad">
+
+                                            <option value="baja">
+                                                Baja
+                                            </option>
+
+                                            <option value="normal">
+                                                Normal
+                                            </option>
+
+                                            <option value="alta">
+                                                Alta
+                                            </option>
+
+                                            <option value="urgente">
+                                                Urgente
+                                            </option>
+
+                                        </select>
+
+                                    </div>
+
+                                    <div class="form-group">
+
+                                        <label for="fechaLimite">
+                                            Fecha límite
+                                        </label>
+
+                                        <input id="fechaLimite" type="date" />
+
+                                    </div>
+
+                                </div>
+
+                                <!-- ============= HORA ================= -->
+
+                                <div class="form-grid detail-time-grid">
+
+                                    <div class="form-group">
+
+                                        <label for="horaLimite">
+                                            Hora límite
+                                        </label>
+
+                                        <input id="horaLimite" type="time" />
+
+                                    </div>
+
+                                </div>
+
+                                <!-- ============ MENSAJE ============= -->
+
+                                <div id="message" class="form-message" aria-live="polite"></div>
+
+                                <!-- =========== GUARDAR ============== -->
+
+                                <button id="saveButton" class="new-task-button" type="submit">
+                                    Guardar cambios
+                                </button>
+
+                            </form>
+                        </section>
+
+                        <!-- HISTORIAL -->
+
+                        <section class="task-form-card">
+                            <h2>Historial</h2>
+
+                            <div id="historyList" class="history-list"></div>
+                        </section>
+                    </div>
+
+                    <!-- ======================================================
+     EJECUCIONES / TRABAJO REALIZADO
+======================================================= -->
+
+                    <section class="task-form-card task-executions-card">
+
+                        <div class="task-executions-header">
+
+                            <div>
+
+                                <h2>
+                                    Trabajo realizado
+                                </h2>
+
+                                <p>
+                                    Ejecuciones registradas por los técnicos asignados.
+                                </p>
+
+                            </div>
+
+
+                            <span id="executionsCount" class="task-executions-count">
+                                0 ejecuciones
+                            </span>
+
+                        </div>
+
+
+
+                        <div id="executionsLoading" class="task-executions-loading">
+                            Cargando ejecuciones...
+                        </div>
+
+
+
+                        <div id="executionsEmpty" class="task-executions-empty hidden">
+
+                            Todavía no existen trabajos registrados
+                            para esta tarea.
+
+                        </div>
+
+
+
+                        <div id="executionsList" class="admin-executions-list hidden"></div>
+
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script type="module" src="../js/pages/admin-task-detail-v4.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,181 @@
+<!doctype html>
+
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>AB TaskVoice | Tareas</title>
+    <link rel="icon" href="img/icon-512.png" sizes="any">
+
+    <link rel="stylesheet" href="../css/base.css" />
+
+    <link rel="stylesheet" href="../css/admin.css" />
+
+    <link rel="stylesheet" href="../css/tasks.css?v=20260814-03" />
+</head>
+
+<body class="admin-body">
+    <aside id="adminSidebar"></aside>
+
+    <div class="admin-main">
+        <header id="adminTopbar"></header>
+
+        <main class="dashboard-content tasks-page-content">
+            <div id="pageMessage" class="page-message hidden"></div>
+            <!-- FILTROS -->
+
+            <section class="filters-panel">
+
+                <div class="filter-search">
+                    <label for="searchInput"> Buscar </label>
+
+                    <input id="searchInput" type="search" placeholder="Buscar por título..." />
+                </div>
+
+                <div>
+                    <label for="statusFilter"> Estado </label>
+
+                    <select id="statusFilter">
+                        <option value="todos">Todos</option>
+
+                        <option value="pendiente">Pendiente</option>
+
+                        <option value="aceptada">Aceptada</option>
+
+                        <option value="en_progreso">En progreso</option>
+
+                        <option value="completada">Completada</option>
+
+                        <option value="cancelada">Cancelada</option>
+
+                        <option value="vencida">Vencida</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="priorityFilter"> Prioridad </label>
+
+                    <select id="priorityFilter">
+                        <option value="todas">Todas</option>
+
+                        <option value="baja">Baja</option>
+
+                        <option value="normal">Normal</option>
+
+                        <option value="alta">Alta</option>
+
+                        <option value="urgente">Urgente</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+
+                    <label for="locationFilter">
+                        LUGAR
+                    </label>
+
+                    <select id="locationFilter">
+
+                        <option value="todos">
+                            Todos
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div>
+                    <label for="userFilter"> Técnico </label>
+
+                    <select id="userFilter">
+                        <option value="todos">Todos</option>
+                    </select>
+                </div>
+
+                <button id="clearFiltersButton" class="secondary-button">
+                    Limpiar
+                </button>
+
+            </section>
+
+            <section class="dashboard-panel">
+
+                <div class="panel-header">
+                    <div>
+                        <h2>Listado de tareas</h2>
+
+                        <p id="taskCount">Cargando...</p>
+                    </div>
+                </div>
+
+                <div id="loading" class="tasks-loading">
+                    Cargando tareas...
+                </div>
+
+                <div id="emptyState" class="empty-state hidden">
+                    <strong> No encontramos tareas </strong>
+
+                    <p>Probá modificando los filtros.</p>
+                </div>
+
+                <div id="tableWrapper" class="table-wrapper hidden">
+                    <table class="tasks-table">
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    ID
+                                </th>
+
+                                <th>
+                                    Tarea
+                                </th>
+
+                                <th>
+                                    Lugar
+                                </th>
+
+                                <th>
+                                    Técnicos
+                                </th>
+
+                                <th>
+                                    Prioridad
+                                </th>
+
+                                <th>
+                                    Estado
+                                </th>
+
+                                <th>
+                                    N° Ticket
+                                </th>
+
+                                <th>
+                                    Vencimiento
+                                </th>
+
+                                <th>
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="tasksBody"></tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script type="module" src="../js/pages/admin-tasks-v3.js"></script>
+</body>
+
+</html>

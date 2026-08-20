@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>AB TaskVoice | Usuarios</title>
+    <link rel="icon" href="img/icon-512.png" sizes="any">
+
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/admin.css" />
+    <link rel="stylesheet" href="../css/users-v2.css" />
+</head>
+
+<body class="admin-body">
+
+    <aside id="adminSidebar"></aside>
+
+    <div class="admin-main">
+
+        <header id="adminTopbar"></header>
+
+        <main class="dashboard-content">
+
+            <div class="users-page">
+
+                <section class="users-toolbar-card">
+
+                    <div class="users-toolbar-grid">
+
+                        <div class="users-field users-search-field">
+                            <label for="usersSearch">Buscar</label>
+
+                            <input
+                                id="usersSearch"
+                                type="search"
+                                placeholder="Nombre, apellido o email"
+                                autocomplete="off"
+                            />
+                        </div>
+
+                        <div class="users-field">
+                            <label for="usersRoleFilter">Perfil</label>
+
+                            <select id="usersRoleFilter">
+                                <option value="">Todos</option>
+                                <option value="admin">Administrador</option>
+                                <option value="jefatura">Jefatura</option>
+                                <option value="jefatura_tecnico">Jefatura + Técnico</option>
+                                <option value="tecnico">Técnico</option>
+                            </select>
+                        </div>
+
+                        <div class="users-field">
+                            <label for="usersStatusFilter">Estado</label>
+
+                            <select id="usersStatusFilter">
+                                <option value="">Todos</option>
+                                <option value="active">Activos</option>
+                                <option value="inactive">Inactivos</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <div class="users-summary">
+
+                        <span id="usersCount">Cargando...</span>
+
+                        <button
+                            id="usersClearFilters"
+                            class="users-secondary-button"
+                            type="button"
+                        >
+                            Limpiar filtros
+                        </button>
+
+                    </div>
+
+                </section>
+
+
+                <section class="users-list-card">
+
+                    <div
+                        id="usersLoading"
+                        class="users-state-message"
+                    >
+                        Cargando usuarios...
+                    </div>
+
+                    <div
+                        id="usersError"
+                        class="users-state-message users-error hidden"
+                        role="alert"
+                    ></div>
+
+                    <div
+                        id="usersEmpty"
+                        class="users-state-message hidden"
+                    >
+                        No se encontraron usuarios.
+                    </div>
+
+
+                    <div
+                        id="usersTableWrapper"
+                        class="users-table-wrapper hidden"
+                    >
+
+                        <table class="users-table">
+
+                            <thead>
+                                <tr>
+                                    <th>Usuario</th>
+                                    <th>Contacto</th>
+                                    <th>Perfil</th>
+                                    <th>Estado</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="usersTableBody"></tbody>
+
+                        </table>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+        </main>
+
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script
+        type="module"
+        src="../js/pages/admin-users-v2.js"
+    ></script>
+
+</body>
+</html>

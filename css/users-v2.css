@@ -1,0 +1,535 @@
+/* ============================================================
+   TASKVOICE
+   users-v2.css
+   ============================================================ */
+
+.users-page,
+.users-form-page {
+    width: 100%;
+    min-width: 0;
+    padding: 30px;
+}
+
+.users-form-page {
+    max-width: 1180px;
+}
+
+.users-toolbar-card,
+.users-list-card,
+.users-form-card,
+.users-profile-header,
+.users-action-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.025);
+}
+
+.users-toolbar-card {
+    padding: 20px;
+    margin-bottom: 18px;
+}
+
+.users-list-card {
+    min-width: 0;
+    overflow: hidden;
+}
+
+.users-form-card {
+    padding: 24px;
+}
+
+.users-action-card {
+    padding: 21px;
+}
+
+.users-toolbar-grid {
+    display: grid;
+    grid-template-columns: minmax(240px, 2fr) minmax(150px, 1fr) minmax(150px, 1fr);
+    gap: 14px;
+}
+
+.users-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #edf2f7;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 650;
+}
+
+.users-field {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.users-field label {
+    color: #475569;
+    font-size: 11px;
+    font-weight: 750;
+}
+
+.users-field label span {
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.users-field input,
+.users-field select {
+    width: 100%;
+    min-width: 0;
+    min-height: 43px;
+    padding: 0 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #0f172a;
+    outline: none;
+}
+
+.users-field input:focus,
+.users-field select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+.users-field select:disabled {
+    background: #f8fafc;
+    color: #64748b;
+}
+
+.users-primary-button,
+.users-secondary-button,
+.users-danger-button,
+.users-success-button,
+.users-detail-link,
+.users-link-button {
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 750;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.users-primary-button {
+    border: none;
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.users-primary-button:hover:not(:disabled) {
+    background: #1d4ed8;
+}
+
+.users-secondary-button,
+.users-link-button {
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #475569;
+}
+
+.users-danger-button {
+    width: 100%;
+    border: 1px solid #fecaca;
+    background: #fff1f2;
+    color: #be123c;
+}
+
+.users-success-button {
+    width: 100%;
+    border: 1px solid #bbf7d0;
+    background: #f0fdf4;
+    color: #15803d;
+}
+
+.users-primary-button:disabled,
+.users-secondary-button:disabled,
+.users-danger-button:disabled,
+.users-success-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.users-full-button {
+    width: 100%;
+}
+
+.users-table-wrapper {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.users-table {
+    width: 100%;
+    min-width: 850px;
+    border-collapse: collapse;
+}
+
+.users-table th {
+    padding: 13px 16px;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 10px;
+    font-weight: 800;
+    text-align: left;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.users-table td {
+    padding: 15px 16px;
+    border-bottom: 1px solid #edf2f7;
+    color: #334155;
+    font-size: 12px;
+    vertical-align: middle;
+}
+
+.users-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.users-table tbody tr:hover {
+    background: #fbfdff;
+}
+
+.users-person {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-width: 220px;
+}
+
+.users-avatar,
+.users-profile-avatar {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-weight: 850;
+}
+
+.users-avatar {
+    width: 38px;
+    height: 38px;
+    font-size: 11px;
+}
+
+.users-person div,
+.users-contact {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.users-person strong,
+.users-contact strong {
+    color: #0f172a;
+    font-size: 12px;
+}
+
+.users-person small {
+    max-width: 260px;
+    overflow: hidden;
+    color: #94a3b8;
+    font-size: 9px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.users-contact small {
+    color: #94a3b8;
+    font-size: 10px;
+}
+
+.users-role,
+.users-status {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    padding: 5px 8px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.users-role-admin {
+    background: #ede9fe;
+    color: #6d28d9;
+}
+
+.users-role-supervisor {
+    background: #e0e7ff;
+    color: #4338ca;
+}
+
+.users-role-trabajador,
+.users-role-neutral {
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+.users-status-active {
+    background: #d1fae5;
+    color: #047857;
+}
+
+.users-status-inactive {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+.users-detail-link {
+    min-height: 32px;
+    border: 1px solid #bfdbfe;
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+.users-state-message {
+    padding: 44px 20px;
+    color: #64748b;
+    text-align: center;
+    font-size: 12px;
+}
+
+.users-state-message.users-error {
+    color: #b91c1c;
+}
+
+.users-back-link {
+    display: inline-flex;
+    margin-bottom: 15px;
+    color: #475569;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.users-form-header {
+    margin-bottom: 22px;
+}
+
+.users-form-header h2,
+.users-action-card h3 {
+    margin: 0;
+    color: #0f172a;
+}
+
+.users-form-header h2 {
+    font-size: 18px;
+}
+
+.users-form-header p,
+.users-action-card p {
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.users-form-header p {
+    margin: 5px 0 0;
+}
+
+.users-action-card h3 {
+    font-size: 14px;
+}
+
+.users-action-card p {
+    margin: 7px 0 16px;
+}
+
+.users-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 17px;
+}
+
+.users-password-section {
+    margin-top: 24px;
+    padding-top: 22px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.users-password-section h3 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 14px;
+}
+
+.users-password-section > p {
+    margin: 5px 0 16px;
+    color: #64748b;
+    font-size: 11px;
+}
+
+.users-form-message {
+    min-height: 18px;
+    margin-top: 15px;
+    font-size: 12px;
+}
+
+.users-form-message.error {
+    color: #b91c1c;
+}
+
+.users-form-message.success {
+    color: #15803d;
+}
+
+.users-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.users-profile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 20px 22px;
+    margin-bottom: 16px;
+}
+
+.users-profile-header > div {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    min-width: 0;
+}
+
+.users-profile-avatar {
+    width: 48px;
+    height: 48px;
+    font-size: 14px;
+}
+
+.users-profile-header h2 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 18px;
+}
+
+.users-profile-header p {
+    margin: 4px 0 0;
+    color: #64748b;
+    font-size: 11px;
+}
+
+.users-detail-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(260px, 0.85fr);
+    gap: 16px;
+    align-items: start;
+}
+
+.users-security-column {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.users-action-card form {
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+}
+
+@media (max-width: 900px) {
+
+    .users-detail-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+}
+
+@media (max-width: 760px) {
+
+    .users-page,
+    .users-form-page {
+        padding: 20px 16px;
+    }
+
+    .users-toolbar-grid,
+    .users-form-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .users-summary {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .users-summary .users-secondary-button {
+        width: 100%;
+    }
+
+}
+
+@media (max-width: 600px) {
+
+    .users-page,
+    .users-form-page {
+        padding: 14px 12px 35px;
+    }
+
+    .users-toolbar-card,
+    .users-form-card,
+    .users-action-card {
+        padding: 16px;
+    }
+
+    .users-profile-header {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 17px;
+    }
+
+    .users-form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .users-form-actions > * {
+        width: 100%;
+    }
+
+}
+
+
+/* ============================================================
+   PERFILES MULTIROL
+   ============================================================ */
+
+.users-role-jefatura {
+    background: #e0e7ff;
+    color: #4338ca;
+}
+
+.users-role-jefatura_tecnico {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.users-role-tecnico {
+    background: #eff6ff;
+    color: #1d4ed8;
+}
