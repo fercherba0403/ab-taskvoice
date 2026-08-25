@@ -696,7 +696,7 @@ function retryAtForAttempt(
 }
 
 
-async function markSkipped(
+function markSkipped(
     adminClient: SupabaseClient,
     claim: ClaimedEmail,
     reason: string,
@@ -742,7 +742,7 @@ async function markSkipped(
 }
 
 
-async function markFailed(
+function markFailed(
     adminClient: SupabaseClient,
     claim: ClaimedEmail,
     reason: string,
@@ -791,7 +791,7 @@ async function markFailed(
 }
 
 
-async function markSandboxAccepted(
+function markSandboxAccepted(
     adminClient: SupabaseClient,
     claim: ClaimedEmail,
     recipient: string,
@@ -834,7 +834,7 @@ async function markSandboxAccepted(
 }
 
 
-async function markSent(
+function markSent(
     adminClient: SupabaseClient,
     claim: ClaimedEmail,
     recipient: string,
