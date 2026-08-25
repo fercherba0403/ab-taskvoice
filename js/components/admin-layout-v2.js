@@ -14,7 +14,6 @@ import {
     supabase
 } from '../core/supabase.js';
 
-
 // ============================================================
 // ICONOS
 // ============================================================
@@ -109,7 +108,6 @@ const ICONS = {
 
 };
 
-
 // ============================================================
 // NAVEGACIÓN
 // ============================================================
@@ -167,7 +165,6 @@ const NAV_ITEMS = [
 
 ];
 
-
 // ============================================================
 // ROL
 // ============================================================
@@ -182,7 +179,6 @@ function formatRole(role) {
 
     return roles[role] ?? role;
 }
-
 
 // ============================================================
 // INICIALES
@@ -202,7 +198,6 @@ function getInitials(profile) {
 
     return `${first}${last}` || 'U';
 }
-
 
 // ============================================================
 // SIDEBAR
@@ -275,43 +270,32 @@ function renderSidebar(activePage) {
             </div>
 
             <div class="sidebar-brand-text">
-
                 <strong>
                     TaskVoice
                 </strong>
-
                 <span id="layoutOrganizationName">
                     Cargando...
                 </span>
-
             </div>
 
         </div>
-
 
         <nav class="sidebar-nav">
             ${navigation}
         </nav>
 
-
         <div class="sidebar-footer">
 
             <div class="sidebar-user">
 
-                <div
-                    id="layoutUserAvatar"
-                    class="user-avatar"
-                >
+                <div id="layoutUserAvatar" class="user-avatar">
                     U
                 </div>
 
-
                 <div class="user-info">
-
                     <strong id="layoutUserName">
                         ...
                     </strong>
-
                     <span id="layoutUserRole">
                         ...
                     </span>
@@ -320,19 +304,13 @@ function renderSidebar(activePage) {
 
             </div>
 
-
-            <button
-                type="button"
-                id="layoutLogoutButton"
-                class="logout-button"
-            >
+            <button type="button" id="layoutLogoutButton" class="logout-button">
                 Cerrar sesión
             </button>
 
         </div>
     `;
 }
-
 
 // ============================================================
 // TOPBAR
@@ -342,8 +320,9 @@ function renderTopbar(
     title,
     subtitle,
     action
-) {
+)
 
+{
     const topbar =
         document.getElementById(
             'adminTopbar'
@@ -355,24 +334,16 @@ function renderTopbar(
             'TaskVoice: falta #adminTopbar.'
         );
     }
-
-    topbar.className =
-        'topbar';
-
+ 
+    topbar.className = 'topbar';
 
     topbar.innerHTML = `
 
         <div class="topbar-left">
 
-            <button
-                type="button"
-                id="layoutMenuButton"
-                class="menu-button"
-                aria-label="Abrir menú"
-            >
+            <button type="button" id="layoutMenuButton" class="menu-button" aria-label="Abrir menú">
                 ☰
             </button>
-
 
             <div>
 
@@ -384,10 +355,8 @@ function renderTopbar(
 
         </div>
 
-
         <div id="layoutTopbarActions"></div>
     `;
-
 
     setAdminTopbarTitle(
         title
@@ -397,7 +366,6 @@ function renderTopbar(
         subtitle
     );
 
-
     if (action) {
 
         const container =
@@ -405,20 +373,16 @@ function renderTopbar(
                 'layoutTopbarActions'
             );
 
-
         const link =
             document.createElement(
                 'a'
             );
 
-
         link.className =
             'new-task-button admin-topbar-action';
 
-
         link.href =
             action.href;
-
 
         if (action.icon) {
 
@@ -435,7 +399,6 @@ function renderTopbar(
             );
         }
 
-
         const label =
             document.createElement(
                 'span'
@@ -444,18 +407,15 @@ function renderTopbar(
         label.textContent =
             action.label;
 
-
         link.append(
             label
         );
-
 
         container.append(
             link
         );
     }
 }
-
 
 // ============================================================
 // OVERLAY
@@ -467,7 +427,6 @@ function ensureOverlay() {
         document.getElementById(
             'adminSidebarOverlay'
         );
-
 
     if (!overlay) {
 
