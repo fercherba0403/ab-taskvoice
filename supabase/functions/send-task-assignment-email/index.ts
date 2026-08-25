@@ -25,6 +25,13 @@ const SENDER_NAME =
 const EMAIL_SUBJECT =
     'Nueva tarea asignada en AB TaskVoice';
 
+const TASKVOICE_EMAIL_TAG =
+    'ab_taskvoice';
+
+
+const TASKVOICE_NOTIFICATION_TAG_PREFIX =
+    'ab_taskvoice_notification_';
+
 
 const APPLICATION_URL =
     'https://reporteaubasa.pages.dev/trabajador/inicio.html';
@@ -1710,6 +1717,12 @@ Deno.serve(
 
                                 subject:
                                     EMAIL_SUBJECT,
+
+                                tags: [
+                                    TASKVOICE_EMAIL_TAG,
+                                    `${TASKVOICE_NOTIFICATION_TAG_PREFIX}${notificationId}`
+                                ],
+
 
                                 htmlContent:
                                     emailContent
