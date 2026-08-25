@@ -12,11 +12,15 @@ html {
 }
 
 body {
-  
   margin: 0;
   font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   color: #1f2937;
-  background: #f4f6f8;
+  /*background: #21558a;*/
+  background-image: url(../img/aubasa.jpg);
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
 button,
