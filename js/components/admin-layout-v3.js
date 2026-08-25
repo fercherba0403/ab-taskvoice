@@ -10,23 +10,16 @@
 // - Registros y Configuración permanecen ocultos hasta su implementación.
 // ============================================================
 
-import {
-    logout,
-    requireRole
-} from '../core/auth.js';
+import { logout, requireRole } from "../core/auth.js";
 
-import {
-    supabase
-} from '../core/supabase.js';
-
+import { supabase } from "../core/supabase.js";
 
 // ============================================================
 // ICONOS
 // ============================================================
 
 const ICONS = {
-
-    dashboard: `
+  dashboard: `
         <svg viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="2">
             <rect x="3" y="3" width="7" height="7"></rect>
@@ -36,7 +29,7 @@ const ICONS = {
         </svg>
     `,
 
-    tasks: `
+  tasks: `
         <svg viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="2">
             <path d="M9 11l3 3L22 4"></path>
@@ -46,7 +39,7 @@ const ICONS = {
         </svg>
     `,
 
-    users: `
+  users: `
         <svg viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="2">
             <path d="M16 21v-2a4 4 0 0 0-4-4H6
@@ -57,7 +50,7 @@ const ICONS = {
         </svg>
     `,
 
-    records: `
+  records: `
         <svg viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="2">
             <path d="M8 6h13"></path>
@@ -69,7 +62,7 @@ const ICONS = {
         </svg>
     `,
 
-    reports: `
+  reports: `
         <svg viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="2">
             <path d="M3 3v18h18"></path>
@@ -77,7 +70,7 @@ const ICONS = {
         </svg>
     `,
 
-    settings: `
+  settings: `
         <svg viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="3"></circle>
@@ -110,188 +103,124 @@ const ICONS = {
                      a2 2 0 1 1 0 4h-.09
                      A1.7 1.7 0 0 0 19.4 15z"></path>
         </svg>
-    `
-
+    `,
 };
-
 
 // ============================================================
 // NAVEGACIÓN
 // ============================================================
 
 const NAV_ITEMS = [
+  {
+    key: "dashboard",
+    label: "Dashboard",
+    icon: "dashboard",
+    href: "./dashboard.html",
+    roles: ["admin", "supervisor"],
+  },
 
-    {
-        key: 'dashboard',
-        label: 'Dashboard',
-        icon: 'dashboard',
-        href: './dashboard.html',
-        roles: [
-            'admin',
-            'supervisor'
-        ]
-    },
+  {
+    key: "tareas",
+    label: "Tareas",
+    icon: "tasks",
+    href: "./tareas.html",
+    roles: ["admin", "supervisor"],
+  },
 
-    {
-        key: 'tareas',
-        label: 'Tareas',
-        icon: 'tasks',
-        href: './tareas.html',
-        roles: [
-            'admin',
-            'supervisor'
-        ]
-    },
+  {
+    key: "usuarios",
+    label: "Usuarios",
+    icon: "users",
+    href: "./usuarios.html",
+    roles: ["admin"],
+  },
 
-    {
-        key: 'usuarios',
-        label: 'Usuarios',
-        icon: 'users',
-        href: './usuarios.html',
-        roles: [
-            'admin'
-        ]
-    },
+  {
+    key: "registros",
+    label: "Registros",
+    icon: "records",
+    href: "#",
+    roles: ["admin", "supervisor"],
+    visible: false,
+  },
 
-    {
-        key: 'registros',
-        label: 'Registros',
-        icon: 'records',
-        href: '#',
-        roles: [
-            'admin',
-            'supervisor'
-        ],
-        visible: false
-    },
+  {
+    key: "reportes",
+    label: "Reportes",
+    icon: "reports",
+    href: "./reportes.html",
+    roles: ["admin", "supervisor"],
+  },
 
-    {
-        key: 'reportes',
-        label: 'Reportes',
-        icon: 'reports',
-        href: './reportes.html',
-        roles: [
-            'admin',
-            'supervisor'
-        ]
-    },
-
-    {
-        key: 'configuracion',
-        label: 'Configuración',
-        icon: 'settings',
-        href: '#',
-        roles: [
-            'admin'
-        ],
-        visible: false
-    }
-
+  {
+    key: "configuracion",
+    label: "Configuración",
+    icon: "settings",
+    href: "#",
+    roles: ["admin"],
+    visible: false,
+  },
 ];
-
 
 // ============================================================
 // ROL
 // ============================================================
 
 function formatRole(role) {
+  const roles = {
+    admin: "Administrador",
+    supervisor: "Jefatura",
+    trabajador: "Técnico",
+  };
 
-    const roles = {
-        admin: 'Administrador',
-        supervisor: 'Jefatura',
-        trabajador: 'Técnico'
-    };
-
-    return roles[role] ?? role;
+  return roles[role] ?? role;
 }
-
 
 // ============================================================
 // INICIALES
 // ============================================================
 
 function getInitials(profile) {
+  const first = profile.nombre?.charAt(0)?.toUpperCase() ?? "";
 
-    const first =
-        profile.nombre
-            ?.charAt(0)
-            ?.toUpperCase() ?? '';
+  const last = profile.apellido?.charAt(0)?.toUpperCase() ?? "";
 
-    const last =
-        profile.apellido
-            ?.charAt(0)
-            ?.toUpperCase() ?? '';
-
-    return `${first}${last}` || 'U';
+  return `${first}${last}` || "U";
 }
-
 
 // ============================================================
 // SIDEBAR
 // ============================================================
 
-function renderSidebar(
-    activePage,
-    profile
-) {
+function renderSidebar(activePage, profile) {
+  const sidebar = document.getElementById("adminSidebar");
 
-    const sidebar =
-        document.getElementById(
-            'adminSidebar'
-        );
+  if (!sidebar) {
+    throw new Error("TaskVoice: falta #adminSidebar.");
+  }
 
-    if (!sidebar) {
+  sidebar.className = "sidebar";
 
-        throw new Error(
-            'TaskVoice: falta #adminSidebar.'
-        );
+  const navigation = NAV_ITEMS.filter((item) => {
+    if (item.visible === false) {
+      return false;
     }
 
-    sidebar.className =
-        'sidebar';
+    if (Array.isArray(item.roles) && !item.roles.includes(profile.rol)) {
+      return false;
+    }
 
-    const navigation =
-        NAV_ITEMS
+    return true;
+  })
+    .map((item) => {
+      const active = item.key === activePage;
 
-            .filter(item => {
-
-                if (
-                    item.visible === false
-                ) {
-
-                    return false;
-                }
-
-
-                if (
-                    Array.isArray(
-                        item.roles
-                    )
-                    &&
-                    !item.roles.includes(
-                        profile.rol
-                    )
-                ) {
-
-                    return false;
-                }
-
-
-                return true;
-            })
-
-            .map(item => {
-
-                const active =
-                    item.key === activePage;
-
-
-                return `
+      return `
 
                     <a
                         href="${item.href}"
-                        class="nav-item ${active ? 'active' : ''}"
-                        ${active ? 'aria-current="page"' : ''}
+                        class="nav-item ${active ? "active" : ""}"
+                        ${active ? 'aria-current="page"' : ""}
                     >
 
                         <span class="nav-icon">
@@ -304,18 +233,15 @@ function renderSidebar(
 
                     </a>
                 `;
+    })
+    .join("");
 
-            })
-
-            .join('');
-
-
-    sidebar.innerHTML = `
+  sidebar.innerHTML = `
 
         <div class="sidebar-brand">
 
             <div class="sidebar-logo">
-                TV
+                <img src="/img/icon-192.png" alt="logoAB">
             </div>
 
             <div class="sidebar-brand-text">
@@ -332,11 +258,9 @@ function renderSidebar(
 
         </div>
 
-
         <nav class="sidebar-nav">
             ${navigation}
         </nav>
-
 
         <div class="sidebar-footer">
 
@@ -377,34 +301,20 @@ function renderSidebar(
     `;
 }
 
-
 // ============================================================
 // TOPBAR
 // ============================================================
 
-function renderTopbar(
-    title,
-    subtitle,
-    action
-) {
+function renderTopbar(title, subtitle, action) {
+  const topbar = document.getElementById("adminTopbar");
 
-    const topbar =
-        document.getElementById(
-            'adminTopbar'
-        );
+  if (!topbar) {
+    throw new Error("TaskVoice: falta #adminTopbar.");
+  }
 
-    if (!topbar) {
+  topbar.className = "topbar";
 
-        throw new Error(
-            'TaskVoice: falta #adminTopbar.'
-        );
-    }
-
-    topbar.className =
-        'topbar';
-
-
-    topbar.innerHTML = `
+  topbar.innerHTML = `
 
         <div class="topbar-left">
 
@@ -432,533 +342,245 @@ function renderTopbar(
         <div id="layoutTopbarActions"></div>
     `;
 
+  setAdminTopbarTitle(title);
 
-    setAdminTopbarTitle(
-        title
-    );
+  setAdminTopbarSubtitle(subtitle);
 
-    setAdminTopbarSubtitle(
-        subtitle
-    );
+  if (action) {
+    const container = document.getElementById("layoutTopbarActions");
 
+    const link = document.createElement("a");
 
-    if (action) {
+    link.className = "new-task-button admin-topbar-action";
 
-        const container =
-            document.getElementById(
-                'layoutTopbarActions'
-            );
+    link.href = action.href;
 
+    if (action.icon) {
+      const icon = document.createElement("span");
 
-        const link =
-            document.createElement(
-                'a'
-            );
+      icon.textContent = action.icon;
 
-
-        link.className =
-            'new-task-button admin-topbar-action';
-
-
-        link.href =
-            action.href;
-
-
-        if (action.icon) {
-
-            const icon =
-                document.createElement(
-                    'span'
-                );
-
-            icon.textContent =
-                action.icon;
-
-            link.append(
-                icon
-            );
-        }
-
-
-        const label =
-            document.createElement(
-                'span'
-            );
-
-        label.textContent =
-            action.label;
-
-
-        link.append(
-            label
-        );
-
-
-        container.append(
-            link
-        );
+      link.append(icon);
     }
-}
 
+    const label = document.createElement("span");
+
+    label.textContent = action.label;
+
+    link.append(label);
+
+    container.append(link);
+  }
+}
 
 // ============================================================
 // OVERLAY
 // ============================================================
 
 function ensureOverlay() {
+  let overlay = document.getElementById("adminSidebarOverlay");
 
-    let overlay =
-        document.getElementById(
-            'adminSidebarOverlay'
-        );
+  if (!overlay) {
+    overlay = document.createElement("div");
 
+    overlay.id = "adminSidebarOverlay";
 
-    if (!overlay) {
+    overlay.className = "sidebar-overlay";
 
-        overlay =
-            document.createElement(
-                'div'
-            );
+    document.body.append(overlay);
+  }
 
-
-        overlay.id =
-            'adminSidebarOverlay';
-
-
-        overlay.className =
-            'sidebar-overlay';
-
-
-        document.body.append(
-            overlay
-        );
-    }
-
-
-    return overlay;
+  return overlay;
 }
-
 
 // ============================================================
 // TOAST
 // ============================================================
 
 function ensureToast() {
+  let toast = document.getElementById("adminToast");
 
-    let toast =
-        document.getElementById(
-            'adminToast'
-        );
+  if (!toast) {
+    toast = document.createElement("div");
 
+    toast.id = "adminToast";
 
-    if (!toast) {
+    toast.className = "toast";
 
-        toast =
-            document.createElement(
-                'div'
-            );
+    toast.setAttribute("role", "status");
 
+    toast.setAttribute("aria-live", "polite");
 
-        toast.id =
-            'adminToast';
+    document.body.append(toast);
+  }
 
-
-        toast.className =
-            'toast';
-
-
-        toast.setAttribute(
-            'role',
-            'status'
-        );
-
-
-        toast.setAttribute(
-            'aria-live',
-            'polite'
-        );
-
-
-        document.body.append(
-            toast
-        );
-    }
-
-
-    return toast;
+  return toast;
 }
-
 
 let toastTimer = null;
 
+export function showAdminToast(message, type = "info") {
+  const toast = ensureToast();
 
-export function showAdminToast(
-    message,
-    type = 'info'
-) {
+  toast.textContent = message;
 
-    const toast =
-        ensureToast();
+  toast.className = `toast toast-${type} show`;
 
+  clearTimeout(toastTimer);
 
-    toast.textContent =
-        message;
-
-
-    toast.className =
-        `toast toast-${type} show`;
-
-
-    clearTimeout(
-        toastTimer
-    );
-
-
-    toastTimer =
-        setTimeout(
-            () => {
-
-                toast.classList.remove(
-                    'show'
-                );
-
-            },
-            3000
-        );
+  toastTimer = setTimeout(() => {
+    toast.classList.remove("show");
+  }, 3000);
 }
-
 
 // ============================================================
 // TOPBAR API
 // ============================================================
 
-export function setAdminTopbarTitle(
-    title
-) {
+export function setAdminTopbarTitle(title) {
+  const element = document.getElementById("layoutPageTitle");
 
-    const element =
-        document.getElementById(
-            'layoutPageTitle'
-        );
-
-
-    if (element) {
-
-        element.textContent =
-            title ?? '';
-    }
+  if (element) {
+    element.textContent = title ?? "";
+  }
 }
 
+export function setAdminTopbarSubtitle(subtitle) {
+  const element = document.getElementById("layoutPageSubtitle");
 
-export function setAdminTopbarSubtitle(
-    subtitle
-) {
-
-    const element =
-        document.getElementById(
-            'layoutPageSubtitle'
-        );
-
-
-    if (element) {
-
-        element.textContent =
-            subtitle ?? '';
-    }
+  if (element) {
+    element.textContent = subtitle ?? "";
+  }
 }
-
 
 // ============================================================
 // EMPRESA
 // ============================================================
 
-async function loadOrganizationName(
-    profile
-) {
+async function loadOrganizationName(profile) {
+  const element = document.getElementById("layoutOrganizationName");
 
-    const element =
-        document.getElementById(
-            'layoutOrganizationName'
-        );
+  const { data, error } = await supabase
+    .from("organizations")
+    .select("nombre")
+    .eq("id", profile.organization_id)
+    .single();
 
+  if (error) {
+    console.error("Error obteniendo organización:", error);
 
-    const {
-        data,
-        error
-    } = await supabase
+    element.textContent = "Organización";
 
-        .from('organizations')
+    return;
+  }
 
-        .select('nombre')
-
-        .eq(
-            'id',
-            profile.organization_id
-        )
-
-        .single();
-
-
-    if (error) {
-
-        console.error(
-            'Error obteniendo organización:',
-            error
-        );
-
-
-        element.textContent =
-            'Organización';
-
-        return;
-    }
-
-
-    element.textContent =
-        data.nombre;
+  element.textContent = data.nombre;
 }
-
 
 // ============================================================
 // IDENTIDAD
 // ============================================================
 
-async function renderIdentity(
-    profile
-) {
+async function renderIdentity(profile) {
+  document.getElementById("layoutUserName").textContent =
+    `${profile.nombre} ${profile.apellido}`.trim();
 
-    document.getElementById(
-        'layoutUserName'
-    ).textContent =
+  document.getElementById("layoutUserRole").textContent = formatRole(
+    profile.rol,
+  );
 
-        `${profile.nombre} ${profile.apellido}`
-            .trim();
+  document.getElementById("layoutUserAvatar").textContent =
+    getInitials(profile);
 
-
-    document.getElementById(
-        'layoutUserRole'
-    ).textContent =
-
-        formatRole(
-            profile.rol
-        );
-
-
-    document.getElementById(
-        'layoutUserAvatar'
-    ).textContent =
-
-        getInitials(
-            profile
-        );
-
-
-    await loadOrganizationName(
-        profile
-    );
+  await loadOrganizationName(profile);
 }
-
 
 // ============================================================
 // EVENTOS
 // ============================================================
 
 function bindLayoutEvents() {
+  const overlay = ensureOverlay();
 
-    const overlay =
-        ensureOverlay();
+  const menuButton = document.getElementById("layoutMenuButton");
 
+  const logoutButton = document.getElementById("layoutLogoutButton");
 
-    const menuButton =
-        document.getElementById(
-            'layoutMenuButton'
-        );
+  menuButton?.addEventListener("click", () => {
+    document.body.classList.add("sidebar-open");
+  });
 
+  overlay.addEventListener("click", () => {
+    document.body.classList.remove("sidebar-open");
+  });
 
-    const logoutButton =
-        document.getElementById(
-            'layoutLogoutButton'
-        );
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      document.body.classList.remove("sidebar-open");
+    }
+  });
 
+  document.querySelectorAll("[data-coming-soon]").forEach((item) => {
+    item.addEventListener("click", (event) => {
+      event.preventDefault();
 
-    menuButton?.addEventListener(
-        'click',
-        () => {
+      showAdminToast(
+        `${item.dataset.comingSoon}: módulo pendiente de construcción.`,
+      );
+    });
+  });
 
-            document.body.classList.add(
-                'sidebar-open'
-            );
+  document.querySelectorAll(".sidebar .nav-item").forEach((item) => {
+    item.addEventListener("click", () => {
+      if (!item.dataset.comingSoon) {
+        document.body.classList.remove("sidebar-open");
+      }
+    });
+  });
 
-        }
-    );
+  logoutButton?.addEventListener("click", async () => {
+    logoutButton.disabled = true;
 
+    logoutButton.textContent = "Cerrando...";
 
-    overlay.addEventListener(
-        'click',
-        () => {
-
-            document.body.classList.remove(
-                'sidebar-open'
-            );
-
-        }
-    );
-
-
-    document.addEventListener(
-        'keydown',
-        event => {
-
-            if (
-                event.key === 'Escape'
-            ) {
-
-                document.body.classList.remove(
-                    'sidebar-open'
-                );
-            }
-
-        }
-    );
-
-
-    document
-        .querySelectorAll(
-            '[data-coming-soon]'
-        )
-        .forEach(item => {
-
-            item.addEventListener(
-                'click',
-                event => {
-
-                    event.preventDefault();
-
-
-                    showAdminToast(
-                        `${item.dataset.comingSoon}: módulo pendiente de construcción.`
-                    );
-
-                }
-            );
-
-        });
-
-
-    document
-        .querySelectorAll(
-            '.sidebar .nav-item'
-        )
-        .forEach(item => {
-
-            item.addEventListener(
-                'click',
-                () => {
-
-                    if (
-                        !item.dataset.comingSoon
-                    ) {
-
-                        document.body.classList.remove(
-                            'sidebar-open'
-                        );
-                    }
-
-                }
-            );
-
-        });
-
-
-    logoutButton?.addEventListener(
-        'click',
-        async () => {
-
-            logoutButton.disabled =
-                true;
-
-
-            logoutButton.textContent =
-                'Cerrando...';
-
-
-            try {
-
-                await logout();
-
-            } finally {
-
-                window.location.replace(
-                    '../index.html'
-                );
-            }
-
-        }
-    );
+    try {
+      await logout();
+    } finally {
+      window.location.replace("../index.html");
+    }
+  });
 }
-
 
 // ============================================================
 // INICIALIZACIÓN PÚBLICA
 // ============================================================
 
 export async function initAdminLayout({
+  activePage = "dashboard",
 
-    activePage = 'dashboard',
+  title = "TaskVoice",
 
-    title = 'TaskVoice',
+  subtitle = "",
 
-    subtitle = '',
-
-    action = null
-
+  action = null,
 } = {}) {
+  const profile = await requireRole(["admin", "supervisor"], "../");
 
+  if (!profile) {
+    return null;
+  }
 
-    const profile =
-        await requireRole(
+  renderSidebar(activePage, profile);
 
-            [
-                'admin',
-                'supervisor'
-            ],
+  renderTopbar(title, subtitle, action);
 
-            '../'
+  ensureOverlay();
 
-        );
+  ensureToast();
 
+  await renderIdentity(profile);
 
-    if (!profile) {
+  bindLayoutEvents();
 
-        return null;
-    }
-
-
-    renderSidebar(
-        activePage,
-        profile
-    );
-
-
-    renderTopbar(
-        title,
-        subtitle,
-        action
-    );
-
-
-    ensureOverlay();
-
-    ensureToast();
-
-
-    await renderIdentity(
-        profile
-    );
-
-
-    bindLayoutEvents();
-
-
-    return profile;
+  return profile;
 }
