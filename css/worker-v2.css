@@ -2138,3 +2138,350 @@
   }
 }
 
+/* ============================================================
+   REPORTE PARCIAL - DETALLE OPCIONAL
+   ============================================================ */
+
+.worker-report-note {
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.worker-report-note label {
+  display: block;
+  margin-bottom: 8px;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.worker-report-note label span {
+  color: #64748b;
+  font-weight: 600;
+}
+
+.worker-report-note textarea {
+  width: 100%;
+  min-height: 90px;
+  padding: 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #0f172a;
+  line-height: 1.5;
+  resize: vertical;
+  outline: none;
+}
+
+.worker-report-note textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.worker-report-note > p {
+  margin: 8px 0 0;
+  color: #64748b;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* ============================================================
+   GUARDAR REPORTE SIN FINALIZAR
+   ============================================================ */
+
+.worker-report-save-area {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid #dbeafe;
+}
+
+.worker-report-save-area strong {
+  color: #0f172a;
+  font-size: 13px;
+}
+
+.worker-report-save-area p {
+  margin: 4px 0 0;
+  color: #64748b;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.worker-save-report-button {
+  flex: 0 0 auto;
+  min-height: 46px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 9px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.worker-save-report-button:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.worker-save-report-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* ============================================================
+   HISTORIAL DE REPORTES PARCIALES
+   ============================================================ */
+
+.worker-reports-card {
+  margin-top: 18px;
+  padding: 24px;
+  border: 1px solid #e2e8f0;
+  border-radius: 15px;
+  background: #ffffff;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.025);
+}
+
+.worker-reports-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.worker-reports-header h2 {
+  margin: 5px 0 5px;
+  color: #0f172a;
+  font-size: 19px;
+}
+
+.worker-reports-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.worker-reports-count {
+  flex: 0 0 auto;
+  padding: 6px 10px;
+  border: 1px solid #bfdbfe;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.worker-reports-message {
+  min-height: 0;
+  margin-top: 0;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.worker-reports-message:not(:empty) {
+  min-height: 20px;
+  margin-top: 16px;
+  padding: 10px;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.worker-reports-message.error:not(:empty) {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.worker-reports-message.success:not(:empty) {
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.worker-reports-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.worker-report-item {
+  padding: 17px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.worker-report-item-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.worker-report-number {
+  display: block;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.worker-report-meta {
+  display: block;
+  margin-top: 4px;
+  color: #64748b;
+  font-size: 11px;
+}
+
+.worker-report-status {
+  flex: 0 0 auto;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.worker-report-status-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.worker-report-status-processing {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.worker-report-status-completed {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.worker-report-status-failed {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.worker-report-description,
+.worker-report-transcription,
+.worker-report-state-message {
+  margin: 14px 0 0;
+  padding: 12px;
+  border-radius: 9px;
+  color: #334155;
+  font-size: 12px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+.worker-report-description {
+  border-left: 3px solid #94a3b8;
+  background: #ffffff;
+}
+
+.worker-report-transcription {
+  border-left: 3px solid #60a5fa;
+  background: #eff6ff;
+}
+
+.worker-report-state-message {
+  background: #ffffff;
+  color: #64748b;
+}
+
+.worker-report-state-message.error {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.worker-report-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.worker-report-audio-button,
+.worker-report-retry-button {
+  min-height: 38px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.worker-report-audio-button {
+  border: 1px solid #bfdbfe;
+  background: #ffffff;
+  color: #1d4ed8;
+}
+
+.worker-report-retry-button {
+  border: 1px solid #fed7aa;
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.worker-report-audio-button:hover:not(:disabled) {
+  background: #eff6ff;
+}
+
+.worker-report-retry-button:hover:not(:disabled) {
+  background: #ffedd5;
+}
+
+.worker-report-audio-button:disabled,
+.worker-report-retry-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.worker-report-audio-player {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.worker-reports-empty {
+  margin: 18px 0 0;
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+@media (max-width: 600px) {
+  .worker-report-note,
+  .worker-reports-card {
+    padding: 15px;
+  }
+
+  .worker-report-save-area,
+  .worker-reports-header,
+  .worker-report-item-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .worker-save-report-button,
+  .worker-report-audio-button,
+  .worker-report-retry-button {
+    width: 100%;
+  }
+
+  .worker-reports-count,
+  .worker-report-status {
+    align-self: flex-start;
+  }
+
+  .worker-report-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+}
+

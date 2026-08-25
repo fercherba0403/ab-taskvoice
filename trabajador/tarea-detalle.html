@@ -638,6 +638,31 @@
 
 
                 <!-- ==================================================
+         DETALLE DEL REPORTE PARCIAL
+    =================================================== -->
+
+                <div class="worker-report-note">
+
+                    <label for="reportDescription">
+                        Detalle de este reporte de avance
+                        <span>(opcional)</span>
+                    </label>
+
+                    <textarea
+                        id="reportDescription"
+                        rows="3"
+                        maxlength="5000"
+                        placeholder="Ej.: Se verificó la alimentación y se continuará con las pruebas del equipo..."
+                    ></textarea>
+
+                    <p>
+                        Este texto se guarda únicamente con el reporte y no reemplaza la descripción final del trabajo.
+                    </p>
+
+                </div>
+
+
+                <!-- ==================================================
          GRABADOR
     =================================================== -->
 
@@ -687,8 +712,35 @@
                     <audio id="audioPreview" class="worker-audio-preview hidden" controls></audio>
 
 
+                    <div class="worker-report-save-area">
+
+                        <div>
+
+                            <strong>
+                                Guardar sin finalizar
+                            </strong>
+
+                            <p>
+                                El audio se guardará y transcribirá, pero la tarea continuará en progreso.
+                            </p>
+
+                        </div>
+
+
+                        <button
+                            id="saveReportButton"
+                            class="worker-save-report-button"
+                            type="button"
+                            disabled
+                        >
+                            Guardar y transcribir reporte
+                        </button>
+
+                    </div>
+
+
                     <p class="worker-recorder-help">
-                        Podés escuchar la grabación antes de completar la tarea.
+                        Podés escuchar la grabación antes de guardarla o completar la tarea.
                         Duración máxima: 5 minutos.
                     </p>
 
@@ -727,6 +779,63 @@
                     </button>
 
                 </div>
+
+            </section>
+
+
+            <!-- ======================================================
+     HISTORIAL DE REPORTES PARCIALES
+======================================================= -->
+
+            <section
+                id="executionReportsPanel"
+                class="worker-reports-card hidden"
+                aria-labelledby="executionReportsTitle"
+            >
+
+                <div class="worker-reports-header">
+
+                    <div>
+
+                        <span class="worker-work-eyebrow">
+                            Seguimiento de la intervención
+                        </span>
+
+                        <h2 id="executionReportsTitle">
+                            Reportes de avance
+                        </h2>
+
+                        <p>
+                            Cada reporte queda guardado con su técnico, fecha, audio y transcripción.
+                        </p>
+
+                    </div>
+
+
+                    <span id="executionReportsCount" class="worker-reports-count">
+                        0 reportes
+                    </span>
+
+                </div>
+
+
+                <div
+                    id="executionReportsMessage"
+                    class="worker-reports-message"
+                    aria-live="polite"
+                ></div>
+
+
+                <div
+                    id="executionReportsList"
+                    class="worker-reports-list"
+                    aria-live="polite"
+                ></div>
+
+
+                <p id="executionReportsEmpty" class="worker-reports-empty">
+                    Todavía no hay reportes de avance guardados.
+                </p>
 
             </section>
 

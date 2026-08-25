@@ -26,9 +26,15 @@ import {
 } from '../services/tasks.js';
 
 import {
+    addExecutionReport,
+
     completeExecutionWithWorkTypes,
 
     createExecutionAudioSignedUrl,
+
+    createExecutionReportAudioSignedUrl,
+
+    getExecutionReports,
 
     getTaskCompletedExecution,
 
@@ -36,9 +42,15 @@ import {
 
     getWorkTypes,
 
+    removeExecutionReportAudio,
+
     transcribeExecution,
 
-    uploadExecutionAudio
+    transcribeExecutionReport,
+
+    uploadExecutionAudio,
+
+    uploadExecutionReportAudio
 } from '../services/executions-v3.js';
 
 
@@ -162,6 +174,41 @@ const workMessage =
         'workMessage'
     );
 
+const reportDescription =
+    document.getElementById(
+        'reportDescription'
+    );
+
+const saveReportButton =
+    document.getElementById(
+        'saveReportButton'
+    );
+
+const executionReportsPanel =
+    document.getElementById(
+        'executionReportsPanel'
+    );
+
+const executionReportsCount =
+    document.getElementById(
+        'executionReportsCount'
+    );
+
+const executionReportsList =
+    document.getElementById(
+        'executionReportsList'
+    );
+
+const executionReportsEmpty =
+    document.getElementById(
+        'executionReportsEmpty'
+    );
+
+const executionReportsMessage =
+    document.getElementById(
+        'executionReportsMessage'
+    );
+
 const workTypesList =
     document.getElementById(
         'workTypesList'
@@ -270,6 +317,10 @@ let currentAssignment = null;
 let currentExecutionId = null;
 
 let availableWorkTypes = [];
+
+let currentExecutionReports = [];
+
+let reportOperationBusy = false;
 
 
 let currentPhotos = [];
@@ -762,6 +813,13 @@ if (
         completedExecution
     );
 
+
+    await loadExecutionReports(
+        completedExecution?.id
+        ??
+        null
+    );
+
 }
 
 
@@ -968,6 +1026,14 @@ startTaskButton.addEventListener(
 
 
             await refreshWorkPhotos();
+
+
+            await loadExecutionReports(
+                executionId
+            );
+
+
+            updateSaveReportButton();
 
 
             console.log(
@@ -1795,6 +1861,861 @@ function showWorkMessage(
 
 
 // ============================================================
+// MENSAJE DEL HISTORIAL DE REPORTES
+// ============================================================
+
+function showReportsMessage(
+    text,
+    type = ''
+) {
+
+    executionReportsMessage.textContent =
+        text;
+
+
+    executionReportsMessage.className =
+        'worker-reports-message';
+
+
+    if (type) {
+
+        executionReportsMessage.classList.add(
+            type
+        );
+
+    }
+
+}
+
+
+
+// ============================================================
+// FECHA Y HORA DEL REPORTE
+// ============================================================
+
+function formatReportDateTime(
+    value
+) {
+
+    if (!value) {
+
+        return 'Sin fecha';
+
+    }
+
+
+    const date =
+        new Date(value);
+
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return 'Sin fecha';
+
+    }
+
+
+    return new Intl.DateTimeFormat(
+        'es-AR',
+        {
+            dateStyle:
+                'short',
+
+            timeStyle:
+                'short'
+        }
+    ).format(date);
+
+}
+
+
+
+// ============================================================
+// ESTADO DE TRANSCRIPCIÓN DEL REPORTE
+// ============================================================
+
+function reportStatusLabel(
+    status
+) {
+
+    const labels = {
+
+        pending:
+            'Pendiente',
+
+        processing:
+            'Transcribiendo',
+
+        completed:
+            'Transcripto',
+
+        failed:
+            'Error'
+
+    };
+
+
+    return labels[status]
+        ?? 'Pendiente';
+
+}
+
+
+
+function reportStatusClass(
+    status
+) {
+
+    const allowed = [
+        'pending',
+        'processing',
+        'completed',
+        'failed'
+    ];
+
+
+    return allowed.includes(status)
+        ? status
+        : 'pending';
+
+}
+
+
+
+// ============================================================
+// RESTABLECER EL GRABADOR
+// ============================================================
+
+function resetAudioRecording() {
+
+    stopRecordingTimer();
+
+    stopMediaStream();
+
+
+    audioBlob =
+        null;
+
+
+    audioChunks =
+        [];
+
+
+    if (
+        audioPreviewUrl
+    ) {
+
+        URL.revokeObjectURL(
+            audioPreviewUrl
+        );
+
+
+        audioPreviewUrl =
+            null;
+
+    }
+
+
+    audioPreview.removeAttribute(
+        'src'
+    );
+
+
+    audioPreview.load();
+
+
+    audioPreview.classList.add(
+        'hidden'
+    );
+
+
+    discardRecordButton.classList.add(
+        'hidden'
+    );
+
+
+    recordingTimer.textContent =
+        '00:00';
+
+
+    recordingStatus.textContent =
+        'Sin grabación';
+
+
+    recordButton.textContent =
+        '🎙 Grabar informe';
+
+
+    updateSaveReportButton();
+
+}
+
+
+
+// ============================================================
+// DISPONIBILIDAD DEL BOTÓN GUARDAR REPORTE
+// ============================================================
+
+function updateSaveReportButton() {
+
+    const recording =
+        mediaRecorder?.state ===
+        'recording';
+
+
+    const canSave =
+        currentAssignment?.estado ===
+            'en_progreso'
+        &&
+        Boolean(
+            currentExecutionId
+        )
+        &&
+        Boolean(
+            audioBlob
+        )
+        &&
+        !recording
+        &&
+        !reportOperationBusy;
+
+
+    saveReportButton.disabled =
+        !canSave;
+
+}
+
+
+
+// ============================================================
+// CREAR ELEMENTO DEL HISTORIAL
+// ============================================================
+
+function createExecutionReportItem(
+    report,
+    index
+) {
+
+    const item =
+        document.createElement(
+            'article'
+        );
+
+
+    item.className =
+        'worker-report-item';
+
+
+    const header =
+        document.createElement(
+            'div'
+        );
+
+
+    header.className =
+        'worker-report-item-header';
+
+
+    const identification =
+        document.createElement(
+            'div'
+        );
+
+
+    const number =
+        document.createElement(
+            'strong'
+        );
+
+
+    number.className =
+        'worker-report-number';
+
+
+    number.textContent =
+        `Reporte de avance #${index + 1}`;
+
+
+    const meta =
+        document.createElement(
+            'span'
+        );
+
+
+    meta.className =
+        'worker-report-meta';
+
+
+    meta.textContent =
+        `${report.technician_name || 'Técnico'} · ${formatReportDateTime(
+            report.created_at
+        )}`;
+
+
+    identification.append(
+        number,
+        meta
+    );
+
+
+    const status =
+        document.createElement(
+            'span'
+        );
+
+
+    status.className =
+        'worker-report-status '
+        +
+        `worker-report-status-${reportStatusClass(
+            report.transcription_status
+        )}`;
+
+
+    status.textContent =
+        reportStatusLabel(
+            report.transcription_status
+        );
+
+
+    header.append(
+        identification,
+        status
+    );
+
+
+    item.append(
+        header
+    );
+
+
+    if (
+        report.descripcion
+        &&
+        report.descripcion.trim()
+    ) {
+
+        const description =
+            document.createElement(
+                'p'
+            );
+
+
+        description.className =
+            'worker-report-description';
+
+
+        description.textContent =
+            report.descripcion.trim();
+
+
+        item.append(
+            description
+        );
+
+    }
+
+
+    if (
+        report.transcripcion
+        &&
+        report.transcripcion.trim()
+    ) {
+
+        const transcription =
+            document.createElement(
+                'p'
+            );
+
+
+        transcription.className =
+            'worker-report-transcription';
+
+
+        transcription.textContent =
+            report.transcripcion.trim();
+
+
+        item.append(
+            transcription
+        );
+
+    } else {
+
+        const stateMessage =
+            document.createElement(
+                'p'
+            );
+
+
+        stateMessage.className =
+            'worker-report-state-message';
+
+
+        if (
+            report.transcription_status ===
+            'processing'
+        ) {
+
+            stateMessage.textContent =
+                'La transcripción se está procesando.';
+
+        } else if (
+            report.transcription_status ===
+            'failed'
+        ) {
+
+            stateMessage.classList.add(
+                'error'
+            );
+
+
+            stateMessage.textContent =
+                Number(report.transcription_attempts) >= 5
+                    ? 'No se pudo transcribir. Se alcanzó el máximo de cinco intentos.'
+                    : 'No se pudo generar la transcripción. El audio permanece guardado.';
+
+        } else {
+
+            stateMessage.textContent =
+                'La transcripción está pendiente.';
+
+        }
+
+
+        item.append(
+            stateMessage
+        );
+
+    }
+
+
+    const actions =
+        document.createElement(
+            'div'
+        );
+
+
+    actions.className =
+        'worker-report-actions';
+
+
+    const audioContainer =
+        document.createElement(
+            'div'
+        );
+
+
+    const audioButton =
+        document.createElement(
+            'button'
+        );
+
+
+    audioButton.type =
+        'button';
+
+
+    audioButton.className =
+        'worker-report-audio-button';
+
+
+    audioButton.textContent =
+        'Escuchar audio';
+
+
+    audioButton.addEventListener(
+
+        'click',
+
+        async () => {
+
+            audioButton.disabled =
+                true;
+
+
+            audioButton.textContent =
+                'Preparando audio...';
+
+
+            try {
+
+                const signedUrl =
+                    await createExecutionReportAudioSignedUrl(
+                        report.audio_path
+                    );
+
+
+                if (!signedUrl) {
+
+                    throw new Error(
+                        'No se pudo obtener el audio.'
+                    );
+
+                }
+
+
+                const audio =
+                    document.createElement(
+                        'audio'
+                    );
+
+
+                audio.controls =
+                    true;
+
+
+                audio.preload =
+                    'metadata';
+
+
+                audio.src =
+                    signedUrl;
+
+
+                audio.className =
+                    'worker-report-audio-player';
+
+
+                audioContainer.replaceChildren(
+                    audio
+                );
+
+
+                try {
+
+                    await audio.play();
+
+                } catch {
+
+                    // El navegador puede exigir que el usuario
+                    // vuelva a pulsar reproducir.
+
+                }
+
+
+            } catch (error) {
+
+                console.error(
+                    'Error cargando audio del reporte:',
+                    error
+                );
+
+
+                audioButton.disabled =
+                    false;
+
+
+                audioButton.textContent =
+                    'No fue posible cargar el audio';
+
+            }
+
+        }
+
+    );
+
+
+    audioContainer.append(
+        audioButton
+    );
+
+
+    actions.append(
+        audioContainer
+    );
+
+
+    const canRetry =
+        (
+            report.transcription_status ===
+            'pending'
+            ||
+            report.transcription_status ===
+            'failed'
+        )
+        &&
+        Number(report.transcription_attempts) < 5;
+
+
+    if (canRetry) {
+
+        const retryButton =
+            document.createElement(
+                'button'
+            );
+
+
+        retryButton.type =
+            'button';
+
+
+        retryButton.className =
+            'worker-report-retry-button';
+
+
+        retryButton.textContent =
+            report.transcription_status === 'failed'
+                ? 'Reintentar transcripción'
+                : 'Generar transcripción';
+
+
+        retryButton.addEventListener(
+
+            'click',
+
+            () => retryExecutionReport(
+                report,
+                retryButton
+            )
+
+        );
+
+
+        actions.append(
+            retryButton
+        );
+
+    }
+
+
+    item.append(
+        actions
+    );
+
+
+    return item;
+
+}
+
+
+
+// ============================================================
+// RENDERIZAR HISTORIAL DE REPORTES
+// ============================================================
+
+function renderExecutionReports() {
+
+    executionReportsList.replaceChildren();
+
+
+    const total =
+        currentExecutionReports.length;
+
+
+    executionReportsCount.textContent =
+        `${total} reporte${total === 1 ? '' : 's'}`;
+
+
+    if (total === 0) {
+
+        executionReportsList.classList.add(
+            'hidden'
+        );
+
+
+        executionReportsEmpty.classList.remove(
+            'hidden'
+        );
+
+
+        return;
+
+    }
+
+
+    executionReportsEmpty.classList.add(
+        'hidden'
+    );
+
+
+    executionReportsList.classList.remove(
+        'hidden'
+    );
+
+
+    currentExecutionReports.forEach(
+
+        (
+            report,
+            index
+        ) => {
+
+            executionReportsList.append(
+                createExecutionReportItem(
+                    report,
+                    index
+                )
+            );
+
+        }
+
+    );
+
+}
+
+
+
+// ============================================================
+// CARGAR REPORTES DE LA EJECUCIÓN
+// ============================================================
+
+async function loadExecutionReports(
+    executionId
+) {
+
+    if (!executionId) {
+
+        currentExecutionReports =
+            [];
+
+
+        executionReportsPanel.classList.add(
+            'hidden'
+        );
+
+
+        return;
+
+    }
+
+
+    executionReportsPanel.classList.remove(
+        'hidden'
+    );
+
+
+    try {
+
+        currentExecutionReports =
+            await getExecutionReports(
+                executionId
+            );
+
+
+        renderExecutionReports();
+
+
+    } catch (error) {
+
+        console.error(
+            'Error cargando reportes de avance:',
+            error
+        );
+
+
+        currentExecutionReports =
+            [];
+
+
+        renderExecutionReports();
+
+
+        showReportsMessage(
+            'No fue posible cargar los reportes de avance.',
+            'error'
+        );
+
+    }
+
+}
+
+
+
+// ============================================================
+// REINTENTAR TRANSCRIPCIÓN
+// ============================================================
+
+async function retryExecutionReport(
+    report,
+    button
+) {
+
+    if (reportOperationBusy) {
+
+        return;
+
+    }
+
+
+    reportOperationBusy =
+        true;
+
+
+    updateSaveReportButton();
+
+
+    button.disabled =
+        true;
+
+
+    button.textContent =
+        'Transcribiendo...';
+
+
+    showReportsMessage(
+        'Generando la transcripción del reporte...'
+    );
+
+
+    try {
+
+        await transcribeExecutionReport(
+            report.id
+        );
+
+
+        await loadExecutionReports(
+            report.execution_id
+        );
+
+
+        showReportsMessage(
+            'Transcripción generada correctamente.',
+            'success'
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            'Error reintentando transcripción:',
+            error
+        );
+
+
+        await loadExecutionReports(
+            report.execution_id
+        );
+
+
+        showReportsMessage(
+            error.message
+            ??
+            'No fue posible generar la transcripción.',
+            'error'
+        );
+
+
+    } finally {
+
+        reportOperationBusy =
+            false;
+
+
+        updateSaveReportButton();
+
+    }
+
+}
+
+
+
+// ============================================================
 // INICIAR GRABACIÓN
 // ============================================================
 
@@ -1982,6 +2903,13 @@ recordButton.addEventListener(
                         '🎙 Volver a grabar';
 
 
+                    updateSaveReportButton();
+
+
+                    completeWorkButton.disabled =
+                        reportOperationBusy;
+
+
                     stopMediaStream();
 
                 }
@@ -2005,6 +2933,14 @@ recordButton.addEventListener(
 
 
             recordButton.disabled =
+                true;
+
+
+            saveReportButton.disabled =
+                true;
+
+
+            completeWorkButton.disabled =
                 true;
 
 
@@ -2164,57 +3100,334 @@ discardRecordButton.addEventListener(
 
     () => {
 
-        audioBlob =
-            null;
+        resetAudioRecording();
 
 
-        audioChunks =
-            [];
+        showWorkMessage(
+            ''
+        );
+
+    }
+
+);
+
+
+
+// ============================================================
+// GUARDAR Y TRANSCRIBIR REPORTE PARCIAL
+//
+// Esta operación NO completa la ejecución y NO cambia estados.
+// ============================================================
+
+saveReportButton.addEventListener(
+
+    'click',
+
+    async () => {
+
+        showWorkMessage(
+            ''
+        );
+
+
+        showReportsMessage(
+            ''
+        );
 
 
         if (
-            audioPreviewUrl
+            reportOperationBusy
         ) {
 
-            URL.revokeObjectURL(
-                audioPreviewUrl
-            );
-
-
-            audioPreviewUrl =
-                null;
+            return;
 
         }
 
 
-        audioPreview.removeAttribute(
-            'src'
-        );
+        if (
+            mediaRecorder?.state ===
+            'recording'
+        ) {
+
+            showWorkMessage(
+                'Detené la grabación antes de guardar el reporte.',
+                'error'
+            );
 
 
-        audioPreview.load();
+            return;
+
+        }
 
 
-        audioPreview.classList.add(
-            'hidden'
-        );
+        if (!audioBlob) {
+
+            showWorkMessage(
+                'Grabá un informe de voz antes de guardar el reporte.',
+                'error'
+            );
 
 
-        discardRecordButton.classList.add(
-            'hidden'
-        );
+            return;
+
+        }
 
 
-        recordingTimer.textContent =
-            '00:00';
+        if (
+            !currentExecutionId
+            ||
+            currentAssignment?.estado !==
+            'en_progreso'
+        ) {
+
+            showWorkMessage(
+                'La tarea debe estar en progreso para guardar un reporte.',
+                'error'
+            );
 
 
-        recordingStatus.textContent =
-            'Sin grabación';
+            return;
+
+        }
 
 
-        recordButton.textContent =
-            '🎙 Grabar informe';
+        const description =
+            reportDescription
+                .value
+                .trim();
+
+
+        reportOperationBusy =
+            true;
+
+
+        updateSaveReportButton();
+
+
+        recordButton.disabled =
+            true;
+
+
+        stopRecordButton.disabled =
+            true;
+
+
+        discardRecordButton.disabled =
+            true;
+
+
+        completeWorkButton.disabled =
+            true;
+
+
+        reportDescription.disabled =
+            true;
+
+
+        saveReportButton.textContent =
+            'Guardando reporte...';
+
+
+        let uploadedAudioPath =
+            null;
+
+
+        let reportRegistered =
+            false;
+
+
+        try {
+
+            showWorkMessage(
+                'Subiendo audio del reporte...'
+            );
+
+
+            uploadedAudioPath =
+                await uploadExecutionReportAudio(
+
+                    currentTask,
+
+                    currentExecutionId,
+
+                    audioBlob
+
+                );
+
+
+            const reportId =
+                await addExecutionReport(
+
+                    currentExecutionId,
+
+                    uploadedAudioPath,
+
+                    description || null
+
+                );
+
+
+            reportRegistered =
+                true;
+
+
+            resetAudioRecording();
+
+
+            reportDescription.value =
+                '';
+
+
+            await loadExecutionReports(
+                currentExecutionId
+            );
+
+
+            showWorkMessage(
+                'Reporte guardado. Generando transcripción...'
+            );
+
+
+            showReportsMessage(
+                'Reporte guardado. Generando transcripción...'
+            );
+
+
+            let transcriptionGenerated =
+                false;
+
+
+            try {
+
+                const transcription =
+                    await transcribeExecutionReport(
+                        reportId
+                    );
+
+
+                transcriptionGenerated =
+                    Boolean(
+                        transcription
+                    );
+
+
+            } catch (transcriptionError) {
+
+                console.warn(
+                    'El reporte se guardó, pero no pudo transcribirse:',
+                    transcriptionError
+                );
+
+            }
+
+
+            await loadExecutionReports(
+                currentExecutionId
+            );
+
+
+            if (transcriptionGenerated) {
+
+                showWorkMessage(
+                    'Reporte guardado y transcripto. La tarea continúa en progreso.',
+                    'success'
+                );
+
+
+                showReportsMessage(
+                    'Reporte guardado y transcripto correctamente.',
+                    'success'
+                );
+
+            } else {
+
+                showWorkMessage(
+                    'Reporte guardado. El audio está seguro, pero la transcripción necesita reintento.',
+                    'success'
+                );
+
+
+                showReportsMessage(
+                    'El reporte quedó guardado, pero no pudo transcribirse. Podés reintentarlo desde el historial.',
+                    'error'
+                );
+
+            }
+
+
+        } catch (error) {
+
+            console.error(
+                'Error guardando reporte parcial:',
+                error
+            );
+
+
+            if (
+                uploadedAudioPath
+                &&
+                !reportRegistered
+            ) {
+
+                try {
+
+                    await removeExecutionReportAudio(
+                        uploadedAudioPath
+                    );
+
+                } catch (cleanupError) {
+
+                    console.warn(
+                        'No se pudo eliminar el audio no registrado:',
+                        cleanupError
+                    );
+
+                }
+
+            }
+
+
+            showWorkMessage(
+                error.message
+                ??
+                'No fue posible guardar el reporte.',
+                'error'
+            );
+
+
+        } finally {
+
+            reportOperationBusy =
+                false;
+
+
+            saveReportButton.textContent =
+                'Guardar y transcribir reporte';
+
+
+            recordButton.disabled =
+                false;
+
+
+            stopRecordButton.disabled =
+                true;
+
+
+            discardRecordButton.disabled =
+                false;
+
+
+            completeWorkButton.disabled =
+                false;
+
+
+            reportDescription.disabled =
+                false;
+
+
+            updateSaveReportButton();
+
+        }
 
     }
 
@@ -2233,6 +3446,21 @@ completeWorkButton.addEventListener(
         showWorkMessage(
             ''
         );
+
+
+        if (
+            reportOperationBusy
+        ) {
+
+            showWorkMessage(
+                'Esperá a que termine el guardado o la transcripción del reporte.',
+                'error'
+            );
+
+
+            return;
+
+        }
 
 
         if (
@@ -2277,10 +3505,12 @@ completeWorkButton.addEventListener(
             !description
             &&
             !audioBlob
+            &&
+            currentExecutionReports.length === 0
         ) {
 
             showWorkMessage(
-                'Ingresá una descripción o grabá un informe de voz.',
+                'Ingresá una descripción, grabá un informe o guardá al menos un reporte de avance.',
                 'error'
             );
 
@@ -2484,6 +3714,11 @@ completeWorkButton.addEventListener(
 
             await renderCompletedWork(
                 completedExecution
+            );
+
+
+            await loadExecutionReports(
+                finishedExecutionId
             );
 
 
@@ -3280,6 +4515,11 @@ async function initialize() {
 
             await refreshWorkPhotos();
 
+
+            await loadExecutionReports(
+                currentExecutionId
+            );
+
         }
 
         // ============================================================
@@ -3299,6 +4539,13 @@ async function initialize() {
 
             await renderCompletedWork(
                 completedExecution
+            );
+
+
+            await loadExecutionReports(
+                completedExecution?.id
+                ??
+                null
             );
 
         }
@@ -3400,6 +4647,9 @@ async function initialize() {
 
 
         updatePhotoControls();
+
+
+        updateSaveReportButton();
 
 
         renderState();

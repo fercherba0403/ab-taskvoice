@@ -272,6 +272,387 @@ export async function uploadExecutionAudio(
 
 
 // ============================================================
+// SUBIR AUDIO DE REPORTE PARCIAL
+//
+// Ruta obligatoria validada por add_execution_report():
+// organization_id/task_id/execution_id/reports/archivo.ext
+// ============================================================
+
+export async function uploadExecutionReportAudio(
+
+    task,
+
+    executionId,
+
+    audioBlob
+
+) {
+
+    if (
+        !task?.organization_id
+        ||
+        !task?.id
+    ) {
+
+        throw new Error(
+            'No se pudo determinar la organización de la tarea.'
+        );
+
+    }
+
+
+    if (
+        !Number.isSafeInteger(
+            Number(executionId)
+        )
+        ||
+        Number(executionId) <= 0
+    ) {
+
+        throw new Error(
+            'No se encontró una ejecución válida para el reporte.'
+        );
+
+    }
+
+
+    if (!audioBlob) {
+
+        throw new Error(
+            'No existe una grabación para subir.'
+        );
+
+    }
+
+
+    const contentType =
+        normalizeMimeType(
+            audioBlob.type
+        );
+
+
+    const extension =
+        getAudioExtension(
+            contentType
+        );
+
+
+    const uniqueId =
+        globalThis.crypto
+            ?.randomUUID
+            ?.();
+
+
+    if (!uniqueId) {
+
+        throw new Error(
+            'El navegador no puede generar un identificador seguro para el audio.'
+        );
+
+    }
+
+
+    const audioPath =
+
+        `${task.organization_id}`
+
+        +
+
+        `/${task.id}`
+
+        +
+
+        `/${executionId}`
+
+        +
+
+        `/reports/report-${Date.now()}-${uniqueId}.${extension}`;
+
+
+    const {
+        error
+    } =
+        await supabase
+
+            .storage
+
+            .from(
+                'audios'
+            )
+
+            .upload(
+
+                audioPath,
+
+                audioBlob,
+
+                {
+
+                    contentType,
+
+                    cacheControl:
+                        '3600',
+
+                    upsert:
+                        false
+
+                }
+
+            );
+
+
+    if (error) {
+
+        throw error;
+
+    }
+
+
+    return audioPath;
+
+}
+
+
+
+// ============================================================
+// ELIMINAR AUDIO HUÉRFANO DE REPORTE
+//
+// Se usa únicamente como compensación si el archivo se subió,
+// pero la RPC no pudo registrar el reporte.
+// ============================================================
+
+export async function removeExecutionReportAudio(
+    audioPath
+) {
+
+    if (!audioPath) {
+
+        return;
+
+    }
+
+
+    const {
+        error
+    } =
+        await supabase
+
+            .storage
+
+            .from(
+                'audios'
+            )
+
+            .remove([
+                audioPath
+            ]);
+
+
+    if (error) {
+
+        throw error;
+
+    }
+
+}
+
+
+
+// ============================================================
+// REGISTRAR REPORTE PARCIAL
+//
+// Esta RPC no completa la ejecución ni cambia el estado.
+// ============================================================
+
+export async function addExecutionReport(
+
+    executionId,
+
+    audioPath,
+
+    description = null
+
+) {
+
+    const {
+        data,
+        error
+    } =
+        await supabase.rpc(
+
+            'add_execution_report',
+
+            {
+
+                p_execution_id:
+                    executionId,
+
+                p_audio_path:
+                    audioPath,
+
+                p_descripcion:
+                    description || null
+
+            }
+
+        );
+
+
+    if (error) {
+
+        throw error;
+
+    }
+
+
+    const reportId =
+        Number(data);
+
+
+    if (
+        !Number.isSafeInteger(reportId)
+        ||
+        reportId <= 0
+    ) {
+
+        throw new Error(
+            'Supabase no devolvió un reporte válido.'
+        );
+
+    }
+
+
+    return reportId;
+
+}
+
+
+
+// ============================================================
+// LISTAR REPORTES PARCIALES DE LA EJECUCIÓN
+// ============================================================
+
+export async function getExecutionReports(
+    executionId
+) {
+
+    if (!executionId) {
+
+        return [];
+
+    }
+
+
+    const {
+        data,
+        error
+    } =
+        await supabase.rpc(
+
+            'get_execution_reports',
+
+            {
+
+                p_execution_id:
+                    executionId
+
+            }
+
+        );
+
+
+    if (error) {
+
+        throw error;
+
+    }
+
+
+    return data ?? [];
+
+}
+
+
+
+// ============================================================
+// URL FIRMADA PARA AUDIO PRIVADO DE REPORTE
+// ============================================================
+
+export async function createExecutionReportAudioSignedUrl(
+    audioPath
+) {
+
+    return createExecutionAudioSignedUrl(
+        audioPath
+    );
+
+}
+
+
+
+// ============================================================
+// TRANSCRIBIR REPORTE PARCIAL
+// ============================================================
+
+export async function transcribeExecutionReport(
+    reportId
+) {
+
+    const {
+        data,
+        error
+    } =
+        await supabase
+            .functions
+            .invoke(
+
+                'transcribe-execution-report',
+
+                {
+
+                    body: {
+
+                        report_id:
+                            reportId
+
+                    }
+
+                }
+
+            );
+
+
+    if (error) {
+
+        throw error;
+
+    }
+
+
+    if (data?.error) {
+
+        throw new Error(
+            data.error
+        );
+
+    }
+
+
+    return (
+
+        data?.transcription
+
+        ??
+
+        null
+
+    );
+
+}
+
+
+
+// ============================================================
 // COMPLETAR EJECUCIÓN
 // ============================================================
 
