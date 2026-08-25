@@ -247,7 +247,7 @@ function renderSidebar(activePage, profile) {
             <div class="sidebar-brand-text">
 
                 <strong>
-                    TaskVoice
+                    AB TaskVoice
                 </strong>
 
                 <span id="layoutOrganizationName">
