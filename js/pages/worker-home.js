@@ -8,19 +8,14 @@
 // mediante task_assignees.
 // ============================================================
 
-
 import {
     logout,
     requireRole
 } from '../core/auth.js';
 
-
-
 import {
     getMyWorkerTasks
 } from '../services/tasks.js';
-
-
 
 // ============================================================
 // ELEMENTOS
@@ -31,63 +26,49 @@ const tasksList =
         'tasksList'
     );
 
-
 const loading =
     document.getElementById(
         'loading'
     );
-
 
 const emptyState =
     document.getElementById(
         'emptyState'
     );
 
-
 const taskCount =
     document.getElementById(
         'taskCount'
     );
-
 
 const openCount =
     document.getElementById(
         'openCount'
     );
 
-
 const progressCount =
     document.getElementById(
         'progressCount'
     );
-
 
 const completedCount =
     document.getElementById(
         'completedCount'
     );
 
-
 const filterButtons = [
 
     ...document.querySelectorAll(
         '.worker-filter-button'
     )
-
 ];
-
-
 
 // ============================================================
 // ESTADO
 // ============================================================
 
 let allTasks = [];
-
-let currentFilter =
-    'todas';
-
-
+let currentFilter = 'todas';
 
 // ============================================================
 // LABEL ESTADO
@@ -119,13 +100,10 @@ function stateLabel(
 
     };
 
-
     return labels[state]
         ?? state;
 
 }
-
-
 
 // ============================================================
 // CLASE ESTADO
