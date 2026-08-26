@@ -8,13 +8,13 @@
 node_modules/
 .wrangler/
 
-# Sistemas operativos
+# Systems operativos
 .DS_Store
 Thumbs.db
 
 # Builds temporales
 dist/
 
-# Configuración local de VS Code
+# Configuraciï¿½n local de VS Code
 .vscode/
 supabase/.temp/

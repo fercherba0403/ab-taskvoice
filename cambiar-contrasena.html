@@ -1,102 +1,114 @@
 <!doctype html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <meta name="description" content="TaskVoice - Cambio obligatorio de contraseña" />
+
   <title>AB TaskVoice | Cambiar contraseña</title>
-  <link rel="icon" href="img/icon-512.png" sizes="any">
+
+  <link rel="icon" href="img/icon-512.png" sizes="any" />
+
   <link rel="stylesheet" href="./css/base.css" />
+
   <link rel="stylesheet" href="./css/login.css" />
+
   <link rel="stylesheet" href="./css/first-password.css" />
+
 </head>
+
 <body class="login-page">
+
   <main class="login-container">
+
     <section class="login-card first-password-card">
+
       <div class="login-brand">
+
         <div class="brand-icon">TV</div>
+
         <h1>Cambiar contraseña</h1>
+
         <p>Es tu primer ingreso a AB TaskVoice.</p>
+
       </div>
 
       <div class="first-password-notice">
+
         <strong>Tu contraseña actual es temporal.</strong>
+
         <p>
-          Para continuar, elegí una nueva contraseña personal
-          de al menos 10 caracteres.
+          Para continuar, elegí una nueva contraseña personal de al menos 10
+          caracteres.
         </p>
+
       </div>
 
       <form id="passwordChangeForm" class="login-form">
+
         <div class="form-group">
+
           <label for="newPassword">Nueva contraseña</label>
+
           <div class="password-wrapper">
-            <input
-              type="password"
-              id="newPassword"
-              name="newPassword"
-              minlength="10"
-              autocomplete="new-password"
-              placeholder="Mínimo 10 caracteres"
-              required
-            />
-            <button
-              type="button"
-              id="toggleNewPassword"
-              class="password-toggle"
-              aria-label="Mostrar nueva contraseña"
-            >
+
+            <input type="password" id="newPassword" name="newPassword" minlength="10" autocomplete="new-password"
+              placeholder="Mínimo 10 caracteres" required />
+
+            <button type="button" id="toggleNewPassword" class="password-toggle" aria-label="Mostrar nueva contraseña">
               Ver
             </button>
+
           </div>
+
         </div>
 
         <div class="form-group">
+
           <label for="confirmPassword">Confirmar contraseña</label>
+
           <div class="password-wrapper">
-            <input
-              type="password"
-              id="confirmPassword"
-              name="confirmPassword"
-              minlength="10"
-              autocomplete="new-password"
-              placeholder="Repetí la nueva contraseña"
-              required
-            />
-            <button
-              type="button"
-              id="toggleConfirmPassword"
-              class="password-toggle"
-              aria-label="Mostrar confirmación de contraseña"
-            >
+
+            <input type="password" id="confirmPassword" name="confirmPassword" minlength="10"
+              autocomplete="new-password" placeholder="Repetí la nueva contraseña" required />
+
+            <button type="button" id="toggleConfirmPassword" class="password-toggle"
+              aria-label="Mostrar confirmación de contraseña">
               Ver
             </button>
+
+
           </div>
         </div>
 
-        <div
-          id="passwordChangeMessage"
-          class="form-message"
-          aria-live="polite"
-        ></div>
+        <div id="passwordChangeMessage" class="form-message" aria-live="polite">
 
-        <button
-          type="submit"
-          id="passwordChangeButton"
-          class="btn btn-primary"
-        >
+        </div>
+
+        <button type="submit" id="passwordChangeButton" class="btn btn-primary">
           Guardar nueva contraseña
         </button>
+
       </form>
 
       <footer class="login-footer">
+
         <p>AB TaskVoice</p>
+
         <small>Cambio obligatorio de seguridad</small>
+
       </footer>
+
     </section>
+
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="module" src="./js/pages/first-password-v2.js"></script>
+
 </body>
+
 </html>
