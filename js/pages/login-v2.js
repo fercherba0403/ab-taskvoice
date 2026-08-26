@@ -38,7 +38,7 @@ function showUrlMessage() {
   if (params.get("password_changed") === "1") {
     showMessage(
       "Contraseña actualizada. Ingresá nuevamente con tu nueva contraseña.",
-      "success"
+      "success",
     );
   }
 }
@@ -81,10 +81,7 @@ form.addEventListener("submit", async (event) => {
     }
 
     if (requiresPasswordChange(user)) {
-      showMessage(
-        "Debés cambiar la contraseña temporal.",
-        "success"
-      );
+      showMessage("Debés cambiar la contraseña temporal.", "success");
 
       redirectToPasswordChange("./");
       return;
@@ -92,13 +89,10 @@ form.addEventListener("submit", async (event) => {
 
     showMessage("Ingreso correcto.", "success");
     redirectByRole(profile, "./");
-
   } catch (error) {
     console.error(error);
 
-    showMessage(
-      "Correo electrónico o contraseña incorrectos."
-    );
+    showMessage("Correo electrónico o contraseña incorrectos.");
 
     loginButton.disabled = false;
     loginButton.textContent = "Ingresar";
@@ -125,7 +119,6 @@ async function checkExistingSession() {
     }
 
     redirectByRole(profile, "./");
-
   } catch (error) {
     console.error(error);
   }

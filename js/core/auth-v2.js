@@ -64,9 +64,7 @@ export function passwordChangeRoute(rootPrefix = "./") {
 }
 
 export function redirectToPasswordChange(rootPrefix = "./") {
-  window.location.replace(
-    passwordChangeRoute(rootPrefix)
-  );
+  window.location.replace(passwordChangeRoute(rootPrefix));
 }
 
 // ============================================================
@@ -82,7 +80,8 @@ export async function getCurrentProfile() {
 
   const { data, error } = await supabase
     .from("profiles")
-    .select(`
+    .select(
+      `
       id,
       organization_id,
       nombre,
@@ -92,7 +91,8 @@ export async function getCurrentProfile() {
       rol,
       activo,
       avatar_url
-    `)
+    `,
+    )
     .eq("id", user.id)
     .single();
 

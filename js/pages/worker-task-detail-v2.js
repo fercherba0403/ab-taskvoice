@@ -3,208 +3,101 @@
 // worker-task-detail-v2.js
 // ============================================================
 
-import {
-    requireRole
-} from '../core/auth.js';
+import { requireRole } from "../core/auth.js";
 
 import {
     acceptTask,
-
     getLocations,
-
     getMaintenanceTypes,
-
     getMyTaskAssignment,
-
     getShifts,
-
     getTaskMulti,
-
     rejectTask,
-
-    startTask
-} from '../services/tasks.js';
+    startTask,
+} from "../services/tasks.js";
 
 import {
     completeExecutionWithWorkTypes,
-
     createExecutionAudioSignedUrl,
-
     getTaskCompletedExecution,
-
     getTaskOpenExecution,
-
     getWorkTypes,
-
     transcribeExecution,
-
-    uploadExecutionAudio
-} from '../services/executions-v2.js';
+    uploadExecutionAudio,
+} from "../services/executions-v2.js";
 
 // ============================================================
 // ID
 // ============================================================
 
-const params =
-    new URLSearchParams(
-        window.location.search
-    );
+const params = new URLSearchParams(window.location.search);
 
-const taskId =
-    Number(
-        params.get(
-            'id'
-        )
-    );
+const taskId = Number(params.get("id"));
 
 // ============================================================
 // ELEMENTOS
 // ============================================================
 
-const loading =
-    document.getElementById(
-        'loading'
-    );
+const loading = document.getElementById("loading");
 
-const content =
-    document.getElementById(
-        'content'
-    );
+const content = document.getElementById("content");
 
-const decisionPanel =
-    document.getElementById(
-        'decisionPanel'
-    );
+const decisionPanel = document.getElementById("decisionPanel");
 
-const statusPanel =
-    document.getElementById(
-        'statusPanel'
-    );
+const statusPanel = document.getElementById("statusPanel");
 
-const acceptButton =
-    document.getElementById(
-        'acceptButton'
-    );
+const acceptButton = document.getElementById("acceptButton");
 
-const rejectButton =
-    document.getElementById(
-        'rejectButton'
-    );
+const rejectButton = document.getElementById("rejectButton");
 
-const startTaskButton =
-    document.getElementById(
-        'startTaskButton'
-    );
+const startTaskButton = document.getElementById("startTaskButton");
 
-const statusActions =
-    document.getElementById(
-        'statusActions'
-    );
+const statusActions = document.getElementById("statusActions");
 
-const workPanel =
-    document.getElementById(
-        'workPanel'
-    );
+const workPanel = document.getElementById("workPanel");
 
-const workDescription =
-    document.getElementById(
-        'workDescription'
-    );
+const workDescription = document.getElementById("workDescription");
 
-const recordButton =
-    document.getElementById(
-        'recordButton'
-    );
+const recordButton = document.getElementById("recordButton");
 
-const stopRecordButton =
-    document.getElementById(
-        'stopRecordButton'
-    );
+const stopRecordButton = document.getElementById("stopRecordButton");
 
-const discardRecordButton =
-    document.getElementById(
-        'discardRecordButton'
-    );
+const discardRecordButton = document.getElementById("discardRecordButton");
 
-const audioPreview =
-    document.getElementById(
-        'audioPreview'
-    );
+const audioPreview = document.getElementById("audioPreview");
 
-const recordingStatus =
-    document.getElementById(
-        'recordingStatus'
-    );
+const recordingStatus = document.getElementById("recordingStatus");
 
-const recordingTimer =
-    document.getElementById(
-        'recordingTimer'
-    );
+const recordingTimer = document.getElementById("recordingTimer");
 
-const completeWorkButton =
-    document.getElementById(
-        'completeWorkButton'
-    );
+const completeWorkButton = document.getElementById("completeWorkButton");
 
-const workMessage =
-    document.getElementById(
-        'workMessage'
-    );
+const workMessage = document.getElementById("workMessage");
 
-const workTypesList =
-    document.getElementById(
-        'workTypesList'
-    );
+const workTypesList = document.getElementById("workTypesList");
 
-const workTypesSummary =
-    document.getElementById(
-        'workTypesSummary'
-    );
+const workTypesSummary = document.getElementById("workTypesSummary");
 
-const completedWorkPanel =
-    document.getElementById(
-        'completedWorkPanel'
-    );
+const completedWorkPanel = document.getElementById("completedWorkPanel");
 
-const completedWorkTypes =
-    document.getElementById(
-        'completedWorkTypes'
-    );
+const completedWorkTypes = document.getElementById("completedWorkTypes");
 
-const completedDescription =
-    document.getElementById(
-        'completedDescription'
-    );
+const completedDescription = document.getElementById("completedDescription");
 
-const completedAudio =
-    document.getElementById(
-        'completedAudio'
-    );
+const completedAudio = document.getElementById("completedAudio");
 
-const completedStart =
-    document.getElementById(
-        'completedStart'
-    );
+const completedStart = document.getElementById("completedStart");
 
-const completedEnd =
-    document.getElementById(
-        'completedEnd'
-    );
+const completedEnd = document.getElementById("completedEnd");
 
-const completedDuration =
-    document.getElementById(
-        'completedDuration'
-    );
-const completedTranscriptionSection =
-    document.getElementById(
-        'completedTranscriptionSection'
-    );
+const completedDuration = document.getElementById("completedDuration");
+const completedTranscriptionSection = document.getElementById(
+    "completedTranscriptionSection",
+);
 
-const completedTranscription =
-    document.getElementById(
-        'completedTranscription'
-    );
-
+const completedTranscription = document.getElementById(
+    "completedTranscription",
+);
 
 let currentTask = null;
 
@@ -234,622 +127,301 @@ let recordingTimeout = null;
 // ESTADOS
 // ============================================================
 
-function stateLabel(
-    state
-) {
-
+function stateLabel(state) {
     const labels = {
+        pendiente: "Pendiente",
 
-        pendiente:
-            'Pendiente',
+        aceptada: "Aceptada",
 
-        aceptada:
-            'Aceptada',
+        en_progreso: "En progreso",
 
-        en_progreso:
-            'En progreso',
+        completada: "Completada",
 
-        completada:
-            'Completada',
+        rechazada: "Rechazada",
 
-        rechazada:
-            'Rechazada',
-
-        cancelada:
-            'Cancelada'
-
+        cancelada: "Cancelada",
     };
 
-
-    return labels[state]
-        ?? state;
-
+    return labels[state] ?? state;
 }
 
-
-
-function stateClass(
-    state
-) {
-
+function stateClass(state) {
     const classes = {
+        pendiente: "pending",
 
-        pendiente:
-            'pending',
+        aceptada: "accepted",
 
-        aceptada:
-            'accepted',
+        en_progreso: "progress",
 
-        en_progreso:
-            'progress',
+        completada: "completed",
 
-        completada:
-            'completed',
+        rechazada: "rejected",
 
-        rechazada:
-            'rejected',
-
-        cancelada:
-            'cancelled'
-
+        cancelada: "cancelled",
     };
 
-
-    return classes[state]
-        ?? 'pending';
-
+    return classes[state] ?? "pending";
 }
-
-
 
 // ============================================================
 // PRIORIDAD
 // ============================================================
 
-function priorityLabel(
-    priority
-) {
-
+function priorityLabel(priority) {
     const values = {
+        baja: "Baja",
 
-        baja:
-            'Baja',
+        normal: "Normal",
 
-        normal:
-            'Normal',
+        alta: "Alta",
 
-        alta:
-            'Alta',
-
-        urgente:
-            'Urgente'
-
+        urgente: "Urgente",
     };
 
-
-    return values[priority]
-        ?? priority;
-
+    return values[priority] ?? priority;
 }
-
-
 
 // ============================================================
 // FECHA
 // ============================================================
 
-function formatDate(
-    value
-) {
-
+function formatDate(value) {
     if (!value) {
-
-        return 'Sin fecha';
-
+        return "Sin fecha";
     }
 
+    const [year, month, day] = value.split("-");
 
-    const [
-        year,
-        month,
-        day
-    ] =
-        value.split('-');
-
-
-    return (
-        `${day}/${month}/${year}`
-    );
-
+    return `${day}/${month}/${year}`;
 }
-
-
 
 // ============================================================
 // BUSCAR NOMBRE EN CATÁLOGO
 // ============================================================
 
-function catalogName(
-    items,
-    id,
-    fallback
-) {
-
+function catalogName(items, id, fallback) {
     if (!id) {
-
         return fallback;
-
     }
 
-
     return (
-
-        items.find(
-            item =>
-                Number(item.id) ===
-                Number(id)
-        )?.nombre
-
-        ??
-
-        fallback
-
+        items.find((item) => Number(item.id) === Number(id))?.nombre ?? fallback
     );
-
 }
-
-
 
 // ============================================================
 // BADGE
 // ============================================================
 
 function renderState() {
-
-    const badge =
-        document.getElementById(
-            'assignmentState'
-        );
-
+    const badge = document.getElementById("assignmentState");
 
     badge.className =
+        "worker-state " + `worker-state-${stateClass(currentAssignment.estado)}`;
 
-        'worker-state '
-
-        +
-
-        `worker-state-${stateClass(
-            currentAssignment.estado
-        )
-
-        }`;
-
-
-    badge.textContent =
-        stateLabel(
-            currentAssignment.estado
-        );
-
+    badge.textContent = stateLabel(currentAssignment.estado);
 }
-
-
 
 // ============================================================
 // PANEL SEGÚN ESTADO
 // ============================================================
 
 function renderActionState() {
+    const state = currentAssignment.estado;
 
-    const state =
-        currentAssignment.estado;
+    statusActions.classList.add("hidden");
 
-    statusActions.classList.add(
-        'hidden'
-    );
+    workPanel.classList.add("hidden");
 
-    workPanel.classList.add(
-        'hidden'
-    );
+    completedWorkPanel.classList.add("hidden");
 
-    completedWorkPanel.classList.add(
-        'hidden'
-    );
+    if (state === "pendiente") {
+        decisionPanel.classList.remove("hidden");
 
-
-    if (
-        state ===
-        'pendiente'
-    ) {
-
-        decisionPanel.classList.remove(
-            'hidden'
-        );
-
-
-        statusPanel.classList.add(
-            'hidden'
-        );
-
+        statusPanel.classList.add("hidden");
 
         return;
-
     }
 
+    decisionPanel.classList.add("hidden");
 
+    statusPanel.classList.remove("hidden");
 
-    decisionPanel.classList.add(
-        'hidden'
-    );
+    const title = document.getElementById("statusTitle");
 
+    const text = document.getElementById("statusText");
 
-    statusPanel.classList.remove(
-        'hidden'
-    );
+    const reasonBox = document.getElementById("rejectionReasonBox");
 
+    reasonBox.classList.add("hidden");
 
-
-    const title =
-        document.getElementById(
-            'statusTitle'
-        );
-
-
-    const text =
-        document.getElementById(
-            'statusText'
-        );
-
-
-    const reasonBox =
-        document.getElementById(
-            'rejectionReasonBox'
-        );
-
-
-
-    reasonBox.classList.add(
-        'hidden'
-    );
-
-
-
-    if (
-        state ===
-        'aceptada'
-    ) {
-
-        title.textContent =
-            'Tarea aceptada';
+    if (state === "aceptada") {
+        title.textContent = "Tarea aceptada";
 
         text.textContent =
-            'La tarea fue aceptada para todo el equipo. Cuando estén listos, cualquiera de los integrantes activos puede iniciar el trabajo.';
+            "La tarea fue aceptada para todo el equipo. Cuando estén listos, cualquiera de los integrantes activos puede iniciar el trabajo.";
 
-        statusActions.classList.remove(
-            'hidden'
-        );
+        statusActions.classList.remove("hidden");
 
         return;
-
     }
 
-    if (
-        state ===
-        'en_progreso'
-    ) {
-
-        title.textContent =
-            'Trabajo en progreso';
+    if (state === "en_progreso") {
+        title.textContent = "Trabajo en progreso";
 
         text.textContent =
-            'La ejecución del equipo está abierta. Registrá el trabajo realizado antes de completarla.';
+            "La ejecución del equipo está abierta. Registrá el trabajo realizado antes de completarla.";
 
-        workPanel.classList.remove(
-            'hidden'
-        );
+        workPanel.classList.remove("hidden");
 
         return;
-
     }
 
-    if (
-        state ===
-        'completada'
-    ) {
-
-        title.textContent =
-            'Trabajo completado';
-
+    if (state === "completada") {
+        title.textContent = "Trabajo completado";
 
         text.textContent =
-            'La tarea del equipo ya fue finalizada. Debajo podés consultar el trabajo registrado.';
+            "La tarea del equipo ya fue finalizada. Debajo podés consultar el trabajo registrado.";
 
-
-        completedWorkPanel.classList.remove(
-            'hidden'
-        );
-
+        completedWorkPanel.classList.remove("hidden");
 
         return;
-
     }
 
+    if (state === "rechazada") {
+        title.textContent = "Tarea rechazada";
 
+        text.textContent = "Informaste que no podés realizar esta tarea.";
 
-    if (
-        state ===
-        'rechazada'
-    ) {
+        document.getElementById("rejectionReason").textContent =
+            currentAssignment.rejection_reason || "Sin motivo registrado.";
 
-        title.textContent =
-            'Tarea rechazada';
-
-
-        text.textContent =
-            'Informaste que no podés realizar esta tarea.';
-
-
-        document.getElementById(
-            'rejectionReason'
-        ).textContent =
-
-            currentAssignment
-                .rejection_reason
-
-            ||
-
-            'Sin motivo registrado.';
-
-
-        reasonBox.classList.remove(
-            'hidden'
-        );
-
+        reasonBox.classList.remove("hidden");
 
         return;
-
     }
 
+    title.textContent = "Tarea no disponible";
 
-
-    title.textContent =
-        'Tarea no disponible';
-
-
-    text.textContent =
-        'Esta asignación ya no está activa.';
-
+    text.textContent = "Esta asignación ya no está activa.";
 }
-
-
 
 // ============================================================
 // ACEPTAR
 // ============================================================
 
 acceptButton.addEventListener(
-
-    'click',
+    "click",
 
     async () => {
-
-        const confirmed =
-            window.confirm(
-                'Al aceptar, la tarea quedará aceptada para todo el equipo. ¿Confirmás?'
-            );
-
+        const confirmed = window.confirm(
+            "Al aceptar, la tarea quedará aceptada para todo el equipo. ¿Confirmás?",
+        );
 
         if (!confirmed) {
-
             return;
-
         }
 
+        acceptButton.disabled = true;
 
-        acceptButton.disabled =
-            true;
+        rejectButton.disabled = true;
 
-
-        rejectButton.disabled =
-            true;
-
-
-        acceptButton.textContent =
-            'Aceptando...';
-
+        acceptButton.textContent = "Aceptando...";
 
         try {
+            await acceptTask(taskId);
 
-            await acceptTask(
-                taskId
-            );
-
-
-            currentAssignment =
-                await getMyTaskAssignment(
-                    taskId
-                );
-
+            currentAssignment = await getMyTaskAssignment(taskId);
 
             renderState();
 
             renderActionState();
 
             // ============================================================
-// RECARGAR REGISTRO COMPLETADO
-//
-// Permite mostrar inmediatamente:
-// - trabajos realizados
-// - descripción
-// - audio
-// - transcripción
-// - tiempos
-// ============================================================
+            // RECARGAR REGISTRO COMPLETADO
+            //
+            // Permite mostrar inmediatamente:
+            // - trabajos realizados
+            // - descripción
+            // - audio
+            // - transcripción
+            // - tiempos
+            // ============================================================
 
-if (
-    currentAssignment.estado ===
-    'completada'
-) {
+            if (currentAssignment.estado === "completada") {
+                const completedExecution = await getTaskCompletedExecution(taskId);
 
-    const completedExecution =
-        await getTaskCompletedExecution(
-            taskId
-        );
-
-
-    await renderCompletedWork(
-        completedExecution
-    );
-
-}
-
-
+                await renderCompletedWork(completedExecution);
+            }
         } catch (error) {
+            console.error("Error aceptando tarea:", error);
 
-            console.error(
-                'Error aceptando tarea:',
-                error
-            );
-
-
-            alert(
-                error.message
-            );
-
-
+            alert(error.message);
         } finally {
+            acceptButton.disabled = false;
 
-            acceptButton.disabled =
-                false;
+            rejectButton.disabled = false;
 
-
-            rejectButton.disabled =
-                false;
-
-
-            acceptButton.textContent =
-                'Aceptar tarea';
-
+            acceptButton.textContent = "Aceptar tarea";
         }
-
-    }
-
+    },
 );
-
-
 
 // ============================================================
 // RECHAZAR
 // ============================================================
 
 rejectButton.addEventListener(
-
-    'click',
+    "click",
 
     async () => {
+        const reason = window.prompt(
+            "Indicá el motivo por el que rechazás esta tarea:",
+            "",
+        );
 
-        const reason =
-            window.prompt(
-                'Indicá el motivo por el que rechazás esta tarea:',
-                ''
-            );
-
-
-        if (
-            reason === null
-        ) {
-
+        if (reason === null) {
             return;
-
         }
 
-
-        if (
-            !reason.trim()
-        ) {
-
-            alert(
-                'Debés indicar un motivo.'
-            );
+        if (!reason.trim()) {
+            alert("Debés indicar un motivo.");
 
             return;
-
         }
 
-
-        const confirmed =
-            window.confirm(
-                '¿Confirmás el rechazo de esta tarea?'
-            );
-
+        const confirmed = window.confirm("¿Confirmás el rechazo de esta tarea?");
 
         if (!confirmed) {
-
             return;
-
         }
 
+        acceptButton.disabled = true;
 
-        acceptButton.disabled =
-            true;
+        rejectButton.disabled = true;
 
-
-        rejectButton.disabled =
-            true;
-
-
-        rejectButton.textContent =
-            'Rechazando...';
-
+        rejectButton.textContent = "Rechazando...";
 
         try {
+            await rejectTask(taskId, reason.trim());
 
-            await rejectTask(
-                taskId,
-                reason.trim()
-            );
-
-
-            currentAssignment =
-                await getMyTaskAssignment(
-                    taskId
-                );
-
+            currentAssignment = await getMyTaskAssignment(taskId);
 
             renderState();
 
             renderActionState();
-
-
         } catch (error) {
+            console.error("Error rechazando tarea:", error);
 
-            console.error(
-                'Error rechazando tarea:',
-                error
-            );
-
-
-            alert(
-                error.message
-            );
-
-
+            alert(error.message);
         } finally {
+            acceptButton.disabled = false;
 
-            acceptButton.disabled =
-                false;
+            rejectButton.disabled = false;
 
-
-            rejectButton.disabled =
-                false;
-
-
-            rejectButton.textContent =
-                'Rechazar';
-
+            rejectButton.textContent = "Rechazar";
         }
-
-    }
-
+    },
 );
 
 // ============================================================
@@ -857,592 +429,281 @@ rejectButton.addEventListener(
 // ============================================================
 
 startTaskButton.addEventListener(
-
-    'click',
+    "click",
 
     async () => {
-
-        const confirmed =
-            window.confirm(
-                'Al iniciar, la tarea pasará a En progreso para todo el equipo. ¿Confirmás?'
-            );
-
+        const confirmed = window.confirm(
+            "Al iniciar, la tarea pasará a En progreso para todo el equipo. ¿Confirmás?",
+        );
 
         if (!confirmed) {
-
             return;
-
         }
 
+        startTaskButton.disabled = true;
 
-        startTaskButton.disabled =
-            true;
-
-
-        startTaskButton.textContent =
-            'Iniciando...';
-
+        startTaskButton.textContent = "Iniciando...";
 
         try {
+            const executionId = await startTask(taskId);
 
-            const executionId =
-                await startTask(
-                    taskId
-                );
+            currentExecutionId = executionId;
 
-            currentExecutionId =
-                executionId;
-
-
-            currentAssignment =
-                await getMyTaskAssignment(
-                    taskId
-                );
-
+            currentAssignment = await getMyTaskAssignment(taskId);
 
             renderState();
 
             renderActionState();
 
-
-            console.log(
-                'Ejecución iniciada:',
-                executionId
-            );
-
-
+            console.log("Ejecución iniciada:", executionId);
         } catch (error) {
+            console.error("Error iniciando tarea:", error);
 
-            console.error(
-                'Error iniciando tarea:',
-                error
-            );
-
-
-            alert(
-                error.message
-            );
-
-
+            alert(error.message);
         } finally {
+            startTaskButton.disabled = false;
 
-            startTaskButton.disabled =
-                false;
-
-
-            startTaskButton.textContent =
-                'Iniciar trabajo';
-
+            startTaskButton.textContent = "Iniciar trabajo";
         }
-
-    }
-
+    },
 );
 
 // ============================================================
 // FORMATEAR TIEMPO DE GRABACIÓN
 // ============================================================
 
-function formatRecordingTime(
-    seconds
-) {
+function formatRecordingTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
 
-    const minutes =
-        Math.floor(
-            seconds / 60
-        );
-
-
-    const remainingSeconds =
-        seconds % 60;
-
+    const remainingSeconds = seconds % 60;
 
     return (
-
-        String(minutes)
-            .padStart(
-                2,
-                '0'
-            )
-
-        +
-
-        ':'
-
-        +
-
-        String(remainingSeconds)
-            .padStart(
-                2,
-                '0'
-            )
-
+        String(minutes).padStart(2, "0") +
+        ":" +
+        String(remainingSeconds).padStart(2, "0")
     );
-
 }
-
-
 
 // ============================================================
 // MIME SOPORTADO
 // ============================================================
 
 function getSupportedAudioType() {
-
     const types = [
+        "audio/webm;codecs=opus",
 
-        'audio/webm;codecs=opus',
+        "audio/webm",
 
-        'audio/webm',
+        "audio/ogg;codecs=opus",
 
-        'audio/ogg;codecs=opus',
-
-        'audio/mp4'
-
+        "audio/mp4",
     ];
 
-
-    for (
-        const type of types
-    ) {
-
-        if (
-            MediaRecorder
-                .isTypeSupported(
-                    type
-                )
-        ) {
-
+    for (const type of types) {
+        if (MediaRecorder.isTypeSupported(type)) {
             return type;
-
         }
-
     }
 
-
-    return '';
-
+    return "";
 }
-
-
 
 // ============================================================
 // LIBERAR MICRÓFONO
 // ============================================================
 
 function stopMediaStream() {
-
     if (!mediaStream) {
-
         return;
-
     }
 
-
-    for (
-        const track of
-        mediaStream.getTracks()
-    ) {
-
+    for (const track of mediaStream.getTracks()) {
         track.stop();
-
     }
 
-
-    mediaStream =
-        null;
-
+    mediaStream = null;
 }
-
-
 
 // ============================================================
 // DETENER TIMER
 // ============================================================
 
 function stopRecordingTimer() {
+    if (recordingInterval) {
+        clearInterval(recordingInterval);
 
-    if (
-        recordingInterval
-    ) {
-
-        clearInterval(
-            recordingInterval
-        );
-
-
-        recordingInterval =
-            null;
-
+        recordingInterval = null;
     }
 
+    if (recordingTimeout) {
+        clearTimeout(recordingTimeout);
 
-    if (
-        recordingTimeout
-    ) {
-
-        clearTimeout(
-            recordingTimeout
-        );
-
-
-        recordingTimeout =
-            null;
-
+        recordingTimeout = null;
     }
-
 }
-
-
 
 // ============================================================
 // MOSTRAR MENSAJE
 // ============================================================
 
-function showWorkMessage(
-    text,
-    type = ''
-) {
+function showWorkMessage(text, type = "") {
+    workMessage.textContent = text;
 
-    workMessage.textContent =
-        text;
-
-
-    workMessage.className =
-        'worker-work-message';
-
+    workMessage.className = "worker-work-message";
 
     if (type) {
-
-        workMessage.classList.add(
-            type
-        );
-
+        workMessage.classList.add(type);
     }
-
 }
-
-
 
 // ============================================================
 // INICIAR GRABACIÓN
 // ============================================================
 
 recordButton.addEventListener(
-
-    'click',
+    "click",
 
     async () => {
-
-        showWorkMessage(
-            ''
-        );
-
+        showWorkMessage("");
 
         if (
-            !navigator.mediaDevices
-            ||
-            !navigator.mediaDevices.getUserMedia
-            ||
-            typeof MediaRecorder === 'undefined'
+            !navigator.mediaDevices ||
+            !navigator.mediaDevices.getUserMedia ||
+            typeof MediaRecorder === "undefined"
         ) {
-
-            showWorkMessage(
-                'Este navegador no permite grabar audio.',
-                'error'
-            );
-
+            showWorkMessage("Este navegador no permite grabar audio.", "error");
 
             return;
-
         }
 
-
         try {
+            mediaStream = await navigator.mediaDevices.getUserMedia({
+                audio: {
+                    echoCancellation: true,
 
-            mediaStream =
-                await navigator
-                    .mediaDevices
-                    .getUserMedia({
+                    noiseSuppression: true,
 
-                        audio: {
+                    autoGainControl: true,
+                },
+            });
 
-                            echoCancellation:
-                                true,
+            const mimeType = getSupportedAudioType();
 
-                            noiseSuppression:
-                                true,
+            const options = mimeType
+                ? {
+                    mimeType,
 
-                            autoGainControl:
-                                true
+                    audioBitsPerSecond: 64000,
+                }
+                : {
+                    audioBitsPerSecond: 64000,
+                };
 
-                        }
+            mediaRecorder = new MediaRecorder(mediaStream, options);
 
-                    });
-
-
-            const mimeType =
-                getSupportedAudioType();
-
-
-            const options =
-                mimeType
-
-                    ? {
-
-                        mimeType,
-
-                        audioBitsPerSecond:
-                            64000
-
-                    }
-
-                    : {
-
-                        audioBitsPerSecond:
-                            64000
-
-                    };
-
-
-            mediaRecorder =
-                new MediaRecorder(
-                    mediaStream,
-                    options
-                );
-
-
-            audioChunks =
-                [];
-
+            audioChunks = [];
 
             mediaRecorder.addEventListener(
+                "dataavailable",
 
-                'dataavailable',
-
-                event => {
-
-                    if (
-                        event.data
-                        &&
-                        event.data.size > 0
-                    ) {
-
-                        audioChunks.push(
-                            event.data
-                        );
-
+                (event) => {
+                    if (event.data && event.data.size > 0) {
+                        audioChunks.push(event.data);
                     }
-
-                }
-
+                },
             );
 
-
             mediaRecorder.addEventListener(
-
-                'stop',
+                "stop",
 
                 () => {
-
                     const finalMimeType =
+                        mediaRecorder.mimeType || mimeType || "audio/webm";
 
-                        mediaRecorder.mimeType
+                    audioBlob = new Blob(
+                        audioChunks,
 
-                        ||
+                        {
+                            type: finalMimeType,
+                        },
+                    );
 
-                        mimeType
-
-                        ||
-
-                        'audio/webm';
-
-
-                    audioBlob =
-                        new Blob(
-
-                            audioChunks,
-
-                            {
-
-                                type:
-                                    finalMimeType
-
-                            }
-
-                        );
-
-
-                    if (
-                        audioPreviewUrl
-                    ) {
-
-                        URL.revokeObjectURL(
-                            audioPreviewUrl
-                        );
-
+                    if (audioPreviewUrl) {
+                        URL.revokeObjectURL(audioPreviewUrl);
                     }
 
+                    audioPreviewUrl = URL.createObjectURL(audioBlob);
 
-                    audioPreviewUrl =
-                        URL.createObjectURL(
-                            audioBlob
-                        );
+                    audioPreview.src = audioPreviewUrl;
 
+                    audioPreview.classList.remove("hidden");
 
-                    audioPreview.src =
-                        audioPreviewUrl;
+                    discardRecordButton.classList.remove("hidden");
 
+                    recordingStatus.textContent = "Grabación lista";
 
-                    audioPreview.classList.remove(
-                        'hidden'
-                    );
-
-
-                    discardRecordButton.classList.remove(
-                        'hidden'
-                    );
-
-
-                    recordingStatus.textContent =
-                        'Grabación lista';
-
-
-                    recordButton.textContent =
-                        '🎙 Volver a grabar';
-
+                    recordButton.textContent = "🎙 Volver a grabar";
 
                     stopMediaStream();
-
-                }
-
+                },
             );
-
 
             mediaRecorder.start();
 
+            recordingStartedAt = Date.now();
 
-            recordingStartedAt =
-                Date.now();
+            recordingTimer.textContent = "00:00";
 
+            recordingStatus.textContent = "Grabando...";
 
-            recordingTimer.textContent =
-                '00:00';
+            recordButton.disabled = true;
 
+            stopRecordButton.disabled = false;
 
-            recordingStatus.textContent =
-                'Grabando...';
+            discardRecordButton.classList.add("hidden");
 
+            audioPreview.classList.add("hidden");
 
-            recordButton.disabled =
-                true;
+            recordingInterval = setInterval(
+                () => {
+                    const elapsed = Math.floor((Date.now() - recordingStartedAt) / 1000);
 
+                    recordingTimer.textContent = formatRecordingTime(elapsed);
+                },
 
-            stopRecordButton.disabled =
-                false;
-
-
-            discardRecordButton.classList.add(
-                'hidden'
+                1000,
             );
-
-
-            audioPreview.classList.add(
-                'hidden'
-            );
-
-
-            recordingInterval =
-                setInterval(
-
-                    () => {
-
-                        const elapsed =
-                            Math.floor(
-
-                                (
-                                    Date.now()
-                                    -
-                                    recordingStartedAt
-                                )
-
-                                /
-
-                                1000
-
-                            );
-
-
-                        recordingTimer.textContent =
-                            formatRecordingTime(
-                                elapsed
-                            );
-
-                    },
-
-                    1000
-
-                );
-
 
             // ------------------------------------------------
             // Máximo 5 minutos
             // ------------------------------------------------
 
-            recordingTimeout =
-                setTimeout(
+            recordingTimeout = setTimeout(
+                () => {
+                    if (mediaRecorder && mediaRecorder.state === "recording") {
+                        mediaRecorder.stop();
+                    }
 
-                    () => {
+                    stopRecordingTimer();
 
-                        if (
-                            mediaRecorder
-                            &&
-                            mediaRecorder.state ===
-                            'recording'
-                        ) {
+                    recordButton.disabled = false;
 
-                            mediaRecorder.stop();
+                    stopRecordButton.disabled = true;
+                },
 
-                        }
-
-
-                        stopRecordingTimer();
-
-
-                        recordButton.disabled =
-                            false;
-
-
-                        stopRecordButton.disabled =
-                            true;
-
-                    },
-
-                    5 * 60 * 1000
-
-                );
-
-
-        } catch (error) {
-
-            console.error(
-                'Error accediendo al micrófono:',
-                error
+                5 * 60 * 1000,
             );
-
+        } catch (error) {
+            console.error("Error accediendo al micrófono:", error);
 
             stopMediaStream();
 
-
             showWorkMessage(
-                'No fue posible acceder al micrófono. Verificá los permisos del navegador.',
-                'error'
+                "No fue posible acceder al micrófono. Verificá los permisos del navegador.",
+                "error",
             );
-
         }
-
-    }
-
+    },
 );
 
 // ============================================================
@@ -1450,38 +711,21 @@ recordButton.addEventListener(
 // ============================================================
 
 stopRecordButton.addEventListener(
-
-    'click',
+    "click",
 
     () => {
-
-        if (
-            !mediaRecorder
-            ||
-            mediaRecorder.state !==
-            'recording'
-        ) {
-
+        if (!mediaRecorder || mediaRecorder.state !== "recording") {
             return;
-
         }
-
 
         mediaRecorder.stop();
 
-
         stopRecordingTimer();
 
+        recordButton.disabled = false;
 
-        recordButton.disabled =
-            false;
-
-
-        stopRecordButton.disabled =
-            true;
-
-    }
-
+        stopRecordButton.disabled = true;
+    },
 );
 
 // ============================================================
@@ -1489,65 +733,33 @@ stopRecordButton.addEventListener(
 // ============================================================
 
 discardRecordButton.addEventListener(
-
-    'click',
+    "click",
 
     () => {
+        audioBlob = null;
 
-        audioBlob =
-            null;
+        audioChunks = [];
 
+        if (audioPreviewUrl) {
+            URL.revokeObjectURL(audioPreviewUrl);
 
-        audioChunks =
-            [];
-
-
-        if (
-            audioPreviewUrl
-        ) {
-
-            URL.revokeObjectURL(
-                audioPreviewUrl
-            );
-
-
-            audioPreviewUrl =
-                null;
-
+            audioPreviewUrl = null;
         }
 
-
-        audioPreview.removeAttribute(
-            'src'
-        );
-
+        audioPreview.removeAttribute("src");
 
         audioPreview.load();
 
+        audioPreview.classList.add("hidden");
 
-        audioPreview.classList.add(
-            'hidden'
-        );
+        discardRecordButton.classList.add("hidden");
 
+        recordingTimer.textContent = "00:00";
 
-        discardRecordButton.classList.add(
-            'hidden'
-        );
+        recordingStatus.textContent = "Sin grabación";
 
-
-        recordingTimer.textContent =
-            '00:00';
-
-
-        recordingStatus.textContent =
-            'Sin grabación';
-
-
-        recordButton.textContent =
-            '🎙 Grabar informe';
-
-    }
-
+        recordButton.textContent = "🎙 Grabar informe";
+    },
 );
 
 // ============================================================
@@ -1555,167 +767,98 @@ discardRecordButton.addEventListener(
 // ============================================================
 
 completeWorkButton.addEventListener(
-
-    'click',
+    "click",
 
     async () => {
+        showWorkMessage("");
 
-        showWorkMessage(
-            ''
+        const description = workDescription.value.trim();
+
+        const selectedWorkTypeIds = getSelectedWorkTypeIds();
+
+        if (selectedWorkTypeIds.length === 0) {
+            showWorkMessage(
+                "Seleccioná al menos un tipo de trabajo realizado.",
+                "error",
+            );
+
+            return;
+        }
+
+        if (!description && !audioBlob) {
+            showWorkMessage(
+                "Ingresá una descripción o grabá un informe de voz.",
+                "error",
+            );
+
+            return;
+        }
+
+        if (!currentExecutionId) {
+            showWorkMessage(
+                "No se encontró una ejecución abierta para esta tarea.",
+                "error",
+            );
+
+            return;
+        }
+
+        const confirmed = window.confirm(
+            "Al completar, la tarea quedará finalizada para todo el equipo. ¿Confirmás?",
         );
 
-
-        const description =
-            workDescription
-                .value
-                .trim();
-
-        const selectedWorkTypeIds =
-            getSelectedWorkTypeIds();
-
-        if (
-            selectedWorkTypeIds.length === 0
-        ) {
-
-            showWorkMessage(
-                'Seleccioná al menos un tipo de trabajo realizado.',
-                'error'
-            );
-
-
-            return;
-
-        }
-
-
-        if (
-            !description
-            &&
-            !audioBlob
-        ) {
-
-            showWorkMessage(
-                'Ingresá una descripción o grabá un informe de voz.',
-                'error'
-            );
-
-
-            return;
-
-        }
-
-
-        if (
-            !currentExecutionId
-        ) {
-
-            showWorkMessage(
-                'No se encontró una ejecución abierta para esta tarea.',
-                'error'
-            );
-
-
-            return;
-
-        }
-
-
-        const confirmed =
-            window.confirm(
-                'Al completar, la tarea quedará finalizada para todo el equipo. ¿Confirmás?'
-            );
-
-
         if (!confirmed) {
-
             return;
-
         }
 
+        completeWorkButton.disabled = true;
 
-        completeWorkButton.disabled =
-            true;
+        completeWorkButton.textContent = "Guardando trabajo...";
 
+        recordButton.disabled = true;
 
-        completeWorkButton.textContent =
-            'Guardando trabajo...';
-
-
-        recordButton.disabled =
-            true;
-
-
-        stopRecordButton.disabled =
-            true;
-
+        stopRecordButton.disabled = true;
 
         try {
-
-            let audioPath =
-                null;
-
+            let audioPath = null;
 
             // =================================================
             // AUDIO
             // =================================================
 
-            if (
-                audioBlob
-            ) {
+            if (audioBlob) {
+                showWorkMessage("Subiendo informe de voz...");
 
-                showWorkMessage(
-                    'Subiendo informe de voz...'
+                audioPath = await uploadExecutionAudio(
+                    currentTask,
+
+                    currentExecutionId,
+
+                    audioBlob,
                 );
-
-
-                audioPath =
-                    await uploadExecutionAudio(
-
-                        currentTask,
-
-                        currentExecutionId,
-
-                        audioBlob
-
-                    );
-
             }
-
-
 
             // =================================================
             // COMPLETAR
             // =================================================
 
-            showWorkMessage(
-                'Finalizando tarea del equipo...'
-            );
+            showWorkMessage("Finalizando tarea del equipo...");
 
-
-            const finishedExecutionId =
-                currentExecutionId;
-
+            const finishedExecutionId = currentExecutionId;
 
             await completeExecutionWithWorkTypes(
-
                 finishedExecutionId,
 
                 selectedWorkTypeIds,
 
                 {
+                    descripcion: description || null,
 
-                    descripcion:
-                        description || null,
+                    transcripcion: null,
 
-                    transcripcion:
-                        null,
-
-                    audioPath
-
-                }
-
+                    audioPath,
+                },
             );
-
 
             // ============================================================
             // TRANSCRIPCIÓN AUTOMÁTICA
@@ -1731,124 +874,61 @@ completeWorkButton.addEventListener(
             // - finalización
             // ============================================================
 
-            let transcriptionGenerated =
-                false;
+            let transcriptionGenerated = false;
 
-
-            if (
-                audioPath
-            ) {
-
+            if (audioPath) {
                 showWorkMessage(
-                    'Trabajo guardado. Generando transcripción del audio...'
+                    "Trabajo guardado. Generando transcripción del audio...",
                 );
-
 
                 try {
+                    const transcription = await transcribeExecution(finishedExecutionId);
 
-                    const transcription =
-                        await transcribeExecution(
-                            finishedExecutionId
-                        );
-
-
-                    transcriptionGenerated =
-                        Boolean(
-                            transcription
-                        );
-
-
-                } catch (
-                transcriptionError
-                ) {
-
+                    transcriptionGenerated = Boolean(transcription);
+                } catch (transcriptionError) {
                     console.warn(
-                        'La tarea se completó, pero la transcripción no pudo generarse:',
-                        transcriptionError
+                        "La tarea se completó, pero la transcripción no pudo generarse:",
+                        transcriptionError,
                     );
-
                 }
-
             }
 
-
-
-            currentAssignment =
-                await getMyTaskAssignment(
-                    taskId
-                );
-
+            currentAssignment = await getMyTaskAssignment(taskId);
 
             renderState();
 
             renderActionState();
 
-
-            if (
-                transcriptionGenerated
-            ) {
-
+            if (transcriptionGenerated) {
                 showWorkMessage(
-                    'Trabajo registrado y audio transcripto correctamente.',
-                    'success'
+                    "Trabajo registrado y audio transcripto correctamente.",
+                    "success",
                 );
-
-            } else if (
-                audioPath
-            ) {
-
+            } else if (audioPath) {
                 showWorkMessage(
-                    'Trabajo registrado correctamente. El audio quedó guardado, pero la transcripción no pudo generarse.',
-                    'success'
+                    "Trabajo registrado correctamente. El audio quedó guardado, pero la transcripción no pudo generarse.",
+                    "success",
                 );
-
             } else {
-
-                showWorkMessage(
-                    'Trabajo registrado correctamente.',
-                    'success'
-                );
-
+                showWorkMessage("Trabajo registrado correctamente.", "success");
             }
 
-
-            currentExecutionId =
-                null;
-
-
+            currentExecutionId = null;
         } catch (error) {
-
-            console.error(
-                'Error completando participación:',
-                error
-            );
-
+            console.error("Error completando participación:", error);
 
             showWorkMessage(
-                error.message
-                ??
-                'No fue posible completar el trabajo.',
-                'error'
+                error.message ?? "No fue posible completar el trabajo.",
+                "error",
             );
-
-
         } finally {
+            completeWorkButton.disabled = false;
 
-            completeWorkButton.disabled =
-                false;
+            completeWorkButton.textContent = "Completar tarea";
 
-
-            completeWorkButton.textContent =
-                'Completar tarea';
-
-
-            recordButton.disabled =
-                false;
-
+            recordButton.disabled = false;
         }
-
-    }
-
+    },
 );
 
 // ============================================================
@@ -1856,403 +936,187 @@ completeWorkButton.addEventListener(
 // ============================================================
 
 function getSelectedWorkTypeIds() {
-
     return [
-
-        ...workTypesList.querySelectorAll(
-            'input[type="checkbox"]:checked'
-        )
-
-    ].map(
-
-        checkbox =>
-            Number(
-                checkbox.value
-            )
-
-    );
-
+        ...workTypesList.querySelectorAll('input[type="checkbox"]:checked'),
+    ].map((checkbox) => Number(checkbox.value));
 }
-
-
 
 // ============================================================
 // ACTUALIZAR RESUMEN
 // ============================================================
 
 function updateWorkTypesSummary() {
+    const selected = getSelectedWorkTypeIds();
 
-    const selected =
-        getSelectedWorkTypeIds();
-
-
-    if (
-        selected.length === 0
-    ) {
-
-        workTypesSummary.textContent =
-            'Ningún tipo seleccionado';
-
+    if (selected.length === 0) {
+        workTypesSummary.textContent = "Ningún tipo seleccionado";
 
         return;
-
     }
 
-
-    workTypesSummary.textContent =
-
-        `${selected.length} tipo${selected.length === 1
-            ? ''
-            : 's'
-
-        } seleccionado${selected.length === 1
-            ? ''
-            : 's'
-
-        }`;
-
+    workTypesSummary.textContent = `${selected.length} tipo${selected.length === 1 ? "" : "s"
+        } seleccionado${selected.length === 1 ? "" : "s"}`;
 }
-
-
 
 // ============================================================
 // RENDERIZAR TIPOS DE TRABAJO
 // ============================================================
 
 function renderWorkTypes() {
-
     workTypesList.replaceChildren();
 
+    if (availableWorkTypes.length === 0) {
+        const empty = document.createElement("p");
 
-    if (
-        availableWorkTypes.length === 0
-    ) {
+        empty.className = "worker-work-types-empty";
 
-        const empty =
-            document.createElement(
-                'p'
-            );
+        empty.textContent = "No hay tipos de trabajo disponibles.";
 
-
-        empty.className =
-            'worker-work-types-empty';
-
-
-        empty.textContent =
-            'No hay tipos de trabajo disponibles.';
-
-
-        workTypesList.append(
-            empty
-        );
-
+        workTypesList.append(empty);
 
         return;
-
     }
 
+    for (const workType of availableWorkTypes) {
+        const label = document.createElement("label");
 
+        label.className = "worker-work-type-option";
 
-    for (
-        const workType of
-        availableWorkTypes
-    ) {
+        const checkbox = document.createElement("input");
 
-        const label =
-            document.createElement(
-                'label'
-            );
+        checkbox.type = "checkbox";
 
+        checkbox.value = String(workType.id);
 
-        label.className =
-            'worker-work-type-option';
+        const text = document.createElement("span");
 
-
-
-        const checkbox =
-            document.createElement(
-                'input'
-            );
-
-
-        checkbox.type =
-            'checkbox';
-
-
-        checkbox.value =
-            String(
-                workType.id
-            );
-
-
-
-        const text =
-            document.createElement(
-                'span'
-            );
-
-
-        text.textContent =
-            workType.nombre;
-
-
+        text.textContent = workType.nombre;
 
         checkbox.addEventListener(
+            "change",
 
-            'change',
-
-            updateWorkTypesSummary
-
+            updateWorkTypesSummary,
         );
 
+        label.append(checkbox, text);
 
-        label.append(
-            checkbox,
-            text
-        );
-
-
-        workTypesList.append(
-            label
-        );
-
+        workTypesList.append(label);
     }
 
-
     updateWorkTypesSummary();
-
 }
 
 // ============================================================
 // FECHA / HORA PARA EJECUCIÓN
 // ============================================================
 
-function formatExecutionDateTime(
-    value
-) {
-
+function formatExecutionDateTime(value) {
     if (!value) {
-
-        return '-';
-
+        return "-";
     }
 
-
     return new Intl.DateTimeFormat(
-
-        'es-AR',
+        "es-AR",
 
         {
+            dateStyle: "short",
 
-            dateStyle:
-                'short',
-
-            timeStyle:
-                'short'
-
-        }
-
-    ).format(
-        new Date(value)
-    );
-
+            timeStyle: "short",
+        },
+    ).format(new Date(value));
 }
-
-
 
 // ============================================================
 // DURACIÓN
 // ============================================================
 
-function formatExecutionDuration(
-    start,
-    end
-) {
-
-    if (
-        !start
-        ||
-        !end
-    ) {
-
-        return '-';
-
+function formatExecutionDuration(start, end) {
+    if (!start || !end) {
+        return "-";
     }
 
+    const milliseconds = new Date(end).getTime() - new Date(start).getTime();
 
-    const milliseconds =
-
-        new Date(end).getTime()
-
-        -
-
-        new Date(start).getTime();
-
-
-    if (
-        milliseconds < 0
-    ) {
-
-        return '-';
-
+    if (milliseconds < 0) {
+        return "-";
     }
 
+    const totalMinutes = Math.floor(milliseconds / 60000);
 
-    const totalMinutes =
-        Math.floor(
-            milliseconds / 60000
-        );
+    const hours = Math.floor(totalMinutes / 60);
 
+    const minutes = totalMinutes % 60;
 
-    const hours =
-        Math.floor(
-            totalMinutes / 60
-        );
-
-
-    const minutes =
-        totalMinutes % 60;
-
-
-    if (
-        hours === 0
-    ) {
-
+    if (hours === 0) {
         return `${totalMinutes} min`;
-
     }
-
 
     return `${hours} h ${minutes} min`;
-
 }
 
 // ============================================================
 // RENDER TRABAJO COMPLETADO DEL EQUIPO
 // ============================================================
 
-async function renderCompletedWork(
-    execution
-) {
-
+async function renderCompletedWork(execution) {
     completedWorkTypes.replaceChildren();
-
 
     // ========================================================
     // SIN EJECUCIÓN
     // ========================================================
 
     if (!execution) {
-
         completedDescription.textContent =
-            'No se encontró información de la ejecución.';
+            "No se encontró información de la ejecución.";
 
-
-        completedWorkPanel.classList.remove(
-            'hidden'
-        );
-
+        completedWorkPanel.classList.remove("hidden");
 
         return;
-
     }
-
-
 
     // ========================================================
     // TIPOS DE TRABAJO
     // ========================================================
 
-    if (
-        execution.work_types.length === 0
-    ) {
+    if (execution.work_types.length === 0) {
+        const empty = document.createElement("span");
 
-        const empty =
-            document.createElement(
-                'span'
-            );
+        empty.className = "worker-completed-muted";
 
+        empty.textContent = "Sin clasificación registrada";
 
-        empty.className =
-            'worker-completed-muted';
-
-
-        empty.textContent =
-            'Sin clasificación registrada';
-
-
-        completedWorkTypes.append(
-            empty
-        );
-
+        completedWorkTypes.append(empty);
     } else {
+        for (const workType of execution.work_types) {
+            const chip = document.createElement("span");
 
-        for (
-            const workType of
-            execution.work_types
-        ) {
+            chip.className = "worker-completed-work-chip";
 
-            const chip =
-                document.createElement(
-                    'span'
-                );
+            chip.textContent = workType.nombre;
 
-
-            chip.className =
-                'worker-completed-work-chip';
-
-
-            chip.textContent =
-                workType.nombre;
-
-
-            completedWorkTypes.append(
-                chip
-            );
-
+            completedWorkTypes.append(chip);
         }
-
     }
-
-
 
     // ========================================================
     // DESCRIPCIÓN
     // ========================================================
 
     completedDescription.textContent =
-
-        execution.descripcion
-
-        ||
-
-        'Sin descripción escrita.';
-
-
+        execution.descripcion || "Sin descripción escrita.";
 
     // ========================================================
     // FECHAS
     // ========================================================
 
-    completedStart.textContent =
-        formatExecutionDateTime(
-            execution.inicio
-        );
+    completedStart.textContent = formatExecutionDateTime(execution.inicio);
 
+    completedEnd.textContent = formatExecutionDateTime(execution.fin);
 
-    completedEnd.textContent =
-        formatExecutionDateTime(
-            execution.fin
-        );
-
-
-    completedDuration.textContent =
-        formatExecutionDuration(
-            execution.inicio,
-            execution.fin
-        );
-
-
+    completedDuration.textContent = formatExecutionDuration(
+        execution.inicio,
+        execution.fin,
+    );
 
     // ========================================================
     // AUDIO
@@ -2260,183 +1124,86 @@ async function renderCompletedWork(
 
     completedAudio.replaceChildren();
 
+    if (!execution.audio_path) {
+        const noAudio = document.createElement("span");
 
-    if (
-        !execution.audio_path
-    ) {
+        noAudio.className = "worker-completed-muted";
 
-        const noAudio =
-            document.createElement(
-                'span'
-            );
+        noAudio.textContent = "Sin audio registrado";
 
-
-        noAudio.className =
-            'worker-completed-muted';
-
-
-        noAudio.textContent =
-            'Sin audio registrado';
-
-
-        completedAudio.append(
-            noAudio
-        );
-
+        completedAudio.append(noAudio);
     } else {
+        const button = document.createElement("button");
 
-        const button =
-            document.createElement(
-                'button'
-            );
+        button.type = "button";
 
+        button.className = "worker-completed-audio-button";
 
-        button.type =
-            'button';
-
-
-        button.className =
-            'worker-completed-audio-button';
-
-
-        button.textContent =
-            '▶ Escuchar informe';
-
-
+        button.textContent = "▶ Escuchar informe";
 
         button.addEventListener(
-
-            'click',
+            "click",
 
             async () => {
+                button.disabled = true;
 
-                button.disabled =
-                    true;
-
-
-                button.textContent =
-                    'Preparando audio...';
-
+                button.textContent = "Preparando audio...";
 
                 try {
-
-                    const signedUrl =
-                        await createExecutionAudioSignedUrl(
-                            execution.audio_path
-                        );
-
+                    const signedUrl = await createExecutionAudioSignedUrl(
+                        execution.audio_path,
+                    );
 
                     if (!signedUrl) {
-
-                        throw new Error(
-                            'No se pudo obtener el audio.'
-                        );
-
+                        throw new Error("No se pudo obtener el audio.");
                     }
 
+                    const audio = document.createElement("audio");
 
-                    const audio =
-                        document.createElement(
-                            'audio'
-                        );
+                    audio.controls = true;
 
+                    audio.preload = "metadata";
 
-                    audio.controls =
-                        true;
+                    audio.src = signedUrl;
 
+                    audio.className = "worker-completed-audio-player";
 
-                    audio.preload =
-                        'metadata';
-
-
-                    audio.src =
-                        signedUrl;
-
-
-                    audio.className =
-                        'worker-completed-audio-player';
-
-
-                    button.replaceWith(
-                        audio
-                    );
-
+                    button.replaceWith(audio);
 
                     try {
-
                         await audio.play();
-
                     } catch {
-
                         // En algunos celulares el usuario
                         // deberá pulsar Play manualmente.
-
                     }
-
-
                 } catch (error) {
+                    console.error("Error cargando audio:", error);
 
-                    console.error(
-                        'Error cargando audio:',
-                        error
-                    );
+                    button.disabled = false;
 
-
-                    button.disabled =
-                        false;
-
-
-                    button.textContent =
-                        'No fue posible cargar el audio';
-
+                    button.textContent = "No fue posible cargar el audio";
                 }
-
-            }
-
+            },
         );
 
-
-        completedAudio.append(
-            button
-        );
-
+        completedAudio.append(button);
     }
 
     // ========================================================
     // TRANSCRIPCIÓN AUTOMÁTICA
     // ========================================================
 
-    if (
-        execution.transcripcion
-        &&
-        execution.transcripcion.trim()
-    ) {
+    if (execution.transcripcion && execution.transcripcion.trim()) {
+        completedTranscription.textContent = execution.transcripcion.trim();
 
-        completedTranscription.textContent =
-            execution.transcripcion.trim();
-
-
-        completedTranscriptionSection.classList.remove(
-            'hidden'
-        );
-
+        completedTranscriptionSection.classList.remove("hidden");
     } else {
+        completedTranscription.textContent = "";
 
-        completedTranscription.textContent =
-            '';
-
-
-        completedTranscriptionSection.classList.add(
-            'hidden'
-        );
-
+        completedTranscriptionSection.classList.add("hidden");
     }
 
-
-    completedWorkPanel.classList.remove(
-        'hidden'
-    );
-
+    completedWorkPanel.classList.remove("hidden");
 }
 
 // ============================================================
@@ -2444,265 +1211,117 @@ async function renderCompletedWork(
 // ============================================================
 
 async function initialize() {
+    const profile = await requireRole(
+        ["trabajador"],
 
-    const profile =
-        await requireRole(
-
-            [
-                'trabajador'
-            ],
-
-            '../'
-
-        );
-
+        "../",
+    );
 
     if (!profile) {
-
         return;
-
     }
 
-
-    if (
-        !Number.isInteger(taskId)
-        ||
-        taskId <= 0
-    ) {
-
-        window.location.replace(
-            './inicio.html'
-        );
+    if (!Number.isInteger(taskId) || taskId <= 0) {
+        window.location.replace("./inicio.html");
 
         return;
-
     }
 
-
-
-    document.getElementById(
-        'topbarUserName'
-    ).textContent =
-
-        `${profile.nombre ?? ''
-
-            } ${profile.apellido ?? ''
-
-            }`.trim();
-
-
+    document.getElementById("topbarUserName").textContent = `${profile.nombre ?? ""
+        } ${profile.apellido ?? ""}`.trim();
 
     try {
+        const [task, assignment, locations, shifts, maintenanceTypes, workTypes] =
+            await Promise.all([
+                getTaskMulti(taskId),
 
-        const [
+                getMyTaskAssignment(taskId),
 
-            task,
+                getLocations(),
 
-            assignment,
+                getShifts(),
 
-            locations,
+                getMaintenanceTypes(),
 
-            shifts,
+                getWorkTypes(),
+            ]);
 
-            maintenanceTypes,
+        currentTask = task;
 
-            workTypes
+        currentAssignment = assignment;
 
-        ] = await Promise.all([
-
-            getTaskMulti(
-                taskId
-            ),
-
-            getMyTaskAssignment(
-                taskId
-            ),
-
-            getLocations(),
-
-            getShifts(),
-
-            getMaintenanceTypes(),
-
-            getWorkTypes()
-
-        ]);
-
-        currentTask =
-            task;
-
-        currentAssignment =
-            assignment;
-
-        availableWorkTypes =
-            workTypes;
-
+        availableWorkTypes = workTypes;
 
         renderWorkTypes();
 
-        if (
-            currentAssignment.estado ===
-            'en_progreso'
-        ) {
+        if (currentAssignment.estado === "en_progreso") {
+            const execution = await getTaskOpenExecution(taskId);
 
-            const execution =
-                await getTaskOpenExecution(
-                    taskId
-                );
-
-
-            currentExecutionId =
-                execution?.id
-                ?? null;
-
+            currentExecutionId = execution?.id ?? null;
         }
 
         // ============================================================
         // EJECUCIÓN COMPLETADA
         // ============================================================
 
-        if (
-            currentAssignment.estado ===
-            'completada'
-        ) {
+        if (currentAssignment.estado === "completada") {
+            const completedExecution = await getTaskCompletedExecution(taskId);
 
-            const completedExecution =
-                await getTaskCompletedExecution(
-                    taskId
-                );
-
-
-            await renderCompletedWork(
-                completedExecution
-            );
-
+            await renderCompletedWork(completedExecution);
         }
-
-
 
         // ====================================================
         // DATOS
         // ====================================================
 
-        document.getElementById(
-            'taskNumber'
-        ).textContent =
-            `Tarea #${task.id}`;
+        document.getElementById("taskNumber").textContent = `Tarea #${task.id}`;
 
+        document.getElementById("taskTitle").textContent = task.titulo;
 
-        document.getElementById(
-            'taskTitle'
-        ).textContent =
-            task.titulo;
+        document.getElementById("taskDescription").textContent =
+            task.descripcion || "Sin descripción.";
 
+        document.getElementById("taskLocation").textContent = catalogName(
+            locations,
+            task.location_id,
+            "Sin lugar",
+        );
 
-        document.getElementById(
-            'taskDescription'
-        ).textContent =
+        document.getElementById("taskShift").textContent = catalogName(
+            shifts,
+            task.shift_id,
+            "Sin turno",
+        );
 
-            task.descripcion
+        document.getElementById("taskMaintenance").textContent = catalogName(
+            maintenanceTypes,
+            task.maintenance_type_id,
+            "Sin tipo",
+        );
 
-            ||
+        document.getElementById("taskTicket").textContent =
+            task.ticket_number || "Sin ticket";
 
-            'Sin descripción.';
+        document.getElementById("taskPriority").textContent = priorityLabel(
+            task.prioridad,
+        );
 
-
-        document.getElementById(
-            'taskLocation'
-        ).textContent =
-
-            catalogName(
-                locations,
-                task.location_id,
-                'Sin lugar'
-            );
-
-
-        document.getElementById(
-            'taskShift'
-        ).textContent =
-
-            catalogName(
-                shifts,
-                task.shift_id,
-                'Sin turno'
-            );
-
-
-        document.getElementById(
-            'taskMaintenance'
-        ).textContent =
-
-            catalogName(
-                maintenanceTypes,
-                task.maintenance_type_id,
-                'Sin tipo'
-            );
-
-
-        document.getElementById(
-            'taskTicket'
-        ).textContent =
-
-            task.ticket_number
-
-            ||
-
-            'Sin ticket';
-
-
-        document.getElementById(
-            'taskPriority'
-        ).textContent =
-
-            priorityLabel(
-                task.prioridad
-            );
-
-
-        document.getElementById(
-            'taskDue'
-        ).textContent =
-
-            task.fecha_limite
-
-                ? formatDate(
-                    task.fecha_limite
-                )
-
-                : 'Sin vencimiento';
-
-
+        document.getElementById("taskDue").textContent = task.fecha_limite
+            ? formatDate(task.fecha_limite)
+            : "Sin vencimiento";
 
         renderState();
 
         renderActionState();
 
+        loading.classList.add("hidden");
 
-        loading.classList.add(
-            'hidden'
-        );
-
-
-        content.classList.remove(
-            'hidden'
-        );
-
-
+        content.classList.remove("hidden");
     } catch (error) {
+        console.error("Error cargando tarea:", error);
 
-        console.error(
-            'Error cargando tarea:',
-            error
-        );
-
-
-        loading.textContent =
-            'No fue posible cargar la tarea.';
-
+        loading.textContent = "No fue posible cargar la tarea.";
     }
-
 }
-
 
 initialize();

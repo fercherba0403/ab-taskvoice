@@ -8,411 +8,222 @@
 import {
     initAdminLayout,
     setAdminTopbarSubtitle,
-    showAdminToast
-} from '../components/admin-layout-v3.js';
+    showAdminToast,
+} from "../components/admin-layout-v3.js";
 
-import {
-    getDashboardData
-} from '../services/dashboard.js';
-
+import { getDashboardData } from "../services/dashboard.js";
 
 // ============================================================
 // ELEMENTOS
 // ============================================================
 
-const pendingCount =
-    document.getElementById(
-        'pendingCount'
-    );
+const pendingCount = document.getElementById("pendingCount");
 
+const progressCount = document.getElementById("progressCount");
 
-const progressCount =
-    document.getElementById(
-        'progressCount'
-    );
+const completedCount = document.getElementById("completedCount");
 
+const overdueCount = document.getElementById("overdueCount");
 
-const completedCount =
-    document.getElementById(
-        'completedCount'
-    );
+const tasksLoading = document.getElementById("tasksLoading");
 
+const tasksEmpty = document.getElementById("tasksEmpty");
 
-const overdueCount =
-    document.getElementById(
-        'overdueCount'
-    );
+const tasksTableWrapper = document.getElementById("tasksTableWrapper");
 
+const recentTasksBody = document.getElementById("recentTasksBody");
 
-const tasksLoading =
-    document.getElementById(
-        'tasksLoading'
-    );
-
-
-const tasksEmpty =
-    document.getElementById(
-        'tasksEmpty'
-    );
-
-
-const tasksTableWrapper =
-    document.getElementById(
-        'tasksTableWrapper'
-    );
-
-
-const recentTasksBody =
-    document.getElementById(
-        'recentTasksBody'
-    );
-
-
-const viewTasksButton =
-    document.getElementById(
-        'viewTasksButton'
-    );
-
+const viewTasksButton = document.getElementById("viewTasksButton");
 
 // ============================================================
 // FECHA
 // ============================================================
 
-function formatDate(
-    value
-) {
-
+function formatDate(value) {
     if (!value) {
-
-        return 'Sin fecha';
-
+        return "Sin fecha";
     }
 
+    const parts = value.split("-");
 
-    const parts =
-        value.split('-');
-
-
-    if (
-        parts.length !== 3
-    ) {
-
+    if (parts.length !== 3) {
         return value;
-
     }
 
-
-    const [
-        year,
-        month,
-        day
-    ] = parts;
-
+    const [year, month, day] = parts;
 
     return `${day}/${month}/${year}`;
-
 }
-
 
 // ============================================================
 // BADGE
 // ============================================================
 
-function createBadge(
-    text,
-    type
-) {
+function createBadge(text, type) {
+    const badge = document.createElement("span");
 
-    const badge =
-        document.createElement(
-            'span'
-        );
+    badge.className = `badge ${type}`;
 
-
-    badge.className =
-        `badge ${type}`;
-
-
-    badge.textContent =
-        text;
-
+    badge.textContent = text;
 
     return badge;
-
 }
-
 
 // ============================================================
 // ESTADOS
 // ============================================================
 
-function getStatusConfig(
-    status
-) {
-
+function getStatusConfig(status) {
     const config = {
-
         pendiente: {
-            label: 'Pendiente',
-            className: 'pending'
+            label: "Pendiente",
+            className: "pending",
         },
 
         aceptada: {
-            label: 'Aceptada',
-            className: 'accepted'
+            label: "Aceptada",
+            className: "accepted",
         },
 
         en_progreso: {
-            label: 'En progreso',
-            className: 'progress'
+            label: "En progreso",
+            className: "progress",
         },
 
         completada: {
-            label: 'Completada',
-            className: 'completed'
+            label: "Completada",
+            className: "completed",
         },
 
         cancelada: {
-            label: 'Cancelada',
-            className: 'cancelled'
+            label: "Cancelada",
+            className: "cancelled",
         },
 
         vencida: {
-            label: 'Vencida',
-            className: 'overdue'
+            label: "Vencida",
+            className: "overdue",
+        },
+    };
+
+    return (
+        config[status] ?? {
+            label: status,
+
+            className: "neutral",
         }
-
-    };
-
-
-    return config[status] ?? {
-
-        label: status,
-
-        className: 'neutral'
-
-    };
-
+    );
 }
-
 
 // ============================================================
 // PRIORIDAD
 // ============================================================
 
-function getPriorityConfig(
-    priority
-) {
-
+function getPriorityConfig(priority) {
     const config = {
-
         baja: {
-            label: 'Baja',
-            className: 'low'
+            label: "Baja",
+            className: "low",
         },
 
         normal: {
-            label: 'Normal',
-            className: 'normal'
+            label: "Normal",
+            className: "normal",
         },
 
         alta: {
-            label: 'Alta',
-            className: 'high'
+            label: "Alta",
+            className: "high",
         },
 
         urgente: {
-            label: 'Urgente',
-            className: 'urgent'
+            label: "Urgente",
+            className: "urgent",
+        },
+    };
+
+    return (
+        config[priority] ?? {
+            label: priority,
+
+            className: "normal",
         }
-
-    };
-
-
-    return config[priority] ?? {
-
-        label: priority,
-
-        className: 'normal'
-
-    };
-
+    );
 }
-
 
 // ============================================================
 // RENDER TAREAS
 // ============================================================
 
-function renderRecentTasks(
-    tasks
-) {
-
+function renderRecentTasks(tasks) {
     recentTasksBody.replaceChildren();
 
+    tasksLoading.classList.add("hidden");
 
-    tasksLoading.classList.add(
-        'hidden'
-    );
+    if (tasks.length === 0) {
+        tasksEmpty.classList.remove("hidden");
 
-
-    if (
-        tasks.length === 0
-    ) {
-
-        tasksEmpty.classList.remove(
-            'hidden'
-        );
-
-
-        tasksTableWrapper.classList.add(
-            'hidden'
-        );
-
+        tasksTableWrapper.classList.add("hidden");
 
         return;
-
     }
 
+    tasksEmpty.classList.add("hidden");
 
-    tasksEmpty.classList.add(
-        'hidden'
-    );
+    tasksTableWrapper.classList.remove("hidden");
 
-
-    tasksTableWrapper.classList.remove(
-        'hidden'
-    );
-
-
-    for (
-        const task of tasks
-    ) {
-
-        const row =
-            document.createElement(
-                'tr'
-            );
-
+    for (const task of tasks) {
+        const row = document.createElement("tr");
 
         // TAREA
 
-        const taskCell =
-            document.createElement(
-                'td'
-            );
+        const taskCell = document.createElement("td");
 
+        const taskTitle = document.createElement("strong");
 
-        const taskTitle =
-            document.createElement(
-                'strong'
-            );
+        taskTitle.className = "task-title";
 
+        taskTitle.textContent = task.titulo;
 
-        taskTitle.className =
-            'task-title';
+        const taskId = document.createElement("small");
 
+        taskId.className = "task-id";
 
-        taskTitle.textContent =
-            task.titulo;
+        taskId.textContent = `#${task.id}`;
 
-
-        const taskId =
-            document.createElement(
-                'small'
-            );
-
-
-        taskId.className =
-            'task-id';
-
-
-        taskId.textContent =
-            `#${task.id}`;
-
-
-        taskCell.append(
-            taskTitle,
-            taskId
-        );
-
+        taskCell.append(taskTitle, taskId);
 
         // USUARIO
 
-        const userCell =
-            document.createElement(
-                'td'
-            );
+        const userCell = document.createElement("td");
 
-
-        userCell.textContent =
-            task.assigned_user_name;
-
+        userCell.textContent = task.assigned_user_name;
 
         // PRIORIDAD
 
-        const priorityCell =
-            document.createElement(
-                'td'
-            );
+        const priorityCell = document.createElement("td");
 
-
-        const priority =
-            getPriorityConfig(
-                task.prioridad
-            );
-
+        const priority = getPriorityConfig(task.prioridad);
 
         priorityCell.append(
-
-            createBadge(
-                priority.label,
-                `priority-${priority.className}`
-            )
-
+            createBadge(priority.label, `priority-${priority.className}`),
         );
-
 
         // ESTADO
 
-        const statusCell =
-            document.createElement(
-                'td'
-            );
+        const statusCell = document.createElement("td");
 
+        const status = getStatusConfig(task.estado);
 
-        const status =
-            getStatusConfig(
-                task.estado
-            );
-
-
-        statusCell.append(
-
-            createBadge(
-                status.label,
-                `status-${status.className}`
-            )
-
-        );
-
+        statusCell.append(createBadge(status.label, `status-${status.className}`));
 
         // FECHA
 
-        const dateCell =
-            document.createElement(
-                'td'
-            );
+        const dateCell = document.createElement("td");
 
-
-        dateCell.textContent =
-            formatDate(
-                task.fecha_limite
-            );
-
+        dateCell.textContent = formatDate(task.fecha_limite);
 
         row.append(
-
             taskCell,
 
             userCell,
@@ -421,128 +232,69 @@ function renderRecentTasks(
 
             statusCell,
 
-            dateCell
-
+            dateCell,
         );
 
-
-        recentTasksBody.append(
-            row
-        );
-
+        recentTasksBody.append(row);
     }
-
 }
-
 
 // ============================================================
 // NAVEGACIÓN LOCAL
 // ============================================================
 
-viewTasksButton.addEventListener(
-    'click',
-    () => {
-
-        window.location.href =
-            './tareas.html';
-
-    }
-);
-
+viewTasksButton.addEventListener("click", () => {
+    window.location.href = "./tareas.html";
+});
 
 // ============================================================
 // INICIALIZAR
 // ============================================================
 
 async function initialize() {
+    const profile = await initAdminLayout({
+        activePage: "dashboard",
 
-    const profile =
-        await initAdminLayout({
+        title: "Dashboard",
 
-            activePage:
-                'dashboard',
+        subtitle: "Cargando información...",
 
-            title:
-                'Dashboard',
+        action: {
+            href: "./tarea-nueva.html",
 
-            subtitle:
-                'Cargando información...',
+            label: "Nueva tarea",
 
-            action: {
-                href:
-                    './tarea-nueva.html',
-
-                label:
-                    'Nueva tarea',
-
-                icon:
-                    '+'
-            }
-
-        });
-
+            icon: "+",
+        },
+    });
 
     if (!profile) {
-
         return;
-
     }
-
 
     setAdminTopbarSubtitle(
-        `Hola ${profile.nombre}, este es el resumen de actividad.`
+        `Hola ${profile.nombre}, este es el resumen de actividad.`,
     );
 
-
     try {
+        const dashboard = await getDashboardData(profile.organization_id);
 
-        const dashboard =
-            await getDashboardData(
-                profile.organization_id
-            );
+        pendingCount.textContent = dashboard.stats.pending;
 
+        progressCount.textContent = dashboard.stats.progress;
 
-        pendingCount.textContent =
-            dashboard.stats.pending;
+        completedCount.textContent = dashboard.stats.completed;
 
+        overdueCount.textContent = dashboard.stats.overdue;
 
-        progressCount.textContent =
-            dashboard.stats.progress;
-
-
-        completedCount.textContent =
-            dashboard.stats.completed;
-
-
-        overdueCount.textContent =
-            dashboard.stats.overdue;
-
-
-        renderRecentTasks(
-            dashboard.recentTasks
-        );
-
-
+        renderRecentTasks(dashboard.recentTasks);
     } catch (error) {
+        console.error("Error cargando Dashboard:", error);
 
-        console.error(
-            'Error cargando Dashboard:',
-            error
-        );
+        tasksLoading.textContent = "No fue posible cargar la información.";
 
-
-        tasksLoading.textContent =
-            'No fue posible cargar la información.';
-
-
-        showAdminToast(
-            'Error al cargar el Dashboard.',
-            'error'
-        );
-
+        showAdminToast("Error al cargar el Dashboard.", "error");
     }
-
 }
-
 
 initialize();

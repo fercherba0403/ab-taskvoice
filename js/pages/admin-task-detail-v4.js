@@ -15,163 +15,78 @@
 
 import {
     initAdminLayout,
-
     setAdminTopbarSubtitle,
-
-    setAdminTopbarTitle
-} from '../components/admin-layout-v3.js';
+    setAdminTopbarTitle,
+} from "../components/admin-layout-v3.js";
 
 import {
     cancelTask,
-
     getLocations,
-
     getMaintenanceTypes,
-
     getShifts,
-
     getTaskAssignees,
-
     getTaskHistory,
-
     getTaskMulti,
-
     getTechnicians,
-
-    updateTaskMulti
-} from '../services/tasks.js';
+    updateTaskMulti,
+} from "../services/tasks.js";
 
 import {
     createExecutionAudioSignedUrl,
-
     getTaskExecutionsForAdmin,
-
-    transcribeExecution
-} from '../services/executions.js';
+    transcribeExecution,
+} from "../services/executions.js";
 
 import {
     createExecutionPhotoSignedUrlForAdmin,
-
-    getExecutionPhotosForAdmin
-} from '../services/admin-execution-photos.js';
+    getExecutionPhotosForAdmin,
+} from "../services/admin-execution-photos.js";
 
 // ============================================================
 // ID DE TAREA
 // ============================================================
 
-const params =
-    new URLSearchParams(
-        window.location.search
-    );
+const params = new URLSearchParams(window.location.search);
 
-
-const taskId =
-    Number(
-        params.get(
-            'id'
-        )
-    );
-
-
+const taskId = Number(params.get("id"));
 
 // ============================================================
 // ELEMENTOS
 // ============================================================
 
-const loading =
-    document.getElementById(
-        'loading'
-    );
+const loading = document.getElementById("loading");
 
+const content = document.getElementById("content");
 
-const content =
-    document.getElementById(
-        'content'
-    );
+const form = document.getElementById("editForm");
 
+const message = document.getElementById("message");
 
-const form =
-    document.getElementById(
-        'editForm'
-    );
+const saveButton = document.getElementById("saveButton");
 
+const cancelTaskButton = document.getElementById("cancelTaskButton");
 
-const message =
-    document.getElementById(
-        'message'
-    );
+const techniciansList = document.getElementById("techniciansList");
 
+const techniciansSummary = document.getElementById("techniciansSummary");
 
-const saveButton =
-    document.getElementById(
-        'saveButton'
-    );
+const techniciansLockMessage = document.getElementById(
+    "techniciansLockMessage",
+);
 
+const locationSelect = document.getElementById("lugar");
 
-const cancelTaskButton =
-    document.getElementById(
-        'cancelTaskButton'
-    );
+const shiftSelect = document.getElementById("turno");
 
+const maintenanceTypeSelect = document.getElementById("maintenanceType");
 
-const techniciansList =
-    document.getElementById(
-        'techniciansList'
-    );
+const executionsList = document.getElementById("executionsList");
 
+const executionsLoading = document.getElementById("executionsLoading");
 
-const techniciansSummary =
-    document.getElementById(
-        'techniciansSummary'
-    );
+const executionsEmpty = document.getElementById("executionsEmpty");
 
-
-const techniciansLockMessage =
-    document.getElementById(
-        'techniciansLockMessage'
-    );
-
-
-const locationSelect =
-    document.getElementById(
-        'lugar'
-    );
-
-
-const shiftSelect =
-    document.getElementById(
-        'turno'
-    );
-
-
-const maintenanceTypeSelect =
-    document.getElementById(
-        'maintenanceType'
-    );
-
-const executionsList =
-    document.getElementById(
-        'executionsList'
-    );
-
-
-const executionsLoading =
-    document.getElementById(
-        'executionsLoading'
-    );
-
-
-const executionsEmpty =
-    document.getElementById(
-        'executionsEmpty'
-    );
-
-
-const executionsCount =
-    document.getElementById(
-        'executionsCount'
-    );
-
+const executionsCount = document.getElementById("executionsCount");
 
 // ============================================================
 // ESTADO
@@ -181,389 +96,205 @@ let currentTask = null;
 
 let currentAssignees = [];
 
-
-
 // ============================================================
 // FECHA / HORA
 // ============================================================
 
-function formatDateTime(
-    value
-) {
-
+function formatDateTime(value) {
     if (!value) {
-
-        return '';
-
+        return "";
     }
 
-
     return new Intl.DateTimeFormat(
-
-        'es-AR',
+        "es-AR",
 
         {
+            dateStyle: "short",
 
-            dateStyle:
-                'short',
-
-            timeStyle:
-                'short'
-
-        }
-
-    ).format(
-        new Date(value)
-    );
-
+            timeStyle: "short",
+        },
+    ).format(new Date(value));
 }
-
-
 
 // ============================================================
 // LABEL ESTADO GENERAL
 // ============================================================
 
-function taskStatusLabel(
-    status
-) {
-
+function taskStatusLabel(status) {
     const labels = {
+        pendiente: "Pendiente",
 
-        pendiente:
-            'Pendiente',
+        aceptada: "Aceptada",
 
-        aceptada:
-            'Aceptada',
+        en_progreso: "En progreso",
 
-        en_progreso:
-            'En progreso',
+        completada: "Completada",
 
-        completada:
-            'Completada',
+        cancelada: "Cancelada",
 
-        cancelada:
-            'Cancelada',
-
-        vencida:
-            'Vencida'
-
+        vencida: "Vencida",
     };
 
-
-    return labels[status]
-        ?? status;
-
+    return labels[status] ?? status;
 }
-
-
 
 // ============================================================
 // LABEL PRIORIDAD
 // ============================================================
 
-function priorityLabel(
-    priority
-) {
-
+function priorityLabel(priority) {
     const labels = {
+        baja: "Baja",
 
-        baja:
-            'Baja',
+        normal: "Normal",
 
-        normal:
-            'Normal',
+        alta: "Alta",
 
-        alta:
-            'Alta',
-
-        urgente:
-            'Urgente'
-
+        urgente: "Urgente",
     };
 
-
-    return labels[priority]
-        ?? priority;
-
+    return labels[priority] ?? priority;
 }
-
-
 
 // ============================================================
 // LABEL ESTADO INDIVIDUAL
 // ============================================================
 
-function assigneeStatusLabel(
-    status
-) {
-
+function assigneeStatusLabel(status) {
     const labels = {
+        pendiente: "Pendiente",
 
-        pendiente:
-            'Pendiente',
+        aceptada: "Aceptada",
 
-        aceptada:
-            'Aceptada',
+        en_progreso: "En progreso",
 
-        en_progreso:
-            'En progreso',
+        completada: "Completada",
 
-        completada:
-            'Completada',
+        cancelada: "Cancelada",
 
-        cancelada:
-            'Cancelada',
-
-        rechazada:
-            'Rechazada',
-
+        rechazada: "Rechazada",
     };
 
-
-    return labels[status]
-        ?? status;
-
+    return labels[status] ?? status;
 }
-
-
 
 // ============================================================
 // CLASE ESTADO INDIVIDUAL
 // ============================================================
 
-function assigneeStatusClass(
-    status
-) {
-
+function assigneeStatusClass(status) {
     const classes = {
+        pendiente: "pending",
 
-        pendiente:
-            'pending',
+        aceptada: "accepted",
 
-        aceptada:
-            'accepted',
+        en_progreso: "progress",
 
-        en_progreso:
-            'progress',
+        completada: "completed",
 
-        completada:
-            'completed',
+        cancelada: "cancelled",
 
-        cancelada:
-            'cancelled',
-
-        rechazada:
-            'rejected',
-
+        rechazada: "rejected",
     };
 
-
-    return classes[status]
-        ?? 'neutral';
-
+    return classes[status] ?? "neutral";
 }
-
-
 
 // ============================================================
 // ID BIGINT OPCIONAL
 // ============================================================
 
-function optionalId(
-    value
-) {
-
+function optionalId(value) {
     if (!value) {
-
         return null;
-
     }
 
+    const id = Number(value);
 
-    const id =
-        Number(value);
-
-
-    if (
-        !Number.isSafeInteger(id)
-        ||
-        id <= 0
-    ) {
-
+    if (!Number.isSafeInteger(id) || id <= 0) {
         return null;
-
     }
-
 
     return id;
-
 }
-
-
 
 // ============================================================
 // MENSAJES
 // ============================================================
 
 function clearMessage() {
+    message.textContent = "";
 
-    message.textContent =
-        '';
-
-
-    message.className =
-        'form-message';
-
+    message.className = "form-message";
 }
 
+function showError(text) {
+    message.textContent = text;
 
-
-function showError(
-    text
-) {
-
-    message.textContent =
-        text;
-
-
-    message.className =
-        'form-message error';
-
+    message.className = "form-message error";
 }
-
-
 
 // ============================================================
 // COMPLETAR SELECT
 // ============================================================
 
-function populateSelect(
-    select,
-    items
-) {
+function populateSelect(select, items) {
+    for (const item of items) {
+        const option = document.createElement("option");
 
-    for (
-        const item of items
-    ) {
+        option.value = String(item.id);
 
-        const option =
-            document.createElement(
-                'option'
-            );
+        option.textContent = item.nombre;
 
-
-        option.value =
-            String(item.id);
-
-
-        option.textContent =
-            item.nombre;
-
-
-        select.append(
-            option
-        );
-
+        select.append(option);
     }
-
 }
-
-
 
 // ============================================================
 // TÉCNICOS SELECCIONADOS
 // ============================================================
 
 function getSelectedTechnicians() {
-
     return [
-
-        ...techniciansList
-            .querySelectorAll(
-                'input[name="technicians"]:checked'
-            )
-
-    ].map(
-        input =>
-            input.value
-    );
-
+        ...techniciansList.querySelectorAll('input[name="technicians"]:checked'),
+    ].map((input) => input.value);
 }
-
-
 
 // ============================================================
 // RESUMEN
 // ============================================================
 
 function updateTechniciansSummary() {
+    const selected = getSelectedTechnicians();
 
-    const selected =
-        getSelectedTechnicians();
+    if (selected.length === 0) {
+        techniciansSummary.textContent = "Ningún técnico seleccionado";
 
-
-    if (
-        selected.length === 0
-    ) {
-
-        techniciansSummary.textContent =
-            'Ningún técnico seleccionado';
-
-        techniciansSummary.classList.remove(
-            'has-selection'
-        );
+        techniciansSummary.classList.remove("has-selection");
 
         return;
-
     }
 
-
     techniciansSummary.textContent =
-
         selected.length === 1
-
-            ? '1 técnico seleccionado'
-
+            ? "1 técnico seleccionado"
             : `${selected.length} técnicos seleccionados`;
 
-
-    techniciansSummary.classList.add(
-        'has-selection'
-    );
-
+    techniciansSummary.classList.add("has-selection");
 }
-
-
 
 // ============================================================
 // RENDER TÉCNICOS
 // ============================================================
 
-function renderTechnicians(
-    technicians,
-    assignees
-) {
-
+function renderTechnicians(technicians, assignees) {
     techniciansList.replaceChildren();
 
+    const assigneeMap = new Map();
 
-    const assigneeMap =
-        new Map();
-
-
-    for (
-        const assignee of assignees
-    ) {
-
-        assigneeMap.set(
-            assignee.user_id,
-            assignee
-        );
-
+    for (const assignee of assignees) {
+        assigneeMap.set(assignee.user_id, assignee);
     }
-
-
 
     // ========================================================
     // COMBINAR:
@@ -573,933 +304,375 @@ function renderTechnicians(
     // asignados históricos que quizás ya no estén en esa lista
     // ========================================================
 
-    const technicianMap =
-        new Map();
+    const technicianMap = new Map();
 
+    for (const technician of technicians) {
+        technicianMap.set(technician.id, {
+            id: technician.id,
 
-    for (
-        const technician of technicians
-    ) {
+            nombre: `${technician.nombre} ${technician.apellido}`.trim(),
 
-        technicianMap.set(
-            technician.id,
-            {
+            email: technician.email ?? "",
 
-                id:
-                    technician.id,
+            activo: true,
 
-                nombre:
-                    `${technician.nombre} ${technician.apellido}`
-                        .trim(),
-
-                email:
-                    technician.email ?? '',
-
-                activo:
-                    true,
-
-                rol:
-                    technician.rol
-
-            }
-        );
-
+            rol: technician.rol,
+        });
     }
 
-
-
-    for (
-        const assignee of assignees
-    ) {
-
-        if (
-            technicianMap.has(
-                assignee.user_id
-            )
-        ) {
-
+    for (const assignee of assignees) {
+        if (technicianMap.has(assignee.user_id)) {
             continue;
-
         }
 
+        technicianMap.set(assignee.user_id, {
+            id: assignee.user_id,
 
-        technicianMap.set(
-            assignee.user_id,
-            {
+            nombre: assignee.nombre,
 
-                id:
-                    assignee.user_id,
+            email: assignee.email ?? "",
 
-                nombre:
-                    assignee.nombre,
+            activo: assignee.activo,
 
-                email:
-                    assignee.email ?? '',
-
-                activo:
-                    assignee.activo,
-
-                rol:
-                    assignee.rol
-
-            }
-        );
-
+            rol: assignee.rol,
+        });
     }
 
-
-
-    const combinedTechnicians = [
-
-        ...technicianMap.values()
-
-    ].sort(
-
-        (a, b) =>
-            a.nombre.localeCompare(
-                b.nombre,
-                'es'
-            )
-
+    const combinedTechnicians = [...technicianMap.values()].sort((a, b) =>
+        a.nombre.localeCompare(b.nombre, "es"),
     );
 
+    if (combinedTechnicians.length === 0) {
+        const empty = document.createElement("div");
 
+        empty.className = "detail-technicians-empty";
 
-    if (
-        combinedTechnicians.length === 0
-    ) {
+        empty.textContent = "No hay técnicos disponibles.";
 
-        const empty =
-            document.createElement(
-                'div'
-            );
-
-
-        empty.className =
-            'detail-technicians-empty';
-
-
-        empty.textContent =
-            'No hay técnicos disponibles.';
-
-
-        techniciansList.append(
-            empty
-        );
-
+        techniciansList.append(empty);
 
         updateTechniciansSummary();
 
-
         return;
-
     }
-
-
 
     const lockAssignments =
+        currentTask.estado === "en_progreso" ||
+        currentTask.estado === "completada" ||
+        currentTask.estado === "cancelada";
 
-        currentTask.estado ===
-        'en_progreso'
+    for (const technician of combinedTechnicians) {
+        const assignment = assigneeMap.get(technician.id);
 
-        ||
+        const label = document.createElement("label");
 
-        currentTask.estado ===
-        'completada'
+        label.className = "detail-technician-option";
 
-        ||
+        const checkbox = document.createElement("input");
 
-        currentTask.estado ===
-        'cancelada';
+        checkbox.type = "checkbox";
 
+        checkbox.name = "technicians";
 
+        checkbox.value = technician.id;
 
-    for (
-        const technician of
-        combinedTechnicians
-    ) {
+        checkbox.checked = Boolean(assignment);
 
-        const assignment =
-            assigneeMap.get(
-                technician.id
-            );
+        checkbox.disabled = lockAssignments;
 
+        const content = document.createElement("span");
 
-        const label =
-            document.createElement(
-                'label'
-            );
+        content.className = "detail-technician-data";
 
+        const topRow = document.createElement("span");
 
-        label.className =
-            'detail-technician-option';
+        topRow.className = "detail-technician-top";
 
+        const name = document.createElement("strong");
 
+        name.textContent = technician.nombre;
 
-        const checkbox =
-            document.createElement(
-                'input'
-            );
-
-
-        checkbox.type =
-            'checkbox';
-
-
-        checkbox.name =
-            'technicians';
-
-
-        checkbox.value =
-            technician.id;
-
-
-        checkbox.checked =
-            Boolean(assignment);
-
-
-        checkbox.disabled =
-            lockAssignments;
-
-
-
-        const content =
-            document.createElement(
-                'span'
-            );
-
-
-        content.className =
-            'detail-technician-data';
-
-
-
-        const topRow =
-            document.createElement(
-                'span'
-            );
-
-
-        topRow.className =
-            'detail-technician-top';
-
-
-
-        const name =
-            document.createElement(
-                'strong'
-            );
-
-
-        name.textContent =
-            technician.nombre;
-
-
-
-        topRow.append(
-            name
-        );
-
-
+        topRow.append(name);
 
         if (assignment) {
-
-            const status =
-                document.createElement(
-                    'span'
-                );
-
+            const status = document.createElement("span");
 
             status.className =
+                "technician-state " +
+                `technician-state-${assigneeStatusClass(assignment.estado)}`;
 
-                'technician-state '
+            status.textContent = assigneeStatusLabel(assignment.estado);
 
-                +
-
-                `technician-state-${assigneeStatusClass(
-                    assignment.estado
-                )
-
-                }`;
-
-
-            status.textContent =
-                assigneeStatusLabel(
-                    assignment.estado
-                );
-
-
-            topRow.append(
-                status
-            );
-
+            topRow.append(status);
         }
 
+        const email = document.createElement("small");
 
+        email.textContent = technician.email;
 
-        const email =
-            document.createElement(
-                'small'
-            );
+        content.append(topRow, email);
 
+        label.append(checkbox, content);
 
-        email.textContent =
-            technician.email;
-
-
-
-        content.append(
-            topRow,
-            email
-        );
-
-
-        label.append(
-            checkbox,
-            content
-        );
-
-
-        techniciansList.append(
-            label
-        );
-
+        techniciansList.append(label);
 
         checkbox.addEventListener(
+            "change",
 
-            'change',
-
-            updateTechniciansSummary
-
+            updateTechniciansSummary,
         );
-
     }
-
-
 
     updateTechniciansSummary();
 
-
-
-    if (
-        currentTask.estado ===
-        'en_progreso'
-    ) {
-
-        techniciansLockMessage.classList.remove(
-            'hidden'
-        );
-
+    if (currentTask.estado === "en_progreso") {
+        techniciansLockMessage.classList.remove("hidden");
     } else {
-
-        techniciansLockMessage.classList.add(
-            'hidden'
-        );
-
+        techniciansLockMessage.classList.add("hidden");
     }
-
 }
-
-
 
 // ============================================================
 // RENDER TAREA
 // ============================================================
 
 function renderTask() {
+    document.getElementById("taskId").textContent = `Tarea #${currentTask.id}`;
 
-    document.getElementById(
-        'taskId'
-    ).textContent =
-        `Tarea #${currentTask.id}`;
+    document.getElementById("taskTitle").textContent = currentTask.titulo;
 
+    document.getElementById("titulo").value = currentTask.titulo;
 
-    document.getElementById(
-        'taskTitle'
-    ).textContent =
-        currentTask.titulo;
+    document.getElementById("descripcion").value = currentTask.descripcion ?? "";
 
+    document.getElementById("prioridad").value = currentTask.prioridad;
 
-    document.getElementById(
-        'titulo'
-    ).value =
-        currentTask.titulo;
+    document.getElementById("fechaLimite").value = currentTask.fecha_limite ?? "";
 
+    document.getElementById("horaLimite").value = currentTask.hora_limite ?? "";
 
-    document.getElementById(
-        'descripcion'
-    ).value =
-        currentTask.descripcion ?? '';
+    document.getElementById("ticketNumber").value =
+        currentTask.ticket_number ?? "";
 
+    locationSelect.value = currentTask.location_id
+        ? String(currentTask.location_id)
+        : "";
 
-    document.getElementById(
-        'prioridad'
-    ).value =
-        currentTask.prioridad;
+    shiftSelect.value = currentTask.shift_id ? String(currentTask.shift_id) : "";
 
+    maintenanceTypeSelect.value = currentTask.maintenance_type_id
+        ? String(currentTask.maintenance_type_id)
+        : "";
 
-    document.getElementById(
-        'fechaLimite'
-    ).value =
-        currentTask.fecha_limite ?? '';
-
-
-    document.getElementById(
-        'horaLimite'
-    ).value =
-        currentTask.hora_limite ?? '';
-
-
-    document.getElementById(
-        'ticketNumber'
-    ).value =
-        currentTask.ticket_number ?? '';
-
-
-    locationSelect.value =
-
-        currentTask.location_id
-
-            ? String(
-                currentTask.location_id
-            )
-
-            : '';
-
-
-    shiftSelect.value =
-
-        currentTask.shift_id
-
-            ? String(
-                currentTask.shift_id
-            )
-
-            : '';
-
-
-    maintenanceTypeSelect.value =
-
-        currentTask.maintenance_type_id
-
-            ? String(
-                currentTask.maintenance_type_id
-            )
-
-            : '';
-
-
-
-    document.getElementById(
-        'taskBadges'
-    ).textContent =
-
-        `${taskStatusLabel(currentTask.estado)}`
-
-        +
-
-        ' · '
-
-        +
-
+    document.getElementById("taskBadges").textContent =
+        `${taskStatusLabel(currentTask.estado)}` +
+        " · " +
         `${priorityLabel(currentTask.prioridad)}`;
-
-
 
     // ========================================================
     // TAREAS FINALIZADAS
     // ========================================================
 
     if (
-
-        currentTask.estado ===
-        'completada'
-
-        ||
-
-        currentTask.estado ===
-        'cancelada'
-
+        currentTask.estado === "completada" ||
+        currentTask.estado === "cancelada"
     ) {
-
         form
-            .querySelectorAll(
-                'input, textarea, select, button'
-            )
-            .forEach(
+            .querySelectorAll("input, textarea, select, button")
+            .forEach((item) => (item.disabled = true));
 
-                item =>
-                    item.disabled = true
-
-            );
-
-
-        cancelTaskButton.disabled =
-            true;
-
+        cancelTaskButton.disabled = true;
     }
-
 }
-
-
 
 // ============================================================
 // HISTORIAL
 // ============================================================
 
-function renderHistory(
-    history
-) {
-
-    const list =
-        document.getElementById(
-            'historyList'
-        );
-
+function renderHistory(history) {
+    const list = document.getElementById("historyList");
 
     list.replaceChildren();
 
-
-
-    if (
-        history.length === 0
-    ) {
-
-        list.textContent =
-            'Sin movimientos.';
-
+    if (history.length === 0) {
+        list.textContent = "Sin movimientos.";
 
         return;
-
     }
 
+    for (const item of history) {
+        const element = document.createElement("article");
 
+        element.className = "history-item";
 
-    for (
-        const item of history
-    ) {
+        const title = document.createElement("strong");
 
-        const element =
-            document.createElement(
-                'article'
-            );
+        title.textContent = item.accion.replaceAll("_", " ");
 
+        const date = document.createElement("small");
 
-        element.className =
-            'history-item';
+        date.textContent = formatDateTime(item.created_at);
 
+        element.append(title, date);
 
-
-        const title =
-            document.createElement(
-                'strong'
-            );
-
-
-        title.textContent =
-            item.accion
-                .replaceAll(
-                    '_',
-                    ' '
-                );
-
-
-
-        const date =
-            document.createElement(
-                'small'
-            );
-
-
-        date.textContent =
-            formatDateTime(
-                item.created_at
-            );
-
-
-
-        element.append(
-            title,
-            date
-        );
-
-
-
-        if (
-            item.estado_anterior
-            ||
-            item.estado_nuevo
-        ) {
-
-            const state =
-                document.createElement(
-                    'p'
-                );
-
+        if (item.estado_anterior || item.estado_nuevo) {
+            const state = document.createElement("p");
 
             state.textContent =
+                `${item.estado_anterior ?? "-"}` +
+                " → " +
+                `${item.estado_nuevo ?? "-"}`;
 
-                `${item.estado_anterior ?? '-'}`
-
-                +
-
-                ' → '
-
-                +
-
-                `${item.estado_nuevo ?? '-'}`;
-
-
-            element.append(
-                state
-            );
-
+            element.append(state);
         }
 
+        if (item.comentario) {
+            const comment = document.createElement("p");
 
+            comment.textContent = item.comentario;
 
-        if (
-            item.comentario
-        ) {
-
-            const comment =
-                document.createElement(
-                    'p'
-                );
-
-
-            comment.textContent =
-                item.comentario;
-
-
-            element.append(
-                comment
-            );
-
+            element.append(comment);
         }
 
-
-
-        list.append(
-            element
-        );
-
+        list.append(element);
     }
-
 }
 
 // ============================================================
 // DURACIÓN DE UNA EJECUCIÓN
 // ============================================================
 
-function formatDuration(
-    start,
-    end
-) {
-
-    if (
-        !start
-        ||
-        !end
-    ) {
-
-        return 'En curso';
-
+function formatDuration(start, end) {
+    if (!start || !end) {
+        return "En curso";
     }
 
+    const milliseconds = new Date(end).getTime() - new Date(start).getTime();
 
-    const milliseconds =
-
-        new Date(end).getTime()
-
-        -
-
-        new Date(start).getTime();
-
-
-    if (
-        milliseconds < 0
-    ) {
-
-        return '-';
-
+    if (milliseconds < 0) {
+        return "-";
     }
 
+    const totalMinutes = Math.floor(milliseconds / 60000);
 
-    const totalMinutes =
-        Math.floor(
-            milliseconds / 60000
-        );
+    const hours = Math.floor(totalMinutes / 60);
 
+    const minutes = totalMinutes % 60;
 
-    const hours =
-        Math.floor(
-            totalMinutes / 60
-        );
-
-
-    const minutes =
-        totalMinutes % 60;
-
-
-    if (
-        hours === 0
-    ) {
-
+    if (hours === 0) {
         return `${minutes} min`;
-
     }
-
 
     return `${hours} h ${minutes} min`;
-
 }
-
-
 
 // ============================================================
 // CREAR DATO DE EJECUCIÓN
 // ============================================================
 
-function createExecutionMeta(
-    label,
-    value
-) {
+function createExecutionMeta(label, value) {
+    const item = document.createElement("div");
 
-    const item =
-        document.createElement(
-            'div'
-        );
+    item.className = "admin-execution-meta-item";
 
+    const labelElement = document.createElement("span");
 
-    item.className =
-        'admin-execution-meta-item';
+    labelElement.textContent = label;
 
+    const valueElement = document.createElement("strong");
 
+    valueElement.textContent = value || "-";
 
-    const labelElement =
-        document.createElement(
-            'span'
-        );
-
-
-    labelElement.textContent =
-        label;
-
-
-
-    const valueElement =
-        document.createElement(
-            'strong'
-        );
-
-
-    valueElement.textContent =
-        value || '-';
-
-
-
-    item.append(
-        labelElement,
-        valueElement
-    );
-
+    item.append(labelElement, valueElement);
 
     return item;
-
 }
-
-
 
 // ============================================================
 // AUDIO PRIVADO
 // ============================================================
 
-function createAudioSection(
-    execution
-) {
+function createAudioSection(execution) {
+    const container = document.createElement("div");
 
-    const container =
-        document.createElement(
-            'div'
-        );
+    container.className = "admin-execution-audio";
 
+    const label = document.createElement("span");
 
-    container.className =
-        'admin-execution-audio';
+    label.className = "admin-execution-section-label";
 
+    label.textContent = "Informe de voz";
 
+    container.append(label);
 
-    const label =
-        document.createElement(
-            'span'
-        );
+    if (!execution.audio_path) {
+        const empty = document.createElement("p");
 
+        empty.className = "admin-execution-muted";
 
-    label.className =
-        'admin-execution-section-label';
+        empty.textContent = "Sin audio registrado.";
 
-
-    label.textContent =
-        'Informe de voz';
-
-
-
-    container.append(
-        label
-    );
-
-
-
-    if (
-        !execution.audio_path
-    ) {
-
-        const empty =
-            document.createElement(
-                'p'
-            );
-
-
-        empty.className =
-            'admin-execution-muted';
-
-
-        empty.textContent =
-            'Sin audio registrado.';
-
-
-        container.append(
-            empty
-        );
-
+        container.append(empty);
 
         return container;
-
     }
 
+    const button = document.createElement("button");
 
+    button.type = "button";
 
-    const button =
-        document.createElement(
-            'button'
-        );
+    button.className = "admin-execution-audio-button";
 
-
-    button.type =
-        'button';
-
-
-    button.className =
-        'admin-execution-audio-button';
-
-
-    button.textContent =
-        '▶ Escuchar informe';
-
-
+    button.textContent = "▶ Escuchar informe";
 
     button.addEventListener(
-
-        'click',
+        "click",
 
         async () => {
+            button.disabled = true;
 
-            button.disabled =
-                true;
-
-
-            button.textContent =
-                'Preparando audio...';
-
+            button.textContent = "Preparando audio...";
 
             try {
-
-                const signedUrl =
-                    await createExecutionAudioSignedUrl(
-                        execution.audio_path
-                    );
-
+                const signedUrl = await createExecutionAudioSignedUrl(
+                    execution.audio_path,
+                );
 
                 if (!signedUrl) {
-
-                    throw new Error(
-                        'No fue posible generar la URL del audio.'
-                    );
-
+                    throw new Error("No fue posible generar la URL del audio.");
                 }
 
+                const audio = document.createElement("audio");
 
+                audio.controls = true;
 
-                const audio =
-                    document.createElement(
-                        'audio'
-                    );
+                audio.preload = "metadata";
 
+                audio.src = signedUrl;
 
-                audio.controls =
-                    true;
+                audio.className = "admin-execution-audio-player";
 
-
-                audio.preload =
-                    'metadata';
-
-
-                audio.src =
-                    signedUrl;
-
-
-                audio.className =
-                    'admin-execution-audio-player';
-
-
-
-                button.replaceWith(
-                    audio
-                );
-
+                button.replaceWith(audio);
 
                 try {
-
                     await audio.play();
-
                 } catch {
-
                     // Algunos navegadores requieren que
                     // el usuario pulse Play manualmente.
-
                 }
-
-
             } catch (error) {
+                console.error("Error cargando audio:", error);
 
-                console.error(
-                    'Error cargando audio:',
-                    error
-                );
+                button.disabled = false;
 
-
-                button.disabled =
-                    false;
-
-
-                button.textContent =
-                    'No fue posible cargar el audio';
-
+                button.textContent = "No fue posible cargar el audio";
             }
-
-        }
-
+        },
     );
 
-
-    container.append(
-        button
-    );
-
+    container.append(button);
 
     return container;
-
 }
 
 // ============================================================
@@ -1510,283 +683,123 @@ function createAudioSection(
 // informe de la ejecución.
 // ============================================================
 
-function createPhotosSection(
-    execution
-) {
+function createPhotosSection(execution) {
+    const section = document.createElement("div");
 
-    const section =
-        document.createElement(
-            'div'
-        );
+    section.className = "admin-execution-section admin-execution-photos-section";
 
+    const label = document.createElement("span");
 
-    section.className =
-        'admin-execution-section admin-execution-photos-section';
+    label.className = "admin-execution-section-label";
 
+    label.textContent = "Evidencia fotográfica";
 
-    const label =
-        document.createElement(
-            'span'
-        );
+    const content = document.createElement("div");
 
+    content.className = "admin-execution-photos-content";
 
-    label.className =
-        'admin-execution-section-label';
+    const loading = document.createElement("p");
 
+    loading.className = "admin-execution-muted";
 
-    label.textContent =
-        'Evidencia fotográfica';
+    loading.textContent = "Cargando fotografías...";
 
+    content.append(loading);
 
-    const content =
-        document.createElement(
-            'div'
-        );
-
-
-    content.className =
-        'admin-execution-photos-content';
-
-
-    const loading =
-        document.createElement(
-            'p'
-        );
-
-
-    loading.className =
-        'admin-execution-muted';
-
-
-    loading.textContent =
-        'Cargando fotografías...';
-
-
-    content.append(
-        loading
-    );
-
-
-    section.append(
-        label,
-        content
-    );
-
+    section.append(label, content);
 
     void (async () => {
-
         try {
-
-            const photos =
-                await getExecutionPhotosForAdmin(
-                    execution.id
-                );
-
+            const photos = await getExecutionPhotosForAdmin(execution.id);
 
             content.replaceChildren();
 
+            if (photos.length === 0) {
+                const empty = document.createElement("p");
 
-            if (
-                photos.length === 0
-            ) {
+                empty.className = "admin-execution-muted";
 
-                const empty =
-                    document.createElement(
-                        'p'
-                    );
+                empty.textContent = "Sin fotografías registradas.";
 
-
-                empty.className =
-                    'admin-execution-muted';
-
-
-                empty.textContent =
-                    'Sin fotografías registradas.';
-
-
-                content.append(
-                    empty
-                );
-
+                content.append(empty);
 
                 return;
-
             }
 
+            const grid = document.createElement("div");
 
-            const grid =
-                document.createElement(
-                    'div'
-                );
+            grid.className = "admin-execution-photos-grid";
 
+            for (const photo of photos) {
+                const item = document.createElement("a");
 
-            grid.className =
-                'admin-execution-photos-grid';
+                item.className = "admin-execution-photo";
 
+                item.href = "#";
 
-            for (
-                const photo of photos
-            ) {
+                item.target = "_blank";
 
-                const item =
-                    document.createElement(
-                        'a'
-                    );
+                item.rel = "noopener noreferrer";
 
+                item.setAttribute("aria-label", "Abrir fotografía en tamaño completo");
 
-                item.className =
-                    'admin-execution-photo';
+                const image = document.createElement("img");
 
+                image.alt = photo.descripcion || "Fotografía del trabajo realizado";
 
-                item.href =
-                    '#';
+                image.loading = "lazy";
 
+                const caption = document.createElement("span");
 
-                item.target =
-                    '_blank';
+                caption.textContent = "Ver foto";
 
+                item.append(image, caption);
 
-                item.rel =
-                    'noopener noreferrer';
-
-
-                item.setAttribute(
-                    'aria-label',
-                    'Abrir fotografía en tamaño completo'
-                );
-
-
-                const image =
-                    document.createElement(
-                        'img'
-                    );
-
-
-                image.alt =
-                    photo.descripcion
-                    ||
-                    'Fotografía del trabajo realizado';
-
-
-                image.loading =
-                    'lazy';
-
-
-                const caption =
-                    document.createElement(
-                        'span'
-                    );
-
-
-                caption.textContent =
-                    'Ver foto';
-
-
-                item.append(
-                    image,
-                    caption
-                );
-
-
-                grid.append(
-                    item
-                );
-
+                grid.append(item);
 
                 try {
-
-                    const signedUrl =
-                        await createExecutionPhotoSignedUrlForAdmin(
-                            photo.storage_path
-                        );
-
+                    const signedUrl = await createExecutionPhotoSignedUrlForAdmin(
+                        photo.storage_path,
+                    );
 
                     if (!signedUrl) {
-
-                        throw new Error(
-                            'No se pudo generar la URL firmada.'
-                        );
-
+                        throw new Error("No se pudo generar la URL firmada.");
                     }
 
+                    image.src = signedUrl;
 
-                    image.src =
-                        signedUrl;
-
-
-                    item.href =
-                        signedUrl;
-
-
+                    item.href = signedUrl;
                 } catch (photoError) {
+                    console.error("Error cargando fotografía de ejecución:", photoError);
 
-                    console.error(
-                        'Error cargando fotografía de ejecución:',
-                        photoError
-                    );
+                    item.removeAttribute("href");
 
+                    item.classList.add("is-error");
 
-                    item.removeAttribute(
-                        'href'
-                    );
-
-
-                    item.classList.add(
-                        'is-error'
-                    );
-
-
-                    caption.textContent =
-                        'No disponible';
-
+                    caption.textContent = "No disponible";
                 }
-
             }
 
-
-            content.append(
-                grid
-            );
-
-
+            content.append(grid);
         } catch (error) {
-
-            console.error(
-                'Error cargando fotografías:',
-                error
-            );
-
+            console.error("Error cargando fotografías:", error);
 
             content.replaceChildren();
 
-
-            const errorMessage =
-                document.createElement(
-                    'p'
-                );
-
+            const errorMessage = document.createElement("p");
 
             errorMessage.className =
-                'admin-execution-muted admin-execution-photo-error';
-
+                "admin-execution-muted admin-execution-photo-error";
 
             errorMessage.textContent =
-                'No fue posible cargar la evidencia fotográfica.';
+                "No fue posible cargar la evidencia fotográfica.";
 
-
-            content.append(
-                errorMessage
-            );
-
+            content.append(errorMessage);
         }
-
     })();
 
-
     return section;
-
 }
-
 
 // ============================================================
 // TRANSCRIPCIÓN DE EJECUCIÓN
@@ -1796,778 +809,355 @@ function createPhotosSection(
 // - Si no existe audio: informa que no puede transcribirse.
 // ============================================================
 
-function createTranscriptionSection(
-    execution
-) {
+function createTranscriptionSection(execution) {
+    const section = document.createElement("div");
 
-    const section =
-        document.createElement(
-            'div'
-        );
-
-
-    section.className =
-        'admin-execution-section';
-
-
+    section.className = "admin-execution-section";
 
     // ========================================================
     // LABEL
     // ========================================================
 
-    const label =
-        document.createElement(
-            'span'
-        );
+    const label = document.createElement("span");
 
+    label.className = "admin-execution-section-label";
 
-    label.className =
-        'admin-execution-section-label';
-
-
-    label.textContent =
-        'Transcripción del audio';
-
-
+    label.textContent = "Transcripción del audio";
 
     // ========================================================
     // CONTENIDO
     // ========================================================
 
-    const content =
-        document.createElement(
-            'div'
-        );
+    const content = document.createElement("div");
 
+    content.className = "admin-execution-transcription-content";
 
-    content.className =
-        'admin-execution-transcription-content';
-
-
-
-    section.append(
-        label,
-        content
-    );
-
-
+    section.append(label, content);
 
     // ========================================================
     // FUNCIÓN INTERNA:
     // MOSTRAR TRANSCRIPCIÓN
     // ========================================================
 
-    function showTranscription(
-        text
-    ) {
-
+    function showTranscription(text) {
         content.replaceChildren();
 
+        const paragraph = document.createElement("p");
 
-        const paragraph =
-            document.createElement(
-                'p'
-            );
+        paragraph.className = "admin-execution-transcription";
 
+        paragraph.textContent = text;
 
-        paragraph.className =
-            'admin-execution-transcription';
-
-
-        paragraph.textContent =
-            text;
-
-
-        content.append(
-            paragraph
-        );
-
+        content.append(paragraph);
     }
-
-
 
     // ========================================================
     // YA EXISTE TRANSCRIPCIÓN
     // ========================================================
 
-    if (
-        execution.transcripcion
-        &&
-        execution.transcripcion.trim()
-    ) {
-
-        showTranscription(
-            execution.transcripcion.trim()
-        );
-
+    if (execution.transcripcion && execution.transcripcion.trim()) {
+        showTranscription(execution.transcripcion.trim());
 
         return section;
-
     }
-
-
 
     // ========================================================
     // SIN AUDIO
     // ========================================================
 
-    if (
-        !execution.audio_path
-    ) {
+    if (!execution.audio_path) {
+        const empty = document.createElement("p");
 
-        const empty =
-            document.createElement(
-                'p'
-            );
+        empty.className = "admin-execution-muted";
 
+        empty.textContent = "No existe audio para transcribir.";
 
-        empty.className =
-            'admin-execution-muted';
-
-
-        empty.textContent =
-            'No existe audio para transcribir.';
-
-
-        content.append(
-            empty
-        );
-
+        content.append(empty);
 
         return section;
-
     }
-
-
 
     // ========================================================
     // AUDIO EXISTE PERO NO HAY TRANSCRIPCIÓN
     // ========================================================
 
-    const message =
-        document.createElement(
-            'p'
-        );
+    const message = document.createElement("p");
 
-
-    message.className =
-        'admin-execution-transcription-pending';
-
+    message.className = "admin-execution-transcription-pending";
 
     message.textContent =
-        'El audio está guardado, pero todavía no tiene transcripción.';
+        "El audio está guardado, pero todavía no tiene transcripción.";
 
+    const button = document.createElement("button");
 
+    button.type = "button";
 
-    const button =
-        document.createElement(
-            'button'
-        );
+    button.className = "admin-execution-transcription-button";
 
+    button.textContent = "↻ Reintentar transcripción";
 
-    button.type =
-        'button';
+    const status = document.createElement("div");
 
+    status.className = "admin-execution-transcription-status";
 
-    button.className =
-        'admin-execution-transcription-button';
-
-
-    button.textContent =
-        '↻ Reintentar transcripción';
-
-
-
-    const status =
-        document.createElement(
-            'div'
-        );
-
-
-    status.className =
-        'admin-execution-transcription-status';
-
-
-
-    content.append(
-        message,
-        button,
-        status
-    );
-
-
+    content.append(message, button, status);
 
     // ========================================================
     // REINTENTAR
     // ========================================================
 
     button.addEventListener(
-
-        'click',
+        "click",
 
         async () => {
-
-            const confirmed =
-                window.confirm(
-                    '¿Querés volver a intentar la transcripción de este informe de voz?'
-                );
-
+            const confirmed = window.confirm(
+                "¿Querés volver a intentar la transcripción de este informe de voz?",
+            );
 
             if (!confirmed) {
-
                 return;
-
             }
 
+            button.disabled = true;
 
+            button.textContent = "Transcribiendo...";
 
-            button.disabled =
-                true;
+            status.textContent = "Procesando el audio...";
 
-
-            button.textContent =
-                'Transcribiendo...';
-
-
-            status.textContent =
-                'Procesando el audio...';
-
-
-            status.className =
-                'admin-execution-transcription-status';
-
-
+            status.className = "admin-execution-transcription-status";
 
             try {
+                const transcription = await transcribeExecution(execution.id);
 
-                const transcription =
-                    await transcribeExecution(
-                        execution.id
-                    );
-
-
-                if (
-                    !transcription
-                    ||
-                    !transcription.trim()
-                ) {
-
-                    throw new Error(
-                        'La transcripción fue devuelta vacía.'
-                    );
-
+                if (!transcription || !transcription.trim()) {
+                    throw new Error("La transcripción fue devuelta vacía.");
                 }
-
-
 
                 // =================================================
                 // ACTUALIZAR OBJETO LOCAL
                 // =================================================
 
-                execution.transcripcion =
-                    transcription.trim();
-
-
+                execution.transcripcion = transcription.trim();
 
                 // =================================================
                 // MOSTRAR SIN RECARGAR
                 // =================================================
 
-                showTranscription(
-                    execution.transcripcion
-                );
-
-
+                showTranscription(execution.transcripcion);
             } catch (error) {
+                console.error("Error reintentando transcripción:", error);
 
-                console.error(
-                    'Error reintentando transcripción:',
-                    error
-                );
+                button.disabled = false;
 
-
-                button.disabled =
-                    false;
-
-
-                button.textContent =
-                    '↻ Reintentar transcripción';
-
+                button.textContent = "↻ Reintentar transcripción";
 
                 status.textContent =
+                    error?.message || "No fue posible generar la transcripción.";
 
-                    error?.message
-
-                    ||
-
-                    'No fue posible generar la transcripción.';
-
-
-                status.className =
-                    'admin-execution-transcription-status error';
-
+                status.className = "admin-execution-transcription-status error";
             }
-
-        }
-
+        },
     );
 
-
     return section;
-
 }
 
 // ============================================================
 // CREAR CARD DE EJECUCIÓN
 // ============================================================
 
-function createExecutionCard(
-    execution
-) {
+function createExecutionCard(execution) {
+    const card = document.createElement("article");
 
-    const card =
-        document.createElement(
-            'article'
-        );
-
-
-    card.className =
-        'admin-execution-card';
-
-
+    card.className = "admin-execution-card";
 
     // ========================================================
     // HEADER
     // ========================================================
 
-    const header =
-        document.createElement(
-            'div'
-        );
+    const header = document.createElement("div");
 
+    header.className = "admin-execution-header";
 
-    header.className =
-        'admin-execution-header';
+    const technician = document.createElement("div");
 
+    technician.className = "admin-execution-technician";
 
+    const name = document.createElement("strong");
 
-    const technician =
-        document.createElement(
-            'div'
-        );
+    name.textContent = execution.technician_name;
 
+    const email = document.createElement("small");
 
-    technician.className =
-        'admin-execution-technician';
+    email.textContent = execution.technician_email;
 
+    technician.append(name, email);
 
+    const status = document.createElement("span");
 
-    const name =
-        document.createElement(
-            'strong'
-        );
+    status.className = execution.fin
+        ? "admin-execution-status completed"
+        : "admin-execution-status progress";
 
+    status.textContent = execution.fin ? "Completada" : "En progreso";
 
-    name.textContent =
-        execution.technician_name;
-
-
-
-    const email =
-        document.createElement(
-            'small'
-        );
-
-
-    email.textContent =
-        execution.technician_email;
-
-
-
-    technician.append(
-        name,
-        email
-    );
-
-
-
-    const status =
-        document.createElement(
-            'span'
-        );
-
-
-    status.className =
-
-        execution.fin
-
-            ? 'admin-execution-status completed'
-
-            : 'admin-execution-status progress';
-
-
-    status.textContent =
-
-        execution.fin
-
-            ? 'Completada'
-
-            : 'En progreso';
-
-
-
-    header.append(
-        technician,
-        status
-    );
-
-
+    header.append(technician, status);
 
     // ========================================================
     // TRABAJOS REALIZADOS
     // ========================================================
 
-    const workSection =
-        document.createElement(
-            'div'
-        );
+    const workSection = document.createElement("div");
 
+    workSection.className = "admin-execution-section";
 
-    workSection.className =
-        'admin-execution-section';
+    const workLabel = document.createElement("span");
 
+    workLabel.className = "admin-execution-section-label";
 
+    workLabel.textContent = "Trabajo realizado";
 
-    const workLabel =
-        document.createElement(
-            'span'
-        );
+    const workTypes = document.createElement("div");
 
+    workTypes.className = "admin-execution-work-types";
 
-    workLabel.className =
-        'admin-execution-section-label';
+    if (execution.work_types.length === 0) {
+        const empty = document.createElement("span");
 
+        empty.className = "admin-execution-muted";
 
-    workLabel.textContent =
-        'Trabajo realizado';
+        empty.textContent = "Sin clasificación registrada";
 
-
-
-    const workTypes =
-        document.createElement(
-            'div'
-        );
-
-
-    workTypes.className =
-        'admin-execution-work-types';
-
-
-
-    if (
-        execution.work_types.length === 0
-    ) {
-
-        const empty =
-            document.createElement(
-                'span'
-            );
-
-
-        empty.className =
-            'admin-execution-muted';
-
-
-        empty.textContent =
-            'Sin clasificación registrada';
-
-
-        workTypes.append(
-            empty
-        );
-
+        workTypes.append(empty);
     } else {
+        for (const workType of execution.work_types) {
+            const chip = document.createElement("span");
 
-        for (
-            const workType of
-            execution.work_types
-        ) {
+            chip.className = "admin-execution-work-chip";
 
-            const chip =
-                document.createElement(
-                    'span'
-                );
+            chip.textContent = workType.nombre;
 
-
-            chip.className =
-                'admin-execution-work-chip';
-
-
-            chip.textContent =
-                workType.nombre;
-
-
-            workTypes.append(
-                chip
-            );
-
+            workTypes.append(chip);
         }
-
     }
 
-
-
-    workSection.append(
-        workLabel,
-        workTypes
-    );
-
-
+    workSection.append(workLabel, workTypes);
 
     // ========================================================
     // DESCRIPCIÓN
     // ========================================================
 
-    const descriptionSection =
-        document.createElement(
-            'div'
-        );
+    const descriptionSection = document.createElement("div");
 
+    descriptionSection.className = "admin-execution-section";
 
-    descriptionSection.className =
-        'admin-execution-section';
+    const descriptionLabel = document.createElement("span");
 
+    descriptionLabel.className = "admin-execution-section-label";
 
+    descriptionLabel.textContent = "Descripción del técnico";
 
-    const descriptionLabel =
-        document.createElement(
-            'span'
-        );
+    const description = document.createElement("p");
 
+    description.className = "admin-execution-description";
 
-    descriptionLabel.className =
-        'admin-execution-section-label';
+    description.textContent = execution.descripcion || "Sin descripción escrita.";
 
-
-    descriptionLabel.textContent =
-        'Descripción del técnico';
-
-
-
-    const description =
-        document.createElement(
-            'p'
-        );
-
-
-    description.className =
-        'admin-execution-description';
-
-
-    description.textContent =
-
-        execution.descripcion
-
-        ||
-
-        'Sin descripción escrita.';
-
-
-
-    descriptionSection.append(
-        descriptionLabel,
-        description
-    );
-
-
+    descriptionSection.append(descriptionLabel, description);
 
     // ========================================================
     // FOTOGRAFÍAS
     // ========================================================
 
-    const photosSection =
-        createPhotosSection(
-            execution
-        );
-
-
+    const photosSection = createPhotosSection(execution);
 
     // ========================================================
     // TRANSCRIPCIÓN
     // ========================================================
 
-    const transcriptionSection =
-    createTranscriptionSection(
-        execution
-    );
-
-
+    const transcriptionSection = createTranscriptionSection(execution);
 
     // ========================================================
     // FECHAS
     // ========================================================
 
-    const meta =
-        document.createElement(
-            'div'
-        );
+    const meta = document.createElement("div");
 
-
-    meta.className =
-        'admin-execution-meta';
-
-
+    meta.className = "admin-execution-meta";
 
     meta.append(
-
         createExecutionMeta(
+            "Inicio",
 
-            'Inicio',
-
-            execution.inicio
-
-                ? formatDateTime(
-                    execution.inicio
-                )
-
-                : '-'
-
+            execution.inicio ? formatDateTime(execution.inicio) : "-",
         ),
 
-
         createExecutionMeta(
+            "Finalización",
 
-            'Finalización',
-
-            execution.fin
-
-                ? formatDateTime(
-                    execution.fin
-                )
-
-                : 'En curso'
-
+            execution.fin ? formatDateTime(execution.fin) : "En curso",
         ),
 
-
         createExecutionMeta(
+            "Duración",
 
-            'Duración',
-
-            formatDuration(
-                execution.inicio,
-                execution.fin
-            )
-
-        )
-
+            formatDuration(execution.inicio, execution.fin),
+        ),
     );
-
-
 
     // ========================================================
     // CARD
     // ========================================================
 
     card.append(
+        header,
 
-    header,
+        workSection,
 
-    workSection,
+        descriptionSection,
 
-    descriptionSection,
+        photosSection,
 
-    photosSection,
+        transcriptionSection,
 
-    transcriptionSection,
+        createAudioSection(execution),
 
-    createAudioSection(
-        execution
-    ),
-
-    meta
-
-);
-
+        meta,
+    );
 
     return card;
-
 }
-
-
 
 // ============================================================
 // RENDER EJECUCIONES
 // ============================================================
 
-function renderExecutions(
-    executions
-) {
-
+function renderExecutions(executions) {
     executionsList.replaceChildren();
 
-
-    executionsLoading.classList.add(
-        'hidden'
-    );
-
+    executionsLoading.classList.add("hidden");
 
     executionsCount.textContent =
-
         executions.length === 1
-
-            ? '1 ejecución'
-
+            ? "1 ejecución"
             : `${executions.length} ejecuciones`;
 
+    if (executions.length === 0) {
+        executionsList.classList.add("hidden");
 
-
-    if (
-        executions.length === 0
-    ) {
-
-        executionsList.classList.add(
-            'hidden'
-        );
-
-
-        executionsEmpty.classList.remove(
-            'hidden'
-        );
-
+        executionsEmpty.classList.remove("hidden");
 
         return;
-
     }
 
+    executionsEmpty.classList.add("hidden");
 
+    executionsList.classList.remove("hidden");
 
-    executionsEmpty.classList.add(
-        'hidden'
-    );
-
-
-    executionsList.classList.remove(
-        'hidden'
-    );
-
-
-
-    for (
-        const execution of executions
-    ) {
-
-        executionsList.append(
-            createExecutionCard(
-                execution
-            )
-        );
-
+    for (const execution of executions) {
+        executionsList.append(createExecutionCard(execution));
     }
-
 }
-
-
 
 // ============================================================
 // CARGAR EJECUCIONES
@@ -2577,343 +1167,152 @@ function renderExecutions(
 // ============================================================
 
 async function loadExecutions() {
+    executionsLoading.classList.remove("hidden");
 
-    executionsLoading.classList.remove(
-        'hidden'
-    );
+    executionsEmpty.classList.add("hidden");
 
-
-    executionsEmpty.classList.add(
-        'hidden'
-    );
-
-
-    executionsList.classList.add(
-        'hidden'
-    );
-
+    executionsList.classList.add("hidden");
 
     try {
+        const executions = await getTaskExecutionsForAdmin(taskId);
 
-        const executions =
-            await getTaskExecutionsForAdmin(
-                taskId
-            );
-
-
-        renderExecutions(
-            executions
-        );
-
-
+        renderExecutions(executions);
     } catch (error) {
-
-        console.error(
-            'Error cargando ejecuciones:',
-            error
-        );
-
+        console.error("Error cargando ejecuciones:", error);
 
         executionsLoading.textContent =
-            'No fue posible cargar los trabajos realizados.';
-
+            "No fue posible cargar los trabajos realizados.";
     }
-
 }
-
 
 // ============================================================
 // GUARDAR
 // ============================================================
 
 form.addEventListener(
+    "submit",
 
-    'submit',
-
-    async event => {
-
+    async (event) => {
         event.preventDefault();
-
 
         clearMessage();
 
-
-
-        if (
-            !form.reportValidity()
-        ) {
-
+        if (!form.reportValidity()) {
             return;
-
         }
 
+        const selectedTechnicians = getSelectedTechnicians();
 
-
-        const selectedTechnicians =
-            getSelectedTechnicians();
-
-
-
-        if (
-            selectedTechnicians.length === 0
-        ) {
-
-            showError(
-                'Seleccioná al menos un técnico.'
-            );
-
+        if (selectedTechnicians.length === 0) {
+            showError("Seleccioná al menos un técnico.");
 
             techniciansList.scrollIntoView({
+                behavior: "smooth",
 
-                behavior:
-                    'smooth',
-
-                block:
-                    'center'
-
+                block: "center",
             });
 
-
             return;
-
         }
 
+        saveButton.disabled = true;
 
-
-        saveButton.disabled =
-            true;
-
-
-        saveButton.textContent =
-            'Guardando...';
-
-
+        saveButton.textContent = "Guardando...";
 
         try {
-
             await updateTaskMulti(
-
                 taskId,
 
                 {
+                    titulo: document.getElementById("titulo").value.trim(),
 
-                    titulo:
-                        document
-                            .getElementById(
-                                'titulo'
-                            )
-                            .value
-                            .trim(),
+                    descripcion: document.getElementById("descripcion").value.trim(),
 
-                    descripcion:
-                        document
-                            .getElementById(
-                                'descripcion'
-                            )
-                            .value
-                            .trim(),
+                    asignados: selectedTechnicians,
 
-                    asignados:
-                        selectedTechnicians,
+                    prioridad: document.getElementById("prioridad").value,
 
-                    prioridad:
-                        document
-                            .getElementById(
-                                'prioridad'
-                            )
-                            .value,
+                    fecha_limite: document.getElementById("fechaLimite").value || null,
 
-                    fecha_limite:
-                        document
-                            .getElementById(
-                                'fechaLimite'
-                            )
-                            .value
-                        || null,
+                    hora_limite: document.getElementById("horaLimite").value || null,
 
-                    hora_limite:
-                        document
-                            .getElementById(
-                                'horaLimite'
-                            )
-                            .value
-                        || null,
+                    template_id: currentTask.template_id,
 
-                    template_id:
-                        currentTask.template_id,
+                    location_id: optionalId(locationSelect.value),
 
-                    location_id:
-                        optionalId(
-                            locationSelect.value
-                        ),
-
-                    shift_id:
-                        optionalId(
-                            shiftSelect.value
-                        ),
+                    shift_id: optionalId(shiftSelect.value),
 
                     ticket_number:
-                        document
-                            .getElementById(
-                                'ticketNumber'
-                            )
-                            .value
-                            .trim()
-                        || null,
+                        document.getElementById("ticketNumber").value.trim() || null,
 
-                    maintenance_type_id:
-                        optionalId(
-                            maintenanceTypeSelect.value
-                        )
-
-                }
-
+                    maintenance_type_id: optionalId(maintenanceTypeSelect.value),
+                },
             );
 
-
-            window.location.href =
-                './tareas.html?updated=1';
-
-
+            window.location.href = "./tareas.html?updated=1";
         } catch (error) {
+            console.error("Error actualizando tarea:", error);
 
-            console.error(
-                'Error actualizando tarea:',
-                error
-            );
+            showError(error.message ?? "No fue posible actualizar la tarea.");
 
+            saveButton.disabled = false;
 
-            showError(
-
-                error.message
-                ??
-                'No fue posible actualizar la tarea.'
-
-            );
-
-
-            saveButton.disabled =
-                false;
-
-
-            saveButton.textContent =
-                'Guardar cambios';
-
+            saveButton.textContent = "Guardar cambios";
         }
-
-    }
-
+    },
 );
-
-
 
 // ============================================================
 // CANCELAR TAREA
 // ============================================================
 
 cancelTaskButton.addEventListener(
-
-    'click',
+    "click",
 
     async () => {
-
-        const confirmed =
-            window.confirm(
-                '¿Seguro que querés cancelar esta tarea?'
-            );
-
+        const confirmed = window.confirm("¿Seguro que querés cancelar esta tarea?");
 
         if (!confirmed) {
-
             return;
-
         }
 
-
-
-        const comment =
-            window.prompt(
-                'Motivo de cancelación:',
-                ''
-            );
-
+        const comment = window.prompt("Motivo de cancelación:", "");
 
         try {
+            await cancelTask(taskId, comment);
 
-            await cancelTask(
-                taskId,
-                comment
-            );
-
-
-            window.location.href =
-                './tareas.html?cancelled=1';
-
-
+            window.location.href = "./tareas.html?cancelled=1";
         } catch (error) {
-
-            alert(
-                error.message
-            );
-
+            alert(error.message);
         }
-
-    }
-
+    },
 );
-
-
 
 // ============================================================
 // INICIALIZAR
 // ============================================================
 
 async function initialize() {
+    const profile = await initAdminLayout({
+        activePage: "tareas",
 
-    const profile =
-        await initAdminLayout({
+        title: "Detalle de tarea",
 
-            activePage:
-                'tareas',
-
-            title:
-                'Detalle de tarea',
-
-            subtitle:
-                'Información, técnicos, historial y seguimiento'
-
-        });
-
+        subtitle: "Información, técnicos, historial y seguimiento",
+    });
 
     if (!profile) {
-
         return;
-
     }
 
-
-
-    if (
-        !Number.isInteger(taskId)
-        ||
-        taskId <= 0
-    ) {
-
-        window.location.replace(
-            './tareas.html'
-        );
-
+    if (!Number.isInteger(taskId) || taskId <= 0) {
+        window.location.replace("./tareas.html");
 
         return;
-
     }
-
-
 
     try {
-
         const [
-
             task,
 
             assignees,
@@ -2926,21 +1325,13 @@ async function initialize() {
 
             shifts,
 
-            maintenanceTypes
-
+            maintenanceTypes,
         ] = await Promise.all([
+            getTaskMulti(taskId),
 
-            getTaskMulti(
-                taskId
-            ),
+            getTaskAssignees(taskId),
 
-            getTaskAssignees(
-                taskId
-            ),
-
-            getTaskHistory(
-                taskId
-            ),
+            getTaskHistory(taskId),
 
             getTechnicians(),
 
@@ -2948,43 +1339,22 @@ async function initialize() {
 
             getShifts(),
 
-            getMaintenanceTypes()
-
+            getMaintenanceTypes(),
         ]);
 
+        currentTask = task;
 
-
-        currentTask =
-            task;
-
-
-        currentAssignees =
-            assignees;
-
-
+        currentAssignees = assignees;
 
         // ====================================================
         // CATÁLOGOS
         // ====================================================
 
-        populateSelect(
-            locationSelect,
-            locations
-        );
+        populateSelect(locationSelect, locations);
 
+        populateSelect(shiftSelect, shifts);
 
-        populateSelect(
-            shiftSelect,
-            shifts
-        );
-
-
-        populateSelect(
-            maintenanceTypeSelect,
-            maintenanceTypes
-        );
-
-
+        populateSelect(maintenanceTypeSelect, maintenanceTypes);
 
         // ====================================================
         // RENDER
@@ -2992,55 +1362,24 @@ async function initialize() {
 
         renderTask();
 
+        renderTechnicians(technicians, currentAssignees);
 
-        renderTechnicians(
-            technicians,
-            currentAssignees
-        );
-
-
-        renderHistory(
-            history
-        );
+        renderHistory(history);
 
         await loadExecutions();
 
+        setAdminTopbarTitle(`Tarea #${currentTask.id}`);
 
-        setAdminTopbarTitle(
-            `Tarea #${currentTask.id}`
-        );
+        setAdminTopbarSubtitle(currentTask.titulo);
 
+        loading.classList.add("hidden");
 
-        setAdminTopbarSubtitle(
-            currentTask.titulo
-        );
-
-
-
-        loading.classList.add(
-            'hidden'
-        );
-
-
-        content.classList.remove(
-            'hidden'
-        );
-
-
+        content.classList.remove("hidden");
     } catch (error) {
+        console.error("Error cargando detalle:", error);
 
-        console.error(
-            'Error cargando detalle:',
-            error
-        );
-
-
-        loading.textContent =
-            'No fue posible cargar la tarea.';
-
+        loading.textContent = "No fue posible cargar la tarea.";
     }
-
 }
-
 
 initialize();

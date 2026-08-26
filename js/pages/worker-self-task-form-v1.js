@@ -7,493 +7,220 @@
 // autenticado por seguridad de backend.
 // ============================================================
 
-import {
-    logout,
-    requireRole
-} from '../core/auth.js';
-
+import { logout, requireRole } from "../core/auth.js";
 
 import {
     getLocations,
     getMaintenanceTypes,
-    getShifts
-} from '../services/tasks.js';
+    getShifts,
+} from "../services/tasks.js";
 
-
-import {
-    createMyTask
-} from '../services/worker-self-task.js';
-
-
+import { createMyTask } from "../services/worker-self-task.js";
 
 // ============================================================
 // ELEMENTOS
 // ============================================================
 
-const form =
-    document.getElementById(
-        'selfTaskForm'
-    );
+const form = document.getElementById("selfTaskForm");
 
+const saveButton = document.getElementById("saveButton");
 
-const saveButton =
-    document.getElementById(
-        'saveButton'
-    );
+const formMessage = document.getElementById("formMessage");
 
+const locationSelect = document.getElementById("lugar");
 
-const formMessage =
-    document.getElementById(
-        'formMessage'
-    );
+const shiftSelect = document.getElementById("turno");
 
-
-const locationSelect =
-    document.getElementById(
-        'lugar'
-    );
-
-
-const shiftSelect =
-    document.getElementById(
-        'turno'
-    );
-
-
-const maintenanceTypeSelect =
-    document.getElementById(
-        'maintenanceType'
-    );
-
-
+const maintenanceTypeSelect = document.getElementById("maintenanceType");
 
 // ============================================================
 // ID OPCIONAL
 // ============================================================
 
-function optionalId(
-    value
-) {
-
+function optionalId(value) {
     if (!value) {
-
         return null;
-
     }
 
+    const id = Number(value);
 
-    const id =
-        Number(value);
-
-
-    if (
-        !Number.isSafeInteger(id)
-        ||
-        id <= 0
-    ) {
-
+    if (!Number.isSafeInteger(id) || id <= 0) {
         return null;
-
     }
-
 
     return id;
-
 }
-
-
 
 // ============================================================
 // SELECTS
 // ============================================================
 
-function populateSelect(
-    select,
-    items
-) {
+function populateSelect(select, items) {
+    for (const item of items) {
+        const option = document.createElement("option");
 
-    for (
-        const item of items
-    ) {
+        option.value = String(item.id);
 
-        const option =
-            document.createElement(
-                'option'
-            );
+        option.textContent = item.nombre;
 
-
-        option.value =
-            String(item.id);
-
-
-        option.textContent =
-            item.nombre;
-
-
-        select.append(
-            option
-        );
-
+        select.append(option);
     }
-
 }
-
-
 
 // ============================================================
 // MENSAJES
 // ============================================================
 
 function clearMessage() {
+    formMessage.textContent = "";
 
-    formMessage.textContent =
-        '';
-
-
-    formMessage.className =
-        'worker-self-task-message';
-
+    formMessage.className = "worker-self-task-message";
 }
 
+function showError(text) {
+    formMessage.textContent = text;
 
-function showError(
-    text
-) {
-
-    formMessage.textContent =
-        text;
-
-
-    formMessage.className =
-        'worker-self-task-message error';
-
+    formMessage.className = "worker-self-task-message error";
 }
 
+function showSuccess(text) {
+    formMessage.textContent = text;
 
-function showSuccess(
-    text
-) {
-
-    formMessage.textContent =
-        text;
-
-
-    formMessage.className =
-        'worker-self-task-message success';
-
+    formMessage.className = "worker-self-task-message success";
 }
-
-
 
 // ============================================================
 // ERROR LEGIBLE
 // ============================================================
 
-function friendlyError(
-    error
-) {
+function friendlyError(error) {
+    const message = error?.message || "No fue posible crear la tarea.";
 
-    const message =
-        error?.message
-        ||
-        'No fue posible crear la tarea.';
-
-
-    return message.replace(
-        /^TASKVOICE:\s*/i,
-        ''
-    );
-
+    return message.replace(/^TASKVOICE:\s*/i, "");
 }
-
-
 
 // ============================================================
 // LOGOUT
 // ============================================================
 
-document
-    .getElementById(
-        'logoutButton'
-    )
-    .addEventListener(
+document.getElementById("logoutButton").addEventListener(
+    "click",
 
-        'click',
-
-        async () => {
-
-            try {
-
-                await logout();
-
-            } finally {
-
-                window.location.replace(
-                    '../index.html'
-                );
-
-            }
-
+    async () => {
+        try {
+            await logout();
+        } finally {
+            window.location.replace("../index.html");
         }
-
-    );
-
-
+    },
+);
 
 // ============================================================
 // SUBMIT
 // ============================================================
 
 form.addEventListener(
+    "submit",
 
-    'submit',
-
-    async event => {
-
+    async (event) => {
         event.preventDefault();
-
 
         clearMessage();
 
-
-        const title =
-            document
-                .getElementById(
-                    'titulo'
-                )
-                .value
-                .trim();
-
+        const title = document.getElementById("titulo").value.trim();
 
         if (!title) {
+            showError("Ingresá un título para la tarea.");
 
-            showError(
-                'Ingresá un título para la tarea.'
-            );
-
-
-            document
-                .getElementById(
-                    'titulo'
-                )
-                .focus();
-
+            document.getElementById("titulo").focus();
 
             return;
-
         }
 
+        saveButton.disabled = true;
 
-        saveButton.disabled =
-            true;
-
-
-        saveButton.textContent =
-            'Creando tarea...';
-
+        saveButton.textContent = "Creando tarea...";
 
         try {
+            const taskId = await createMyTask({
+                titulo: title,
 
-            const taskId =
-                await createMyTask(
-                    {
-                        titulo:
-                            title,
+                descripcion:
+                    document.getElementById("descripcion").value.trim() || null,
 
-                        descripcion:
-                            document
-                                .getElementById(
-                                    'descripcion'
-                                )
-                                .value
-                                .trim()
-                            || null,
+                prioridad: document.getElementById("prioridad").value,
 
-                        prioridad:
-                            document
-                                .getElementById(
-                                    'prioridad'
-                                )
-                                .value,
+                fecha_limite: document.getElementById("fechaLimite").value || null,
 
-                        fecha_limite:
-                            document
-                                .getElementById(
-                                    'fechaLimite'
-                                )
-                                .value
-                            || null,
+                hora_limite: document.getElementById("horaLimite").value || null,
 
-                        hora_limite:
-                            document
-                                .getElementById(
-                                    'horaLimite'
-                                )
-                                .value
-                            || null,
+                template_id: null,
 
-                        template_id:
-                            null,
+                location_id: optionalId(locationSelect.value),
 
-                        location_id:
-                            optionalId(
-                                locationSelect.value
-                            ),
+                shift_id: optionalId(shiftSelect.value),
 
-                        shift_id:
-                            optionalId(
-                                shiftSelect.value
-                            ),
+                ticket_number:
+                    document.getElementById("ticketNumber").value.trim() || null,
 
-                        ticket_number:
-                            document
-                                .getElementById(
-                                    'ticketNumber'
-                                )
-                                .value
-                                .trim()
-                            || null,
+                maintenance_type_id: optionalId(maintenanceTypeSelect.value),
+            });
 
-                        maintenance_type_id:
-                            optionalId(
-                                maintenanceTypeSelect.value
-                            )
-                    }
-                );
+            showSuccess("Tarea creada correctamente. Abriendo tarea...");
 
-
-            showSuccess(
-                'Tarea creada correctamente. Abriendo tarea...'
-            );
-
-
-            window.location.href =
-                `./tarea-detalle.html?id=${taskId}`;
-
+            window.location.href = `./tarea-detalle.html?id=${taskId}`;
         } catch (error) {
+            console.error("Error creando tarea propia:", error);
 
-            console.error(
-                'Error creando tarea propia:',
-                error
-            );
+            showError(friendlyError(error));
 
+            saveButton.disabled = false;
 
-            showError(
-                friendlyError(
-                    error
-                )
-            );
-
-
-            saveButton.disabled =
-                false;
-
-
-            saveButton.textContent =
-                'Crear tarea';
-
+            saveButton.textContent = "Crear tarea";
         }
-
-    }
-
+    },
 );
-
-
 
 // ============================================================
 // INICIALIZAR
 // ============================================================
 
 async function initialize() {
+    const profile = await requireRole(
+        ["trabajador"],
 
-    const profile =
-        await requireRole(
-
-            [
-                'trabajador'
-            ],
-
-            '../'
-
-        );
-
+        "../",
+    );
 
     if (!profile) {
-
         return;
-
     }
 
+    const fullName = `${profile.nombre ?? ""} ${profile.apellido ?? ""}`.trim();
 
-    const fullName =
-
-        `${profile.nombre ?? ''} ${profile.apellido ?? ''}`.trim();
-
-
-    document
-        .getElementById(
-            'topbarUserName'
-        )
-        .textContent =
-
-        fullName
-        ||
-        'Técnico';
-
+    document.getElementById("topbarUserName").textContent = fullName || "Técnico";
 
     try {
-
-        const [
-            locations,
-            shifts,
-            maintenanceTypes
-        ] = await Promise.all([
-
+        const [locations, shifts, maintenanceTypes] = await Promise.all([
             getLocations(),
 
             getShifts(),
 
-            getMaintenanceTypes()
-
+            getMaintenanceTypes(),
         ]);
 
+        populateSelect(locationSelect, locations);
 
-        populateSelect(
-            locationSelect,
-            locations
-        );
+        populateSelect(shiftSelect, shifts);
 
-
-        populateSelect(
-            shiftSelect,
-            shifts
-        );
-
-
-        populateSelect(
-            maintenanceTypeSelect,
-            maintenanceTypes
-        );
-
+        populateSelect(maintenanceTypeSelect, maintenanceTypes);
     } catch (error) {
+        console.error("Error cargando catálogos:", error);
 
-        console.error(
-            'Error cargando catálogos:',
-            error
-        );
+        showError("No fue posible cargar los datos del formulario.");
 
-
-        showError(
-            'No fue posible cargar los datos del formulario.'
-        );
-
-
-        saveButton.disabled =
-            true;
-
+        saveButton.disabled = true;
     }
-
 }
-
 
 initialize();

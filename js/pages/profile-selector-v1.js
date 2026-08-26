@@ -6,7 +6,6 @@
 // ============================================================
 
 import {
-
   getCurrentProfile,
   getCurrentUser,
   getMyRoles,
@@ -14,297 +13,127 @@ import {
   redirectByRole,
   redirectToPasswordChange,
   requiresPasswordChange,
-  setActiveRole
-
+  setActiveRole,
 } from "../core/auth-v3.js";
 
+const loading = document.getElementById("profileSelectorLoading");
 
-const loading =
-  document.getElementById(
-    "profileSelectorLoading"
-  );
+const content = document.getElementById("profileSelectorContent");
 
-const content =
-  document.getElementById(
-    "profileSelectorContent"
-  );
+const options = document.getElementById("profileOptions");
 
-const options =
-  document.getElementById(
-    "profileOptions"
-  );
+const userName = document.getElementById("profileUserName");
 
-const userName =
-  document.getElementById(
-    "profileUserName"
-  );
+const logoutButton = document.getElementById("profileLogoutButton");
 
-const logoutButton =
-  document.getElementById(
-    "profileLogoutButton"
-  );
-
-
-function profileDescription(
-  role
-) {
-
+function profileDescription(role) {
   const descriptions = {
-    supervisor:
-      "Gestión, seguimiento y control operativo.",
-    trabajador:
-      "Acceso al panel Técnico y a tus tareas asignadas.",
-    admin:
-      "Administración general de TaskVoice."
+    supervisor: "Gestión, seguimiento y control operativo.",
+    trabajador: "Acceso al panel Técnico y a tus tareas asignadas.",
+    admin: "Administración general de TaskVoice.",
   };
 
-
-  return descriptions[role]
-    ?? "Ingresar con este perfil.";
+  return descriptions[role] ?? "Ingresar con este perfil.";
 }
 
+function createProfileButton(role, label, profile) {
+  const button = document.createElement("button");
 
-function createProfileButton(
-  role,
-  label,
-  profile
-) {
+  button.type = "button";
 
-  const button =
-    document.createElement(
-      "button"
-    );
+  button.className = "profile-option";
 
-  button.type =
-    "button";
+  const title = document.createElement("strong");
 
-  button.className =
-    "profile-option";
+  title.textContent = label;
 
+  const description = document.createElement("span");
 
-  const title =
-    document.createElement(
-      "strong"
-    );
+  description.textContent = profileDescription(role);
 
-  title.textContent =
-    label;
+  button.append(title, description);
 
+  button.addEventListener("click", () => {
+    document.querySelectorAll(".profile-option").forEach((item) => {
+      item.disabled = true;
+    });
 
-  const description =
-    document.createElement(
-      "span"
-    );
+    setActiveRole(role);
 
-  description.textContent =
-    profileDescription(
-      role
-    );
-
-
-  button.append(
-    title,
-    description
-  );
-
-
-  button.addEventListener(
-    "click",
-    () => {
-
-      document
-        .querySelectorAll(
-          ".profile-option"
-        )
-        .forEach(item => {
-
-          item.disabled =
-            true;
-
-        });
-
-
-      setActiveRole(
-        role
-      );
-
-
-      redirectByRole(
-        profile,
-        "./"
-      );
-
-    }
-  );
-
+    redirectByRole(profile, "./");
+  });
 
   return button;
 }
 
+logoutButton.addEventListener("click", async () => {
+  logoutButton.disabled = true;
 
-logoutButton.addEventListener(
-  "click",
-  async () => {
-
-    logoutButton.disabled =
-      true;
-
-    logoutButton.textContent =
-      "Cerrando...";
-
-
-    try {
-
-      await logout();
-
-    } finally {
-
-      window.location.replace(
-        "./index.html"
-      );
-
-    }
-
-  }
-);
-
-
-async function initialize() {
+  logoutButton.textContent = "Cerrando...";
 
   try {
+    await logout();
+  } finally {
+    window.location.replace("./index.html");
+  }
+});
 
-    const user =
-      await getCurrentUser();
-
+async function initialize() {
+  try {
+    const user = await getCurrentUser();
 
     if (!user) {
-
-      window.location.replace(
-        "./index.html"
-      );
+      window.location.replace("./index.html");
 
       return;
-
     }
 
-
-    if (
-      requiresPasswordChange(
-        user
-      )
-    ) {
-
-      redirectToPasswordChange(
-        "./"
-      );
+    if (requiresPasswordChange(user)) {
+      redirectToPasswordChange("./");
 
       return;
-
     }
 
+    const profile = await getCurrentProfile();
 
-    const profile =
-      await getCurrentProfile();
-
-
-    if (
-      !profile
-      ||
-      !profile.activo
-    ) {
-
+    if (!profile || !profile.activo) {
       await logout();
 
-      window.location.replace(
-        "./index.html"
-      );
+      window.location.replace("./index.html");
 
       return;
-
     }
 
+    const roles = await getMyRoles(profile);
 
-    const roles =
-      await getMyRoles(
-        profile
-      );
-
-
-    if (
-      roles.length ===
-      0
-    ) {
-
-      throw new Error(
-        "La cuenta no tiene perfiles habilitados."
-      );
-
+    if (roles.length === 0) {
+      throw new Error("La cuenta no tiene perfiles habilitados.");
     }
 
+    if (roles.length === 1) {
+      setActiveRole(roles[0].role);
 
-    if (
-      roles.length ===
-      1
-    ) {
-
-      setActiveRole(
-        roles[0].role
-      );
-
-      redirectByRole(
-        profile,
-        "./"
-      );
+      redirectByRole(profile, "./");
 
       return;
-
     }
 
-
-    userName.textContent =
-      `${profile.nombre} ${profile.apellido}`
-        .trim();
-
+    userName.textContent = `${profile.nombre} ${profile.apellido}`.trim();
 
     options.replaceChildren();
 
-
-    for (
-      const item of roles
-    ) {
-
-      options.append(
-        createProfileButton(
-          item.role,
-          item.label,
-          profile
-        )
-      );
-
+    for (const item of roles) {
+      options.append(createProfileButton(item.role, item.label, profile));
     }
 
+    loading.classList.add("hidden");
 
-    loading.classList.add(
-      "hidden"
-    );
-
-    content.classList.remove(
-      "hidden"
-    );
-
-
+    content.classList.remove("hidden");
   } catch (error) {
+    console.error("Error seleccionando perfil:", error);
 
-    console.error(
-      "Error seleccionando perfil:",
-      error
-    );
-
-    loading.textContent =
-      "No fue posible cargar los perfiles habilitados.";
-
+    loading.textContent = "No fue posible cargar los perfiles habilitados.";
   }
 }
-
 
 initialize();

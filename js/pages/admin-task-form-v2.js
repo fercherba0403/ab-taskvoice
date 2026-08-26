@@ -11,681 +11,310 @@
 // - Múltiples técnicos
 // ============================================================
 
-import {
-    initAdminLayout
-} from '../components/admin-layout-v3.js';
-
+import { initAdminLayout } from "../components/admin-layout-v3.js";
 
 import {
     createTaskMulti,
     getLocations,
     getMaintenanceTypes,
     getShifts,
-    getTechnicians
-} from '../services/tasks.js';
-
-
+    getTechnicians,
+} from "../services/tasks.js";
 
 // ============================================================
 // ELEMENTOS
 // ============================================================
 
-const form =
-    document.getElementById(
-        'taskForm'
-    );
+const form = document.getElementById("taskForm");
 
+const saveButton = document.getElementById("saveButton");
 
-const saveButton =
-    document.getElementById(
-        'saveButton'
-    );
+const message = document.getElementById("formMessage");
 
+const techniciansList = document.getElementById("techniciansList");
 
-const message =
-    document.getElementById(
-        'formMessage'
-    );
+const techniciansSummary = document.getElementById("techniciansSummary");
 
+const locationSelect = document.getElementById("lugar");
 
-const techniciansList =
-    document.getElementById(
-        'techniciansList'
-    );
+const shiftSelect = document.getElementById("turno");
 
-
-const techniciansSummary =
-    document.getElementById(
-        'techniciansSummary'
-    );
-
-
-const locationSelect =
-    document.getElementById(
-        'lugar'
-    );
-
-
-const shiftSelect =
-    document.getElementById(
-        'turno'
-    );
-
-
-const maintenanceTypeSelect =
-    document.getElementById(
-        'maintenanceType'
-    );
-
-
+const maintenanceTypeSelect = document.getElementById("maintenanceType");
 
 // ============================================================
 // MENSAJES
 // ============================================================
 
 function clearMessage() {
+    message.textContent = "";
 
-    message.textContent =
-        '';
-
-
-    message.className =
-        'form-message';
-
+    message.className = "form-message";
 }
 
+function showError(text) {
+    message.textContent = text;
 
-
-function showError(
-    text
-) {
-
-    message.textContent =
-        text;
-
-
-    message.className =
-        'form-message error';
-
+    message.className = "form-message error";
 }
-
-
 
 // ============================================================
 // ID BIGINT OPCIONAL
 // ============================================================
 
-function optionalId(
-    value
-) {
-
+function optionalId(value) {
     if (!value) {
-
         return null;
-
     }
 
+    const id = Number(value);
 
-    const id =
-        Number(value);
-
-
-    if (
-        !Number.isSafeInteger(id)
-        ||
-        id <= 0
-    ) {
-
+    if (!Number.isSafeInteger(id) || id <= 0) {
         return null;
-
     }
-
 
     return id;
-
 }
-
-
 
 // ============================================================
 // CARGAR SELECT
 // ============================================================
 
-function populateSelect(
-    select,
-    items
-) {
+function populateSelect(select, items) {
+    for (const item of items) {
+        const option = document.createElement("option");
 
-    for (
-        const item of items
-    ) {
+        option.value = String(item.id);
 
-        const option =
-            document.createElement(
-                'option'
-            );
+        option.textContent = item.nombre;
 
-
-        option.value =
-            String(item.id);
-
-
-        option.textContent =
-            item.nombre;
-
-
-        select.append(
-            option
-        );
-
+        select.append(option);
     }
-
 }
-
-
 
 // ============================================================
 // TÉCNICOS SELECCIONADOS
 // ============================================================
 
 function getSelectedTechnicians() {
-
     return [
-
-        ...techniciansList
-            .querySelectorAll(
-                'input[name="technicians"]:checked'
-            )
-
-    ].map(
-        input =>
-            input.value
-    );
-
+        ...techniciansList.querySelectorAll('input[name="technicians"]:checked'),
+    ].map((input) => input.value);
 }
-
-
 
 // ============================================================
 // RESUMEN TÉCNICOS
 // ============================================================
 
 function updateTechniciansSummary() {
+    const selected = getSelectedTechnicians();
 
-    const selected =
-        getSelectedTechnicians();
+    if (selected.length === 0) {
+        techniciansSummary.textContent = "Ningún técnico seleccionado";
 
-
-    if (
-        selected.length === 0
-    ) {
-
-        techniciansSummary.textContent =
-            'Ningún técnico seleccionado';
-
-        techniciansSummary.classList.remove(
-            'has-selection'
-        );
+        techniciansSummary.classList.remove("has-selection");
 
         return;
-
     }
 
-
     techniciansSummary.textContent =
-
         selected.length === 1
-
-            ? '1 técnico seleccionado'
-
+            ? "1 técnico seleccionado"
             : `${selected.length} técnicos seleccionados`;
 
-
-    techniciansSummary.classList.add(
-        'has-selection'
-    );
-
+    techniciansSummary.classList.add("has-selection");
 }
-
-
 
 // ============================================================
 // RENDER TÉCNICOS
 // ============================================================
 
-function renderTechnicians(
-    technicians
-) {
-
+function renderTechnicians(technicians) {
     techniciansList.replaceChildren();
 
+    if (technicians.length === 0) {
+        const empty = document.createElement("div");
 
-    if (
-        technicians.length === 0
-    ) {
+        empty.className = "technicians-empty";
 
-        const empty =
-            document.createElement(
-                'div'
-            );
+        empty.textContent = "No hay técnicos activos disponibles.";
 
-
-        empty.className =
-            'technicians-empty';
-
-
-        empty.textContent =
-            'No hay técnicos activos disponibles.';
-
-
-        techniciansList.append(
-            empty
-        );
-
+        techniciansList.append(empty);
 
         return;
-
     }
 
+    for (const technician of technicians) {
+        const label = document.createElement("label");
 
-    for (
-        const technician of technicians
-    ) {
+        label.className = "technician-option";
 
+        const checkbox = document.createElement("input");
 
-        const label =
-            document.createElement(
-                'label'
-            );
+        checkbox.type = "checkbox";
 
+        checkbox.name = "technicians";
 
-        label.className =
-            'technician-option';
+        checkbox.value = technician.id;
 
+        const content = document.createElement("span");
 
+        content.className = "technician-data";
 
-        const checkbox =
-            document.createElement(
-                'input'
-            );
+        const name = document.createElement("strong");
 
+        name.textContent = `${technician.nombre} ${technician.apellido}`.trim();
 
-        checkbox.type =
-            'checkbox';
+        const email = document.createElement("small");
 
+        email.textContent = technician.email ?? "";
 
-        checkbox.name =
-            'technicians';
+        content.append(name, email);
 
+        label.append(checkbox, content);
 
-        checkbox.value =
-            technician.id;
+        techniciansList.append(label);
 
-
-
-        const content =
-            document.createElement(
-                'span'
-            );
-
-
-        content.className =
-            'technician-data';
-
-
-
-        const name =
-            document.createElement(
-                'strong'
-            );
-
-
-        name.textContent =
-
-            `${technician.nombre} ${technician.apellido}`
-                .trim();
-
-
-
-        const email =
-            document.createElement(
-                'small'
-            );
-
-
-        email.textContent =
-            technician.email ?? '';
-
-
-
-        content.append(
-            name,
-            email
-        );
-
-
-        label.append(
-            checkbox,
-            content
-        );
-
-
-        techniciansList.append(
-            label
-        );
-
-
-        checkbox.addEventListener(
-            'change',
-            updateTechniciansSummary
-        );
-
+        checkbox.addEventListener("change", updateTechniciansSummary);
     }
-
 
     updateTechniciansSummary();
-
 }
-
-
 
 // ============================================================
 // CARGAR DATOS
 // ============================================================
 
 async function loadFormData() {
-
-    const [
-
-        technicians,
-
-        locations,
-
-        shifts,
-
-        maintenanceTypes
-
-    ] = await Promise.all([
-
+    const [technicians, locations, shifts, maintenanceTypes] = await Promise.all([
         getTechnicians(),
 
         getLocations(),
 
         getShifts(),
 
-        getMaintenanceTypes()
-
+        getMaintenanceTypes(),
     ]);
 
+    renderTechnicians(technicians);
 
-    renderTechnicians(
-        technicians
-    );
+    populateSelect(locationSelect, locations);
 
+    populateSelect(shiftSelect, shifts);
 
-    populateSelect(
-        locationSelect,
-        locations
-    );
-
-
-    populateSelect(
-        shiftSelect,
-        shifts
-    );
-
-
-    populateSelect(
-        maintenanceTypeSelect,
-        maintenanceTypes
-    );
-
+    populateSelect(maintenanceTypeSelect, maintenanceTypes);
 }
-
-
 
 // ============================================================
 // CREAR TAREA
 // ============================================================
 
 form.addEventListener(
+    "submit",
 
-    'submit',
-
-    async event => {
-
+    async (event) => {
         event.preventDefault();
-
 
         clearMessage();
 
-
-        if (
-            !form.reportValidity()
-        ) {
-
+        if (!form.reportValidity()) {
             return;
-
         }
 
+        const selectedTechnicians = getSelectedTechnicians();
 
-        const selectedTechnicians =
-            getSelectedTechnicians();
-
-
-        if (
-            selectedTechnicians.length === 0
-        ) {
-
-            showError(
-                'Seleccioná al menos un técnico.'
-            );
-
+        if (selectedTechnicians.length === 0) {
+            showError("Seleccioná al menos un técnico.");
 
             techniciansList.scrollIntoView({
+                behavior: "smooth",
 
-                behavior:
-                    'smooth',
-
-                block:
-                    'center'
-
+                block: "center",
             });
 
-
             return;
-
         }
 
-
-        const title =
-            document
-                .getElementById(
-                    'titulo'
-                )
-                .value
-                .trim();
-
+        const title = document.getElementById("titulo").value.trim();
 
         if (!title) {
-
-            showError(
-                'El título es obligatorio.'
-            );
+            showError("El título es obligatorio.");
 
             return;
-
         }
 
+        saveButton.disabled = true;
 
-        saveButton.disabled =
-            true;
-
-
-        saveButton.textContent =
-            'Creando...';
-
+        saveButton.textContent = "Creando...";
 
         try {
-
-
             await createTaskMulti({
+                titulo: title,
 
-                titulo:
-                    title,
+                descripcion: document.getElementById("descripcion").value.trim(),
 
-                descripcion:
-                    document
-                        .getElementById(
-                            'descripcion'
-                        )
-                        .value
-                        .trim(),
+                asignados: selectedTechnicians,
 
-                asignados:
-                    selectedTechnicians,
+                prioridad: document.getElementById("prioridad").value,
 
-                prioridad:
-                    document
-                        .getElementById(
-                            'prioridad'
-                        )
-                        .value,
+                fecha_limite: document.getElementById("fechaLimite").value || null,
 
-                fecha_limite:
-                    document
-                        .getElementById(
-                            'fechaLimite'
-                        )
-                        .value || null,
+                hora_limite: document.getElementById("horaLimite").value || null,
 
-                hora_limite:
-                    document
-                        .getElementById(
-                            'horaLimite'
-                        )
-                        .value || null,
+                template_id: null,
 
-                template_id:
-                    null,
+                location_id: optionalId(locationSelect.value),
 
-                location_id:
-                    optionalId(
-                        locationSelect.value
-                    ),
-
-                shift_id:
-                    optionalId(
-                        shiftSelect.value
-                    ),
+                shift_id: optionalId(shiftSelect.value),
 
                 ticket_number:
-                    document
-                        .getElementById(
-                            'ticketNumber'
-                        )
-                        .value
-                        .trim() || null,
+                    document.getElementById("ticketNumber").value.trim() || null,
 
-                maintenance_type_id:
-                    optionalId(
-                        maintenanceTypeSelect.value
-                    )
-
+                maintenance_type_id: optionalId(maintenanceTypeSelect.value),
             });
-
 
             // ------------------------------------------------
             // Volver al listado, igual que antes.
             // ------------------------------------------------
 
-            window.location.href =
-                './tareas.html?created=1';
-
-
+            window.location.href = "./tareas.html?created=1";
         } catch (error) {
+            console.error("Error creando tarea:", error);
 
+            showError(error.message ?? "No fue posible crear la tarea.");
 
-            console.error(
-                'Error creando tarea:',
-                error
-            );
+            saveButton.disabled = false;
 
-
-            showError(
-                error.message
-                ??
-                'No fue posible crear la tarea.'
-            );
-
-
-            saveButton.disabled =
-                false;
-
-
-            saveButton.textContent =
-                'Crear tarea';
-
+            saveButton.textContent = "Crear tarea";
         }
-
-    }
-
+    },
 );
-
-
 
 // ============================================================
 // INICIALIZAR
 // ============================================================
 
 async function initialize() {
+    const profile = await initAdminLayout({
+        activePage: "tareas",
 
-    const profile =
-        await initAdminLayout({
+        title: "Nueva tarea",
 
-            activePage:
-                'tareas',
-
-            title:
-                'Nueva tarea',
-
-            subtitle:
-                'Creación y asignación de tareas'
-
-        });
-
+        subtitle: "Creación y asignación de tareas",
+    });
 
     if (!profile) {
-
         return;
-
     }
-
 
     try {
-
         await loadFormData();
-
     } catch (error) {
+        console.error("Error cargando Nueva tarea:", error);
 
+        showError("No fue posible cargar los datos del formulario.");
 
-        console.error(
-            'Error cargando Nueva tarea:',
-            error
-        );
-
-
-        showError(
-            'No fue posible cargar los datos del formulario.'
-        );
-
-
-        saveButton.disabled =
-            true;
-
+        saveButton.disabled = true;
     }
-
 }
-
 
 initialize();

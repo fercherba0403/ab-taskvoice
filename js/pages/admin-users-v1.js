@@ -3,689 +3,300 @@
 // admin-users-v1.js
 // ============================================================
 
-import {
-    initAdminLayout
-} from '../components/admin-layout-v3.js';
+import { initAdminLayout } from "../components/admin-layout-v3.js";
 
-import {
-    getUsers
-} from '../services/users.js';
+import { getUsers } from "../services/users.js";
 
+const searchInput = document.getElementById("usersSearch");
 
-const searchInput =
-    document.getElementById(
-        'usersSearch'
-    );
+const roleFilter = document.getElementById("usersRoleFilter");
 
-const roleFilter =
-    document.getElementById(
-        'usersRoleFilter'
-    );
+const statusFilter = document.getElementById("usersStatusFilter");
 
-const statusFilter =
-    document.getElementById(
-        'usersStatusFilter'
-    );
+const clearFiltersButton = document.getElementById("usersClearFilters");
 
-const clearFiltersButton =
-    document.getElementById(
-        'usersClearFilters'
-    );
+const countElement = document.getElementById("usersCount");
 
-const countElement =
-    document.getElementById(
-        'usersCount'
-    );
+const loadingElement = document.getElementById("usersLoading");
 
-const loadingElement =
-    document.getElementById(
-        'usersLoading'
-    );
+const errorElement = document.getElementById("usersError");
 
-const errorElement =
-    document.getElementById(
-        'usersError'
-    );
+const emptyElement = document.getElementById("usersEmpty");
 
-const emptyElement =
-    document.getElementById(
-        'usersEmpty'
-    );
+const tableWrapper = document.getElementById("usersTableWrapper");
 
-const tableWrapper =
-    document.getElementById(
-        'usersTableWrapper'
-    );
+const tableBody = document.getElementById("usersTableBody");
 
-const tableBody =
-    document.getElementById(
-        'usersTableBody'
-    );
+let currentUsers = [];
 
-
-let currentUsers =
-    [];
-
-
-function roleLabel(
-    role
-) {
-
+function roleLabel(role) {
     const labels = {
-        admin:
-            'Administrador',
-        supervisor:
-            'Supervisor',
-        trabajador:
-            'Trabajador'
+        admin: "Administrador",
+        supervisor: "Supervisor",
+        trabajador: "Trabajador",
     };
 
-
-    return labels[role]
-        ?? role
-        ?? '-';
-
+    return labels[role] ?? role ?? "-";
 }
 
+function getInitials(user) {
+    const first = user.nombre?.charAt(0)?.toUpperCase() ?? "";
 
-function getInitials(
-    user
-) {
+    const last = user.apellido?.charAt(0)?.toUpperCase() ?? "";
 
-    const first =
-        user.nombre
-            ?.charAt(0)
-            ?.toUpperCase()
-        ?? '';
-
-    const last =
-        user.apellido
-            ?.charAt(0)
-            ?.toUpperCase()
-        ?? '';
-
-
-    return (
-        `${first}${last}`
-        ||
-        'U'
-    );
-
+    return `${first}${last}` || "U";
 }
 
+function createUserCell(user) {
+    const cell = document.createElement("td");
 
-function createUserCell(
-    user
-) {
+    const container = document.createElement("div");
 
-    const cell =
-        document.createElement(
-            'td'
-        );
+    container.className = "users-person";
 
+    const avatar = document.createElement("span");
 
-    const container =
-        document.createElement(
-            'div'
-        );
+    avatar.className = "users-avatar";
 
-    container.className =
-        'users-person';
+    avatar.textContent = getInitials(user);
 
+    const text = document.createElement("div");
 
-    const avatar =
-        document.createElement(
-            'span'
-        );
-
-    avatar.className =
-        'users-avatar';
-
-    avatar.textContent =
-        getInitials(
-            user
-        );
-
-
-    const text =
-        document.createElement(
-            'div'
-        );
-
-
-    const name =
-        document.createElement(
-            'strong'
-        );
+    const name = document.createElement("strong");
 
     name.textContent =
-        `${user.nombre ?? ''} ${user.apellido ?? ''}`
-            .trim()
-        ||
-        'Usuario';
+        `${user.nombre ?? ""} ${user.apellido ?? ""}`.trim() || "Usuario";
 
+    const id = document.createElement("small");
 
-    const id =
-        document.createElement(
-            'small'
-        );
+    id.textContent = user.id;
 
-    id.textContent =
-        user.id;
+    text.append(name, id);
 
+    container.append(avatar, text);
 
-    text.append(
-        name,
-        id
-    );
-
-
-    container.append(
-        avatar,
-        text
-    );
-
-
-    cell.append(
-        container
-    );
-
+    cell.append(container);
 
     return cell;
-
 }
 
+function createContactCell(user) {
+    const cell = document.createElement("td");
 
-function createContactCell(
-    user
-) {
+    const container = document.createElement("div");
 
-    const cell =
-        document.createElement(
-            'td'
-        );
+    container.className = "users-contact";
 
+    const email = document.createElement("strong");
 
-    const container =
-        document.createElement(
-            'div'
-        );
+    email.textContent = user.email || "-";
 
-    container.className =
-        'users-contact';
+    const phone = document.createElement("small");
 
+    phone.textContent = user.telefono ? user.telefono : "Sin teléfono";
 
-    const email =
-        document.createElement(
-            'strong'
-        );
+    container.append(email, phone);
 
-    email.textContent =
-        user.email
-        ||
-        '-';
-
-
-    const phone =
-        document.createElement(
-            'small'
-        );
-
-    phone.textContent =
-        user.telefono
-            ? user.telefono
-            : 'Sin teléfono';
-
-
-    container.append(
-        email,
-        phone
-    );
-
-
-    cell.append(
-        container
-    );
-
+    cell.append(container);
 
     return cell;
-
 }
 
+function createRoleCell(user) {
+    const cell = document.createElement("td");
 
-function createRoleCell(
-    user
-) {
+    const badge = document.createElement("span");
 
-    const cell =
-        document.createElement(
-            'td'
-        );
+    badge.className = `users-role users-role-${user.rol ?? "neutral"}`;
 
+    badge.textContent = roleLabel(user.rol);
 
-    const badge =
-        document.createElement(
-            'span'
-        );
-
-    badge.className =
-        `users-role users-role-${user.rol ?? 'neutral'}`;
-
-    badge.textContent =
-        roleLabel(
-            user.rol
-        );
-
-
-    cell.append(
-        badge
-    );
-
+    cell.append(badge);
 
     return cell;
-
 }
 
+function createStatusCell(user) {
+    const cell = document.createElement("td");
 
-function createStatusCell(
-    user
-) {
+    const badge = document.createElement("span");
 
-    const cell =
-        document.createElement(
-            'td'
-        );
+    badge.className = user.activo
+        ? "users-status users-status-active"
+        : "users-status users-status-inactive";
 
+    badge.textContent = user.activo ? "Activo" : "Inactivo";
 
-    const badge =
-        document.createElement(
-            'span'
-        );
-
-    badge.className =
-        user.activo
-            ? 'users-status users-status-active'
-            : 'users-status users-status-inactive';
-
-
-    badge.textContent =
-        user.activo
-            ? 'Activo'
-            : 'Inactivo';
-
-
-    cell.append(
-        badge
-    );
-
+    cell.append(badge);
 
     return cell;
-
 }
 
+function createActionCell(user) {
+    const cell = document.createElement("td");
 
-function createActionCell(
-    user
-) {
+    const link = document.createElement("a");
 
-    const cell =
-        document.createElement(
-            'td'
-        );
+    link.className = "users-detail-link";
 
+    link.href = `./usuario-detalle.html?id=${encodeURIComponent(user.id)}`;
 
-    const link =
-        document.createElement(
-            'a'
-        );
+    link.textContent = "Gestionar";
 
-    link.className =
-        'users-detail-link';
-
-    link.href =
-        `./usuario-detalle.html?id=${encodeURIComponent(
-            user.id
-        )}`;
-
-    link.textContent =
-        'Gestionar';
-
-
-    cell.append(
-        link
-    );
-
+    cell.append(link);
 
     return cell;
-
 }
-
 
 function getFilteredUsers() {
+    const query = searchInput.value.trim().toLowerCase();
 
-    const query =
-        searchInput.value
-            .trim()
+    const role = roleFilter.value;
+
+    const status = statusFilter.value;
+
+    return currentUsers.filter((user) => {
+        if (role && user.rol !== role) {
+            return false;
+        }
+
+        if (status === "active" && user.activo !== true) {
+            return false;
+        }
+
+        if (status === "inactive" && user.activo !== false) {
+            return false;
+        }
+
+        if (!query) {
+            return true;
+        }
+
+        const haystack = [user.nombre, user.apellido, user.email, user.telefono]
+            .filter(Boolean)
+            .join(" ")
             .toLowerCase();
 
-
-    const role =
-        roleFilter.value;
-
-
-    const status =
-        statusFilter.value;
-
-
-    return currentUsers.filter(
-        user => {
-
-            if (
-                role
-                &&
-                user.rol !==
-                    role
-            ) {
-
-                return false;
-
-            }
-
-
-            if (
-                status ===
-                    'active'
-                &&
-                user.activo !==
-                    true
-            ) {
-
-                return false;
-
-            }
-
-
-            if (
-                status ===
-                    'inactive'
-                &&
-                user.activo !==
-                    false
-            ) {
-
-                return false;
-
-            }
-
-
-            if (!query) {
-
-                return true;
-
-            }
-
-
-            const haystack =
-                [
-                    user.nombre,
-                    user.apellido,
-                    user.email,
-                    user.telefono
-                ]
-                    .filter(Boolean)
-                    .join(' ')
-                    .toLowerCase();
-
-
-            return haystack.includes(
-                query
-            );
-
-        }
-    );
-
+        return haystack.includes(query);
+    });
 }
 
-
 function renderUsers() {
-
-    const users =
-        getFilteredUsers();
-
+    const users = getFilteredUsers();
 
     tableBody.replaceChildren();
 
-    loadingElement.classList.add(
-        'hidden'
-    );
+    loadingElement.classList.add("hidden");
 
-    errorElement.classList.add(
-        'hidden'
-    );
+    errorElement.classList.add("hidden");
 
+    const total = currentUsers.length;
 
-    const total =
-        currentUsers.length;
-
-    const filtered =
-        users.length;
-
+    const filtered = users.length;
 
     countElement.textContent =
         filtered === total
-            ? (
-                total === 1
-                    ? '1 usuario'
-                    : `${total} usuarios`
-            )
+            ? total === 1
+                ? "1 usuario"
+                : `${total} usuarios`
             : `${filtered} de ${total} usuarios`;
 
+    if (users.length === 0) {
+        tableWrapper.classList.add("hidden");
 
-    if (
-        users.length ===
-        0
-    ) {
-
-        tableWrapper.classList.add(
-            'hidden'
-        );
-
-        emptyElement.classList.remove(
-            'hidden'
-        );
+        emptyElement.classList.remove("hidden");
 
         return;
-
     }
 
+    emptyElement.classList.add("hidden");
 
-    emptyElement.classList.add(
-        'hidden'
-    );
+    tableWrapper.classList.remove("hidden");
 
-    tableWrapper.classList.remove(
-        'hidden'
-    );
-
-
-    for (
-        const user of users
-    ) {
-
-        const row =
-            document.createElement(
-                'tr'
-            );
-
+    for (const user of users) {
+        const row = document.createElement("tr");
 
         row.append(
-            createUserCell(
-                user
-            ),
-            createContactCell(
-                user
-            ),
-            createRoleCell(
-                user
-            ),
-            createStatusCell(
-                user
-            ),
-            createActionCell(
-                user
-            )
+            createUserCell(user),
+            createContactCell(user),
+            createRoleCell(user),
+            createStatusCell(user),
+            createActionCell(user),
         );
 
-
-        tableBody.append(
-            row
-        );
-
+        tableBody.append(row);
     }
-
 }
-
 
 async function loadUsers() {
+    loadingElement.classList.remove("hidden");
 
-    loadingElement.classList.remove(
-        'hidden'
-    );
+    errorElement.classList.add("hidden");
 
-    errorElement.classList.add(
-        'hidden'
-    );
+    emptyElement.classList.add("hidden");
 
-    emptyElement.classList.add(
-        'hidden'
-    );
-
-    tableWrapper.classList.add(
-        'hidden'
-    );
-
+    tableWrapper.classList.add("hidden");
 
     try {
-
-        currentUsers =
-            await getUsers();
+        currentUsers = await getUsers();
 
         renderUsers();
-
     } catch (error) {
+        console.error("Error cargando usuarios:", error);
 
-        console.error(
-            'Error cargando usuarios:',
-            error
-        );
-
-
-        loadingElement.classList.add(
-            'hidden'
-        );
+        loadingElement.classList.add("hidden");
 
         errorElement.textContent =
-            error?.message
-            ||
-            'No fue posible cargar los usuarios.';
+            error?.message || "No fue posible cargar los usuarios.";
 
-        errorElement.classList.remove(
-            'hidden'
-        );
+        errorElement.classList.remove("hidden");
 
-        countElement.textContent =
-            'Sin datos';
-
+        countElement.textContent = "Sin datos";
     }
-
 }
 
+searchInput.addEventListener("input", renderUsers);
 
-searchInput.addEventListener(
-    'input',
-    renderUsers
-);
+roleFilter.addEventListener("change", renderUsers);
 
-roleFilter.addEventListener(
-    'change',
-    renderUsers
-);
+statusFilter.addEventListener("change", renderUsers);
 
-statusFilter.addEventListener(
-    'change',
-    renderUsers
-);
+clearFiltersButton.addEventListener("click", () => {
+    searchInput.value = "";
 
+    roleFilter.value = "";
 
-clearFiltersButton.addEventListener(
-    'click',
-    () => {
+    statusFilter.value = "";
 
-        searchInput.value =
-            '';
-
-        roleFilter.value =
-            '';
-
-        statusFilter.value =
-            '';
-
-        renderUsers();
-
-    }
-);
-
+    renderUsers();
+});
 
 async function initialize() {
+    const profile = await initAdminLayout({
+        activePage: "usuarios",
 
-    const profile =
-        await initAdminLayout({
+        title: "Usuarios",
 
-            activePage:
-                'usuarios',
+        subtitle: "Administración de cuentas y accesos",
 
-            title:
-                'Usuarios',
-
-            subtitle:
-                'Administración de cuentas y accesos',
-
-            action: {
-                href:
-                    './usuario-nuevo.html',
-                label:
-                    'Nuevo usuario',
-                icon:
-                    '+'
-            }
-
-        });
-
+        action: {
+            href: "./usuario-nuevo.html",
+            label: "Nuevo usuario",
+            icon: "+",
+        },
+    });
 
     if (!profile) {
-
         return;
-
     }
 
-
-    if (
-        profile.rol !==
-        'admin'
-    ) {
-
-        window.location.replace(
-            './dashboard.html'
-        );
+    if (profile.rol !== "admin") {
+        window.location.replace("./dashboard.html");
 
         return;
-
     }
-
 
     await loadUsers();
-
 }
-
 
 initialize();

@@ -56,9 +56,7 @@ async function getFunctionErrorMessage(error, data) {
   if (context && typeof context.json === "function") {
     try {
       const response =
-        typeof context.clone === "function"
-          ? context.clone()
-          : context;
+        typeof context.clone === "function" ? context.clone() : context;
 
       const body = await response.json();
 
@@ -70,10 +68,7 @@ async function getFunctionErrorMessage(error, data) {
     }
   }
 
-  return (
-    error?.message ||
-    "No fue posible cambiar la contraseña."
-  );
+  return error?.message || "No fue posible cambiar la contraseña.";
 }
 
 async function goToLoginAfterChange() {
@@ -83,9 +78,7 @@ async function goToLoginAfterChange() {
     // La intención es limpiar la sesión local si todavía existe.
   }
 
-  window.location.replace(
-    "./index.html?password_changed=1"
-  );
+  window.location.replace("./index.html?password_changed=1");
 }
 
 form.addEventListener("submit", async (event) => {
@@ -96,9 +89,7 @@ form.addEventListener("submit", async (event) => {
   const confirmation = confirmPasswordInput.value;
 
   if (newPassword.length < 10) {
-    showMessage(
-      "La nueva contraseña debe tener al menos 10 caracteres."
-    );
+    showMessage("La nueva contraseña debe tener al menos 10 caracteres.");
     return;
   }
 
@@ -111,40 +102,33 @@ form.addEventListener("submit", async (event) => {
   submitButton.textContent = "Guardando...";
 
   try {
-    const { data, error } =
-      await supabase.functions.invoke(
-        "change-first-password",
-        {
-          body: {
-            password: newPassword,
-            password_confirmation: confirmation,
-          },
-        }
-      );
+    const { data, error } = await supabase.functions.invoke(
+      "change-first-password",
+      {
+        body: {
+          password: newPassword,
+          password_confirmation: confirmation,
+        },
+      },
+    );
 
     if (error) {
-      const errorMessage =
-        await getFunctionErrorMessage(error, data);
+      const errorMessage = await getFunctionErrorMessage(error, data);
 
       throw new Error(errorMessage);
     }
 
     if (data?.ok !== true) {
       throw new Error(
-        data?.error ||
-        "No fue posible confirmar el cambio de contraseña."
+        data?.error || "No fue posible confirmar el cambio de contraseña.",
       );
     }
 
-    showMessage(
-      "Contraseña actualizada correctamente.",
-      "success"
-    );
+    showMessage("Contraseña actualizada correctamente.", "success");
 
     // Refrescamos la sesión para que el JWT local reciba
     // el app_metadata actualizado.
-    const { error: refreshError } =
-      await supabase.auth.refreshSession();
+    const { error: refreshError } = await supabase.auth.refreshSession();
 
     if (refreshError) {
       await goToLoginAfterChange();
@@ -153,10 +137,7 @@ form.addEventListener("submit", async (event) => {
 
     const updatedUser = await getCurrentUser();
 
-    if (
-      !updatedUser ||
-      requiresPasswordChange(updatedUser)
-    ) {
+    if (!updatedUser || requiresPasswordChange(updatedUser)) {
       // La contraseña ya fue cambiada en servidor.
       // Si el metadata local aún no se actualizó,
       // pedimos un login limpio.
@@ -165,21 +146,13 @@ form.addEventListener("submit", async (event) => {
     }
 
     redirectByRole(currentProfile, "./");
-
   } catch (error) {
-    console.error(
-      "Error cambiando contraseña temporal:",
-      error
-    );
+    console.error("Error cambiando contraseña temporal:", error);
 
-    showMessage(
-      error.message ||
-      "No fue posible cambiar la contraseña."
-    );
+    showMessage(error.message || "No fue posible cambiar la contraseña.");
 
     submitButton.disabled = false;
-    submitButton.textContent =
-      "Guardar nueva contraseña";
+    submitButton.textContent = "Guardar nueva contraseña";
   }
 });
 
@@ -194,10 +167,7 @@ async function initialize() {
 
     currentProfile = await getCurrentProfile();
 
-    if (
-      !currentProfile ||
-      !currentProfile.activo
-    ) {
+    if (!currentProfile || !currentProfile.activo) {
       try {
         await logout();
       } finally {
@@ -213,16 +183,10 @@ async function initialize() {
     }
 
     newPasswordInput.focus();
-
   } catch (error) {
-    console.error(
-      "Error inicializando cambio de contraseña:",
-      error
-    );
+    console.error("Error inicializando cambio de contraseña:", error);
 
-    showMessage(
-      "No fue posible validar la sesión."
-    );
+    showMessage("No fue posible validar la sesión.");
 
     submitButton.disabled = true;
   }

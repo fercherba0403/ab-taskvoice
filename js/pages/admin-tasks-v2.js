@@ -8,479 +8,217 @@
 // - ticket
 // ============================================================
 
-import {
+import { initAdminLayout } from "../components/admin-layout-v2.js";
 
-    initAdminLayout
-
-} from '../components/admin-layout-v2.js';
-
-import {
-    getLocations,
-    getTasks,
-
-    getTechnicians
-} from '../services/tasks.js';
-
-
+import { getLocations, getTasks, getTechnicians } from "../services/tasks.js";
 
 // ============================================================
 // ELEMENTOS
 // ============================================================
 
-const body =
-    document.getElementById(
-        'tasksBody'
-    );
+const body = document.getElementById("tasksBody");
 
+const loading = document.getElementById("loading");
 
-const loading =
-    document.getElementById(
-        'loading'
-    );
+const emptyState = document.getElementById("emptyState");
 
+const tableWrapper = document.getElementById("tableWrapper");
 
-const emptyState =
-    document.getElementById(
-        'emptyState'
-    );
+const taskCount = document.getElementById("taskCount");
 
+const searchInput = document.getElementById("searchInput");
 
-const tableWrapper =
-    document.getElementById(
-        'tableWrapper'
-    );
+const statusFilter = document.getElementById("statusFilter");
 
+const priorityFilter = document.getElementById("priorityFilter");
 
-const taskCount =
-    document.getElementById(
-        'taskCount'
-    );
+const userFilter = document.getElementById("userFilter");
 
+const pageMessage = document.getElementById("pageMessage");
 
-const searchInput =
-    document.getElementById(
-        'searchInput'
-    );
-
-
-const statusFilter =
-    document.getElementById(
-        'statusFilter'
-    );
-
-
-const priorityFilter =
-    document.getElementById(
-        'priorityFilter'
-    );
-
-const userFilter =
-    document.getElementById(
-        'userFilter'
-    );
-
-
-const pageMessage =
-    document.getElementById(
-        'pageMessage'
-    );
-
-const locationFilter =
-    document.getElementById(
-        'locationFilter'
-    );
-
-
+const locationFilter = document.getElementById("locationFilter");
 
 // ============================================================
 // ESCAPE HTML
 // ============================================================
 
-function escapeHtml(
-    value
-) {
+function escapeHtml(value) {
+    const div = document.createElement("div");
 
-    const div =
-        document.createElement(
-            'div'
-        );
-
-
-    div.textContent =
-        value ?? '';
-
+    div.textContent = value ?? "";
 
     return div.innerHTML;
-
 }
-
-
 
 // ============================================================
 // FECHA
 // ============================================================
 
-function formatDate(
-    value
-) {
-
+function formatDate(value) {
     if (!value) {
-
-        return '-';
-
+        return "-";
     }
 
+    const parts = value.split("-");
 
-    const parts =
-        value.split('-');
-
-
-    if (
-        parts.length !== 3
-    ) {
-
+    if (parts.length !== 3) {
         return value;
-
     }
 
-
-    const [
-        year,
-        month,
-        day
-    ] = parts;
-
+    const [year, month, day] = parts;
 
     return `${day}/${month}/${year}`;
-
 }
-
-
 
 // ============================================================
 // ESTADO
 // ============================================================
 
-function labelStatus(
-    status
-) {
-
+function labelStatus(status) {
     const map = {
+        pendiente: "Pendiente",
 
-        pendiente:
-            'Pendiente',
+        aceptada: "Aceptada",
 
-        aceptada:
-            'Aceptada',
+        en_progreso: "En progreso",
 
-        en_progreso:
-            'En progreso',
+        completada: "Completada",
 
-        completada:
-            'Completada',
+        cancelada: "Cancelada",
 
-        cancelada:
-            'Cancelada',
-
-        vencida:
-            'Vencida'
-
+        vencida: "Vencida",
     };
 
-
-    return map[status]
-        ?? status;
-
+    return map[status] ?? status;
 }
 
-
-
-function statusClass(
-    status
-) {
-
+function statusClass(status) {
     const map = {
+        pendiente: "pending",
 
-        pendiente:
-            'pending',
+        aceptada: "accepted",
 
-        aceptada:
-            'accepted',
+        en_progreso: "progress",
 
-        en_progreso:
-            'progress',
+        completada: "completed",
 
-        completada:
-            'completed',
+        cancelada: "cancelled",
 
-        cancelada:
-            'cancelled',
-
-        vencida:
-            'overdue'
-
+        vencida: "overdue",
     };
 
-
-    return map[status]
-        ?? 'neutral';
-
+    return map[status] ?? "neutral";
 }
-
-
 
 // ============================================================
 // PRIORIDAD
 // ============================================================
 
-function labelPriority(
-    priority
-) {
-
+function labelPriority(priority) {
     const map = {
+        baja: "Baja",
 
-        baja:
-            'Baja',
+        normal: "Normal",
 
-        normal:
-            'Normal',
+        alta: "Alta",
 
-        alta:
-            'Alta',
-
-        urgente:
-            'Urgente'
-
+        urgente: "Urgente",
     };
 
-
-    return map[priority]
-        ?? priority;
-
+    return map[priority] ?? priority;
 }
-
-
 
 // ============================================================
 // MOSTRAR TÉCNICOS
 // ============================================================
 
-function formatTechnicians(
-    technicians
-) {
-
-    if (
-        !Array.isArray(technicians)
-        ||
-        technicians.length === 0
-    ) {
-
-        return 'Sin técnicos';
-
+function formatTechnicians(technicians) {
+    if (!Array.isArray(technicians) || technicians.length === 0) {
+        return "Sin técnicos";
     }
 
+    const names = technicians.map((technician) => technician.nombre);
 
-    const names =
-        technicians.map(
-            technician =>
-                technician.nombre
-        );
-
-
-    if (
-        names.length === 1
-    ) {
-
+    if (names.length === 1) {
         return names[0];
-
     }
 
-
-    if (
-        names.length === 2
-    ) {
-
+    if (names.length === 2) {
         return `${names[0]} · ${names[1]}`;
-
     }
 
-
-    return (
-
-        `${names[0]} · ${names[1]}`
-
-        +
-
-        ` +${names.length - 2}`
-
-    );
-
+    return `${names[0]} · ${names[1]}` + ` +${names.length - 2}`;
 }
-
-
 
 // ============================================================
 // MENSAJES DE REDIRECCIÓN
 // ============================================================
 
 function showPageMessage() {
-
     if (!pageMessage) {
-
         return;
-
     }
 
+    const params = new URLSearchParams(window.location.search);
 
-    const params =
-        new URLSearchParams(
-            window.location.search
-        );
+    let text = "";
 
-
-    let text = '';
-
-
-    if (
-        params.get('created') === '1'
-    ) {
-
-        text =
-            'Tarea creada correctamente.';
-
+    if (params.get("created") === "1") {
+        text = "Tarea creada correctamente.";
     }
 
-
-    if (
-        params.get('updated') === '1'
-    ) {
-
-        text =
-            'Cambios guardados correctamente.';
-
+    if (params.get("updated") === "1") {
+        text = "Cambios guardados correctamente.";
     }
 
-
-    if (
-        params.get('cancelled') === '1'
-    ) {
-
-        text =
-            'Tarea cancelada correctamente.';
-
+    if (params.get("cancelled") === "1") {
+        text = "Tarea cancelada correctamente.";
     }
-
 
     if (!text) {
-
         return;
-
     }
 
+    pageMessage.textContent = text;
 
-    pageMessage.textContent =
-        text;
+    pageMessage.classList.remove("hidden");
 
+    window.history.replaceState({}, "", "./tareas.html");
 
-    pageMessage.classList.remove(
-        'hidden'
-    );
-
-
-    window.history.replaceState(
-        {},
-        '',
-        './tareas.html'
-    );
-
-
-    setTimeout(
-        () => {
-
-            pageMessage.classList.add(
-                'hidden'
-            );
-
-        },
-        4000
-    );
-
+    setTimeout(() => {
+        pageMessage.classList.add("hidden");
+    }, 4000);
 }
-
-
 
 // ============================================================
 // RENDER
 // ============================================================
 
-function renderTasks(
-    tasks
-) {
-
+function renderTasks(tasks) {
     body.replaceChildren();
 
+    loading.classList.add("hidden");
 
-    loading.classList.add(
-        'hidden'
-    );
+    taskCount.textContent = `${tasks.length} tarea${tasks.length === 1 ? "" : "s"}`;
 
+    if (tasks.length === 0) {
+        emptyState.classList.remove("hidden");
 
-    taskCount.textContent =
-
-        `${tasks.length} tarea${tasks.length === 1 ? '' : 's'}`;
-
-
-    if (
-        tasks.length === 0
-    ) {
-
-        emptyState.classList.remove(
-            'hidden'
-        );
-
-
-        tableWrapper.classList.add(
-            'hidden'
-        );
-
+        tableWrapper.classList.add("hidden");
 
         return;
-
     }
 
+    emptyState.classList.add("hidden");
 
-    emptyState.classList.add(
-        'hidden'
-    );
+    tableWrapper.classList.remove("hidden");
 
+    for (const task of tasks) {
+        const row = document.createElement("tr");
 
-    tableWrapper.classList.remove(
-        'hidden'
-    );
+        const technicians = formatTechnicians(task.assigned_users);
 
-
-
-    for (
-        const task of tasks
-    ) {
-
-
-        const row =
-            document.createElement(
-                'tr'
-            );
-
-
-        const technicians =
-            formatTechnicians(
-                task.assigned_users
-            );
-
-
-        const ticket =
-            task.ticket_number
-            || '-';
-
+        const ticket = task.ticket_number || "-";
 
         row.innerHTML = `
 
@@ -499,17 +237,13 @@ function renderTasks(
 
 
             <td>
-                ${escapeHtml(
-            task.location_name
-        )}
+                ${escapeHtml(task.location_name)}
             </td>
 
 
             <td class="task-technicians">
 
-                ${escapeHtml(
-            technicians
-        )}
+                ${escapeHtml(technicians)}
 
             </td>
 
@@ -523,9 +257,7 @@ function renderTasks(
                     "
                 >
 
-                    ${labelPriority(
-            task.prioridad
-        )}
+                    ${labelPriority(task.prioridad)}
 
                 </span>
 
@@ -537,15 +269,11 @@ function renderTasks(
                 <span
                     class="
                         badge
-                        status-${statusClass(
-            task.estado
-        )}
+                        status-${statusClass(task.estado)}
                     "
                 >
 
-                    ${labelStatus(
-            task.estado
-        )}
+                    ${labelStatus(task.estado)}
 
                 </span>
 
@@ -554,18 +282,14 @@ function renderTasks(
 
             <td class="task-ticket">
 
-                ${escapeHtml(
-            ticket
-        )}
+                ${escapeHtml(ticket)}
 
             </td>
 
 
             <td>
 
-                ${formatDate(
-            task.fecha_limite
-        )}
+                ${formatDate(task.fecha_limite)}
 
             </td>
 
@@ -583,116 +307,56 @@ function renderTasks(
 
         `;
 
-
-        body.append(
-            row
-        );
-
+        body.append(row);
     }
-
 }
-
-
 
 // ============================================================
 // CARGAR TAREAS
 // ============================================================
 
 async function loadTasks() {
+    loading.classList.remove("hidden");
 
-    loading.classList.remove(
-        'hidden'
-    );
-
-
-    loading.textContent =
-        'Cargando tareas...';
-
+    loading.textContent = "Cargando tareas...";
 
     try {
+        const tasks = await getTasks({
+            search: searchInput.value,
 
+            status: statusFilter.value,
 
-        const tasks =
-            await getTasks({
+            priority: priorityFilter.value,
 
-                search:
-                    searchInput.value,
+            locationId: locationFilter.value,
 
-                status:
-                    statusFilter.value,
+            userId: userFilter.value,
+        });
 
-                priority:
-                    priorityFilter.value,
-
-                locationId:
-                    locationFilter.value,
-
-                userId:
-                    userFilter.value
-
-            });
-
-
-        renderTasks(
-            tasks
-        );
-
-
+        renderTasks(tasks);
     } catch (error) {
+        console.error("Error cargando tareas:", error);
 
-
-        console.error(
-            'Error cargando tareas:',
-            error
-        );
-
-
-        loading.textContent =
-            'Error al cargar tareas.';
-
+        loading.textContent = "Error al cargar tareas.";
     }
-
 }
-
-
 
 // ============================================================
 // TÉCNICOS PARA EL FILTRO
 // ============================================================
 
 async function loadUsers() {
+    const users = await getTechnicians();
 
-    const users =
-        await getTechnicians();
+    for (const user of users) {
+        const option = document.createElement("option");
 
+        option.value = user.id;
 
-    for (
-        const user of users
-    ) {
+        option.textContent = `${user.nombre} ${user.apellido}`.trim();
 
-
-        const option =
-            document.createElement(
-                'option'
-            );
-
-
-        option.value =
-            user.id;
-
-
-        option.textContent =
-
-            `${user.nombre} ${user.apellido}`
-                .trim();
-
-
-        userFilter.append(
-            option
-        );
-
+        userFilter.append(option);
     }
-
 }
 
 // ============================================================
@@ -700,40 +364,18 @@ async function loadUsers() {
 // ============================================================
 
 async function loadLocations() {
+    const locations = await getLocations();
 
-    const locations =
-        await getLocations();
+    for (const location of locations) {
+        const option = document.createElement("option");
 
+        option.value = String(location.id);
 
-    for (
-        const location of locations
-    ) {
+        option.textContent = location.nombre;
 
-        const option =
-            document.createElement(
-                'option'
-            );
-
-
-        option.value =
-            String(
-                location.id
-            );
-
-
-        option.textContent =
-            location.nombre;
-
-
-        locationFilter.append(
-            option
-        );
-
+        locationFilter.append(option);
     }
-
 }
-
-
 
 // ============================================================
 // FILTROS
@@ -741,140 +383,70 @@ async function loadLocations() {
 
 let searchTimer = null;
 
-
 searchInput.addEventListener(
-
-    'input',
+    "input",
 
     () => {
+        clearTimeout(searchTimer);
 
-        clearTimeout(
-            searchTimer
-        );
-
-
-        searchTimer =
-            setTimeout(
-                loadTasks,
-                350
-            );
-
-    }
-
+        searchTimer = setTimeout(loadTasks, 350);
+    },
 );
 
+statusFilter.addEventListener("change", loadTasks);
 
-statusFilter.addEventListener(
-    'change',
-    loadTasks
+priorityFilter.addEventListener("change", loadTasks);
+
+userFilter.addEventListener("change", loadTasks);
+
+locationFilter.addEventListener("change", loadTasks);
+
+document.getElementById("clearFiltersButton").addEventListener(
+    "click",
+
+    () => {
+        searchInput.value = "";
+
+        statusFilter.value = "todos";
+
+        priorityFilter.value = "todas";
+
+        locationFilter.value = "todos";
+
+        userFilter.value = "todos";
+
+        loadTasks();
+    },
 );
-
-
-priorityFilter.addEventListener(
-    'change',
-    loadTasks
-);
-
-
-userFilter.addEventListener(
-    'change',
-    loadTasks
-);
-
-locationFilter.addEventListener(
-    'change',
-    loadTasks
-);
-
-
-
-document
-    .getElementById(
-        'clearFiltersButton'
-    )
-    .addEventListener(
-
-        'click',
-
-        () => {
-
-            searchInput.value =
-                '';
-
-            statusFilter.value =
-                'todos';
-
-
-            priorityFilter.value =
-                'todas';
-
-            locationFilter.value =
-                'todos';
-
-            userFilter.value =
-                'todos';
-
-            loadTasks();
-
-        }
-
-    );
-
 
 // ============================================================
 // INICIALIZAR
 // ============================================================
 
 async function initialize() {
+    const profile = await initAdminLayout({
+        activePage: "tareas",
 
-    const profile =
-        await initAdminLayout({
+        title: "Tareas",
 
-            activePage:
-                'tareas',
-
-            title:
-                'Tareas',
-
-            subtitle:
-                'Gestión y seguimiento de tareas'
-
-        });
+        subtitle: "Gestión y seguimiento de tareas",
+    });
 
     if (!profile) {
-
         return;
-
     }
 
     showPageMessage();
 
     try {
-
-        await Promise.all([
-
-            loadUsers(),
-
-            loadLocations()
-
-        ]);
+        await Promise.all([loadUsers(), loadLocations()]);
 
         await loadTasks();
-
     } catch (error) {
+        console.error("Error inicializando Tareas:", error);
 
-        console.error(
-            'Error inicializando Tareas:',
-            error
-        );
-
-
-        loading.textContent =
-            'No fue posible inicializar el módulo.';
-
+        loading.textContent = "No fue posible inicializar el módulo.";
     }
-
 }
-
 
 initialize();

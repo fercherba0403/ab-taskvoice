@@ -5,749 +5,352 @@
 
 import {
     initAdminLayout,
-    showAdminToast
-} from '../components/admin-layout-v3.js';
+    showAdminToast,
+} from "../components/admin-layout-v3.js";
 
 import {
     getUser,
     updateUser,
     deactivateUser,
     reactivateUser,
-    resetUserPassword
-} from '../services/users.js';
+    resetUserPassword,
+} from "../services/users.js";
 
+const params = new URLSearchParams(window.location.search);
 
-const params =
-    new URLSearchParams(
-        window.location.search
-    );
+const userId = params.get("id");
 
-const userId =
-    params.get(
-        'id'
-    );
+const loading = document.getElementById("userDetailLoading");
 
+const content = document.getElementById("userDetailContent");
 
-const loading =
-    document.getElementById(
-        'userDetailLoading'
-    );
+const avatar = document.getElementById("userDetailAvatar");
 
-const content =
-    document.getElementById(
-        'userDetailContent'
-    );
+const detailName = document.getElementById("userDetailName");
 
-const avatar =
-    document.getElementById(
-        'userDetailAvatar'
-    );
+const detailEmail = document.getElementById("userDetailEmail");
 
-const detailName =
-    document.getElementById(
-        'userDetailName'
-    );
+const detailStatus = document.getElementById("userDetailStatus");
 
-const detailEmail =
-    document.getElementById(
-        'userDetailEmail'
-    );
+const editForm = document.getElementById("editUserForm");
 
-const detailStatus =
-    document.getElementById(
-        'userDetailStatus'
-    );
+const editMessage = document.getElementById("editUserMessage");
 
-const editForm =
-    document.getElementById(
-        'editUserForm'
-    );
+const saveButton = document.getElementById("saveUserButton");
 
-const editMessage =
-    document.getElementById(
-        'editUserMessage'
-    );
+const toggleStatusButton = document.getElementById("toggleUserStatusButton");
 
-const saveButton =
-    document.getElementById(
-        'saveUserButton'
-    );
+const accessDescription = document.getElementById("accessDescription");
 
-const toggleStatusButton =
-    document.getElementById(
-        'toggleUserStatusButton'
-    );
+const passwordForm = document.getElementById("passwordForm");
 
-const accessDescription =
-    document.getElementById(
-        'accessDescription'
-    );
+const passwordMessage = document.getElementById("passwordMessage");
 
-const passwordForm =
-    document.getElementById(
-        'passwordForm'
-    );
+const passwordButton = document.getElementById("passwordButton");
 
-const passwordMessage =
-    document.getElementById(
-        'passwordMessage'
-    );
+let currentUser = null;
 
-const passwordButton =
-    document.getElementById(
-        'passwordButton'
-    );
+let currentAdmin = null;
 
+function getInitials(user) {
+    const first = user?.nombre?.charAt(0)?.toUpperCase() ?? "";
 
-let currentUser =
-    null;
+    const last = user?.apellido?.charAt(0)?.toUpperCase() ?? "";
 
-let currentAdmin =
-    null;
-
-
-function getInitials(
-    user
-) {
-
-    const first =
-        user?.nombre
-            ?.charAt(0)
-            ?.toUpperCase()
-        ?? '';
-
-    const last =
-        user?.apellido
-            ?.charAt(0)
-            ?.toUpperCase()
-        ?? '';
-
-
-    return (
-        `${first}${last}`
-        ||
-        'U'
-    );
-
+    return `${first}${last}` || "U";
 }
 
+function clearMessage(element) {
+    element.textContent = "";
 
-function clearMessage(
-    element
-) {
-
-    element.textContent =
-        '';
-
-    element.className =
-        'users-form-message';
-
+    element.className = "users-form-message";
 }
 
+function showError(element, text) {
+    element.textContent = text;
 
-function showError(
-    element,
-    text
-) {
-
-    element.textContent =
-        text;
-
-    element.className =
-        'users-form-message error';
-
+    element.className = "users-form-message error";
 }
 
+function showSuccess(element, text) {
+    element.textContent = text;
 
-function showSuccess(
-    element,
-    text
-) {
-
-    element.textContent =
-        text;
-
-    element.className =
-        'users-form-message success';
-
+    element.className = "users-form-message success";
 }
-
 
 function renderUser() {
-
     if (!currentUser) {
-
         return;
-
     }
 
-
-    avatar.textContent =
-        getInitials(
-            currentUser
-        );
-
+    avatar.textContent = getInitials(currentUser);
 
     detailName.textContent =
-        `${currentUser.nombre ?? ''} ${currentUser.apellido ?? ''}`
-            .trim()
-        ||
-        'Usuario';
+        `${currentUser.nombre ?? ""} ${currentUser.apellido ?? ""}`.trim() ||
+        "Usuario";
 
+    detailEmail.textContent = currentUser.email || "-";
 
-    detailEmail.textContent =
-        currentUser.email
-        ||
-        '-';
+    detailStatus.className = currentUser.activo
+        ? "users-status users-status-active"
+        : "users-status users-status-inactive";
 
+    detailStatus.textContent = currentUser.activo ? "Activo" : "Inactivo";
 
-    detailStatus.className =
-        currentUser.activo
-            ? 'users-status users-status-active'
-            : 'users-status users-status-inactive';
+    document.getElementById("nombre").value = currentUser.nombre ?? "";
 
+    document.getElementById("apellido").value = currentUser.apellido ?? "";
 
-    detailStatus.textContent =
-        currentUser.activo
-            ? 'Activo'
-            : 'Inactivo';
+    document.getElementById("email").value = currentUser.email ?? "";
 
+    document.getElementById("telefono").value = currentUser.telefono ?? "";
 
-    document.getElementById(
-        'nombre'
-    ).value =
-        currentUser.nombre
-        ?? '';
+    document.getElementById("rol").value = currentUser.rol ?? "trabajador";
 
+    const self = currentAdmin?.id === currentUser.id;
 
-    document.getElementById(
-        'apellido'
-    ).value =
-        currentUser.apellido
-        ?? '';
+    if (currentUser.activo) {
+        toggleStatusButton.textContent = self
+            ? "Tu cuenta está activa"
+            : "Desactivar usuario";
 
+        toggleStatusButton.className = "users-danger-button";
 
-    document.getElementById(
-        'email'
-    ).value =
-        currentUser.email
-        ?? '';
+        toggleStatusButton.disabled = self;
 
-
-    document.getElementById(
-        'telefono'
-    ).value =
-        currentUser.telefono
-        ?? '';
-
-
-    document.getElementById(
-        'rol'
-    ).value =
-        currentUser.rol
-        ?? 'trabajador';
-
-
-    const self =
-        currentAdmin?.id ===
-        currentUser.id;
-
-
-    if (
-        currentUser.activo
-    ) {
-
-        toggleStatusButton.textContent =
-            self
-                ? 'Tu cuenta está activa'
-                : 'Desactivar usuario';
-
-        toggleStatusButton.className =
-            'users-danger-button';
-
-        toggleStatusButton.disabled =
-            self;
-
-        accessDescription.textContent =
-            self
-                ? 'No podés desactivar tu propia cuenta.'
-                : 'Al desactivarlo conservará todo su historial, pero no podrá iniciar sesión.';
-
+        accessDescription.textContent = self
+            ? "No podés desactivar tu propia cuenta."
+            : "Al desactivarlo conservará todo su historial, pero no podrá iniciar sesión.";
     } else {
+        toggleStatusButton.textContent = "Reactivar usuario";
 
-        toggleStatusButton.textContent =
-            'Reactivar usuario';
+        toggleStatusButton.className = "users-success-button";
 
-        toggleStatusButton.className =
-            'users-success-button';
-
-        toggleStatusButton.disabled =
-            false;
+        toggleStatusButton.disabled = false;
 
         accessDescription.textContent =
-            'El usuario está inactivo. Al reactivarlo podrá volver a iniciar sesión.';
-
+            "El usuario está inactivo. Al reactivarlo podrá volver a iniciar sesión.";
     }
 
-
-    document.getElementById(
-        'rol'
-    ).disabled =
-        self;
-
+    document.getElementById("rol").disabled = self;
 }
 
-
 async function loadUser() {
+    loading.classList.remove("hidden");
 
-    loading.classList.remove(
-        'hidden'
-    );
-
-    content.classList.add(
-        'hidden'
-    );
-
+    content.classList.add("hidden");
 
     try {
-
-        currentUser =
-            await getUser(
-                userId
-            );
-
+        currentUser = await getUser(userId);
 
         if (!currentUser) {
-
-            throw new Error(
-                'Usuario inexistente.'
-            );
-
+            throw new Error("Usuario inexistente.");
         }
-
 
         renderUser();
 
-        loading.classList.add(
-            'hidden'
-        );
+        loading.classList.add("hidden");
 
-        content.classList.remove(
-            'hidden'
-        );
+        content.classList.remove("hidden");
 
-
-        if (
-            params.get(
-                'created'
-            ) ===
-            '1'
-        ) {
-
-            showAdminToast(
-                'Usuario creado correctamente.',
-                'success'
-            );
-
+        if (params.get("created") === "1") {
+            showAdminToast("Usuario creado correctamente.", "success");
         }
-
-
     } catch (error) {
+        console.error("Error cargando usuario:", error);
 
-        console.error(
-            'Error cargando usuario:',
-            error
-        );
-
-
-        loading.textContent =
-            error?.message
-            ||
-            'No fue posible cargar el usuario.';
-
+        loading.textContent = error?.message || "No fue posible cargar el usuario.";
     }
-
 }
 
-
 editForm.addEventListener(
+    "submit",
 
-    'submit',
-
-    async event => {
-
+    async (event) => {
         event.preventDefault();
 
-        clearMessage(
-            editMessage
-        );
+        clearMessage(editMessage);
 
-
-        if (
-            !editForm.reportValidity()
-        ) {
-
+        if (!editForm.reportValidity()) {
             return;
-
         }
 
+        saveButton.disabled = true;
 
-        saveButton.disabled =
-            true;
-
-        saveButton.textContent =
-            'Guardando...';
-
+        saveButton.textContent = "Guardando...";
 
         try {
+            currentUser = await updateUser(userId, {
+                nombre: document.getElementById("nombre").value.trim(),
 
-            currentUser =
-                await updateUser(
-                    userId,
-                    {
-                        nombre:
-                            document.getElementById('nombre').value.trim(),
+                apellido: document.getElementById("apellido").value.trim(),
 
-                        apellido:
-                            document.getElementById('apellido').value.trim(),
+                email: document.getElementById("email").value.trim().toLowerCase(),
 
-                        email:
-                            document.getElementById('email').value.trim().toLowerCase(),
+                telefono: document.getElementById("telefono").value.trim(),
 
-                        telefono:
-                            document.getElementById('telefono').value.trim(),
-
-                        rol:
-                            document.getElementById('rol').value
-                    }
-                );
-
+                rol: document.getElementById("rol").value,
+            });
 
             renderUser();
 
-
-            showSuccess(
-                editMessage,
-                'Cambios guardados correctamente.'
-            );
-
-
+            showSuccess(editMessage, "Cambios guardados correctamente.");
         } catch (error) {
-
-            console.error(
-                'Error actualizando usuario:',
-                error
-            );
-
+            console.error("Error actualizando usuario:", error);
 
             showError(
                 editMessage,
-                error?.message
-                ||
-                'No fue posible guardar los cambios.'
+                error?.message || "No fue posible guardar los cambios.",
             );
-
-
         } finally {
+            saveButton.disabled = false;
 
-            saveButton.disabled =
-                false;
-
-            saveButton.textContent =
-                'Guardar cambios';
-
+            saveButton.textContent = "Guardar cambios";
         }
-
-    }
-
+    },
 );
-
 
 toggleStatusButton.addEventListener(
-
-    'click',
+    "click",
 
     async () => {
-
-        if (
-            !currentUser
-        ) {
-
+        if (!currentUser) {
             return;
-
         }
 
+        const activating = currentUser.activo !== true;
 
-        const activating =
-            currentUser.activo !==
-            true;
-
-
-        const confirmed =
-            window.confirm(
-                activating
-                    ? '¿Querés reactivar este usuario? Podrá volver a iniciar sesión.'
-                    : '¿Querés desactivar este usuario? No podrá iniciar sesión, pero conservará todo su historial.'
-            );
-
-
-        if (!confirmed) {
-
-            return;
-
-        }
-
-
-        toggleStatusButton.disabled =
-            true;
-
-        toggleStatusButton.textContent =
+        const confirmed = window.confirm(
             activating
-                ? 'Reactivando...'
-                : 'Desactivando...';
-
-
-        try {
-
-            currentUser =
-                activating
-                    ? await reactivateUser(
-                        userId
-                    )
-                    : await deactivateUser(
-                        userId
-                    );
-
-
-            renderUser();
-
-
-            showAdminToast(
-                activating
-                    ? 'Usuario reactivado.'
-                    : 'Usuario desactivado.',
-                'success'
-            );
-
-
-        } catch (error) {
-
-            console.error(
-                'Error cambiando estado de usuario:',
-                error
-            );
-
-
-            window.alert(
-                error?.message
-                ||
-                'No fue posible cambiar el estado del usuario.'
-            );
-
-
-            renderUser();
-
-        }
-
-    }
-
-);
-
-
-passwordForm.addEventListener(
-
-    'submit',
-
-    async event => {
-
-        event.preventDefault();
-
-        clearMessage(
-            passwordMessage
+                ? "¿Querés reactivar este usuario? Podrá volver a iniciar sesión."
+                : "¿Querés desactivar este usuario? No podrá iniciar sesión, pero conservará todo su historial.",
         );
 
-
-        if (
-            !passwordForm.reportValidity()
-        ) {
-
-            return;
-
-        }
-
-
-        const password =
-            document
-                .getElementById(
-                    'newPassword'
-                )
-                .value;
-
-
-        const confirm =
-            document
-                .getElementById(
-                    'newPasswordConfirm'
-                )
-                .value;
-
-
-        if (
-            password.length <
-            10
-        ) {
-
-            showError(
-                passwordMessage,
-                'La contraseña debe tener al menos 10 caracteres.'
-            );
-
-            return;
-
-        }
-
-
-        if (
-            password !==
-            confirm
-        ) {
-
-            showError(
-                passwordMessage,
-                'Las contraseñas no coinciden.'
-            );
-
-            return;
-
-        }
-
-
-        const confirmed =
-            window.confirm(
-                '¿Confirmás el cambio de contraseña de este usuario?'
-            );
-
-
         if (!confirmed) {
-
             return;
-
         }
 
+        toggleStatusButton.disabled = true;
 
-        passwordButton.disabled =
-            true;
-
-        passwordButton.textContent =
-            'Actualizando...';
-
+        toggleStatusButton.textContent = activating
+            ? "Reactivando..."
+            : "Desactivando...";
 
         try {
+            currentUser = activating
+                ? await reactivateUser(userId)
+                : await deactivateUser(userId);
 
-            await resetUserPassword(
-                userId,
-                password
+            renderUser();
+
+            showAdminToast(
+                activating ? "Usuario reactivado." : "Usuario desactivado.",
+                "success",
+            );
+        } catch (error) {
+            console.error("Error cambiando estado de usuario:", error);
+
+            window.alert(
+                error?.message || "No fue posible cambiar el estado del usuario.",
             );
 
+            renderUser();
+        }
+    },
+);
+
+passwordForm.addEventListener(
+    "submit",
+
+    async (event) => {
+        event.preventDefault();
+
+        clearMessage(passwordMessage);
+
+        if (!passwordForm.reportValidity()) {
+            return;
+        }
+
+        const password = document.getElementById("newPassword").value;
+
+        const confirm = document.getElementById("newPasswordConfirm").value;
+
+        if (password.length < 10) {
+            showError(
+                passwordMessage,
+                "La contraseña debe tener al menos 10 caracteres.",
+            );
+
+            return;
+        }
+
+        if (password !== confirm) {
+            showError(passwordMessage, "Las contraseñas no coinciden.");
+
+            return;
+        }
+
+        const confirmed = window.confirm(
+            "¿Confirmás el cambio de contraseña de este usuario?",
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        passwordButton.disabled = true;
+
+        passwordButton.textContent = "Actualizando...";
+
+        try {
+            await resetUserPassword(userId, password);
 
             passwordForm.reset();
 
-
-            showSuccess(
-                passwordMessage,
-                'Contraseña actualizada correctamente.'
-            );
-
-
+            showSuccess(passwordMessage, "Contraseña actualizada correctamente.");
         } catch (error) {
-
-            console.error(
-                'Error actualizando contraseña:',
-                error
-            );
-
+            console.error("Error actualizando contraseña:", error);
 
             showError(
                 passwordMessage,
-                error?.message
-                ||
-                'No fue posible actualizar la contraseña.'
+                error?.message || "No fue posible actualizar la contraseña.",
             );
-
-
         } finally {
+            passwordButton.disabled = false;
 
-            passwordButton.disabled =
-                false;
-
-            passwordButton.textContent =
-                'Actualizar contraseña';
-
+            passwordButton.textContent = "Actualizar contraseña";
         }
-
-    }
-
+    },
 );
 
-
 async function initialize() {
+    const profile = await initAdminLayout({
+        activePage: "usuarios",
 
-    const profile =
-        await initAdminLayout({
+        title: "Detalle de usuario",
 
-            activePage:
-                'usuarios',
-
-            title:
-                'Detalle de usuario',
-
-            subtitle:
-                'Datos, acceso y seguridad'
-
-        });
-
+        subtitle: "Datos, acceso y seguridad",
+    });
 
     if (!profile) {
-
         return;
-
     }
 
-
-    if (
-        profile.rol !==
-        'admin'
-    ) {
-
-        window.location.replace(
-            './dashboard.html'
-        );
+    if (profile.rol !== "admin") {
+        window.location.replace("./dashboard.html");
 
         return;
-
     }
 
+    currentAdmin = profile;
 
-    currentAdmin =
-        profile;
-
-
-    if (
-        !userId
-    ) {
-
-        window.location.replace(
-            './usuarios.html'
-        );
+    if (!userId) {
+        window.location.replace("./usuarios.html");
 
         return;
-
     }
-
 
     await loadUser();
-
 }
-
 
 initialize();

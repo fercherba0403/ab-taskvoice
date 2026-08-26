@@ -6,303 +6,141 @@
 // ============================================================
 
 import {
-
   getCurrentProfile,
   getCurrentUser,
   login,
   logout,
   redirectAfterAuthentication,
   redirectToPasswordChange,
-  requiresPasswordChange
-
+  requiresPasswordChange,
 } from "../core/auth-v3.js";
 
+const form = document.getElementById("loginForm");
 
-const form =
-  document.getElementById(
-    "loginForm"
-  );
+const emailInput = document.getElementById("email");
 
-const emailInput =
-  document.getElementById(
-    "email"
-  );
+const passwordInput = document.getElementById("password");
 
-const passwordInput =
-  document.getElementById(
-    "password"
-  );
+const loginButton = document.getElementById("loginButton");
 
-const loginButton =
-  document.getElementById(
-    "loginButton"
-  );
+const message = document.getElementById("loginMessage");
 
-const message =
-  document.getElementById(
-    "loginMessage"
-  );
+const togglePassword = document.getElementById("togglePassword");
 
-const togglePassword =
-  document.getElementById(
-    "togglePassword"
-  );
+function showMessage(text, type = "error") {
+  message.textContent = text;
 
-
-function showMessage(
-  text,
-  type = "error"
-) {
-
-  message.textContent =
-    text;
-
-  message.className =
-    `form-message ${type}`;
+  message.className = `form-message ${type}`;
 }
-
 
 function clearMessage() {
+  message.textContent = "";
 
-  message.textContent =
-    "";
-
-  message.className =
-    "form-message";
+  message.className = "form-message";
 }
-
 
 function showUrlMessage() {
+  const params = new URLSearchParams(window.location.search);
 
-  const params =
-    new URLSearchParams(
-      window.location.search
-    );
-
-
-  if (
-    params.get(
-      "password_changed"
-    ) === "1"
-  ) {
-
+  if (params.get("password_changed") === "1") {
     showMessage(
       "Contraseña actualizada. Ingresá nuevamente con tu nueva contraseña.",
-      "success"
+      "success",
     );
-
   }
 }
 
+togglePassword.addEventListener("click", () => {
+  const hidden = passwordInput.type === "password";
 
-togglePassword.addEventListener(
-  "click",
-  () => {
+  passwordInput.type = hidden ? "text" : "password";
 
-    const hidden =
-      passwordInput.type ===
-      "password";
+  togglePassword.textContent = hidden ? "Ocultar" : "Ver";
+});
 
-    passwordInput.type =
-      hidden
-        ? "text"
-        : "password";
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
 
-    togglePassword.textContent =
-      hidden
-        ? "Ocultar"
-        : "Ver";
+  clearMessage();
+
+  const email = emailInput.value.trim();
+
+  const password = passwordInput.value;
+
+  if (!email || !password) {
+    showMessage("Ingresá correo electrónico y contraseña.");
+
+    return;
   }
-);
 
+  loginButton.disabled = true;
 
-form.addEventListener(
-  "submit",
-  async event => {
-
-    event.preventDefault();
-
-    clearMessage();
-
-
-    const email =
-      emailInput.value.trim();
-
-    const password =
-      passwordInput.value;
-
-
-    if (
-      !email
-      ||
-      !password
-    ) {
-
-      showMessage(
-        "Ingresá correo electrónico y contraseña."
-      );
-
-      return;
-    }
-
-
-    loginButton.disabled =
-      true;
-
-    loginButton.textContent =
-      "Ingresando...";
-
-
-    try {
-
-      await login(
-        email,
-        password
-      );
-
-
-      const user =
-        await getCurrentUser();
-
-      const profile =
-        await getCurrentProfile();
-
-
-      if (
-        !user
-        ||
-        !profile
-      ) {
-
-        await logout();
-
-        throw new Error(
-          "No se encontró el perfil del usuario."
-        );
-
-      }
-
-
-      if (!profile.activo) {
-
-        await logout();
-
-        throw new Error(
-          "El usuario se encuentra inactivo."
-        );
-
-      }
-
-
-      if (
-        requiresPasswordChange(
-          user
-        )
-      ) {
-
-        redirectToPasswordChange(
-          "./"
-        );
-
-        return;
-
-      }
-
-
-      showMessage(
-        "Ingreso correcto.",
-        "success"
-      );
-
-
-      await redirectAfterAuthentication(
-        profile,
-        "./"
-      );
-
-
-    } catch (error) {
-
-      console.error(
-        error
-      );
-
-      showMessage(
-        "Correo electrónico o contraseña incorrectos."
-      );
-
-      loginButton.disabled =
-        false;
-
-      loginButton.textContent =
-        "Ingresar";
-
-    }
-
-  }
-);
-
-
-async function checkExistingSession() {
+  loginButton.textContent = "Ingresando...";
 
   try {
+    await login(email, password);
 
-    const user =
-      await getCurrentUser();
+    const user = await getCurrentUser();
 
+    const profile = await getCurrentProfile();
+
+    if (!user || !profile) {
+      await logout();
+
+      throw new Error("No se encontró el perfil del usuario.");
+    }
+
+    if (!profile.activo) {
+      await logout();
+
+      throw new Error("El usuario se encuentra inactivo.");
+    }
+
+    if (requiresPasswordChange(user)) {
+      redirectToPasswordChange("./");
+
+      return;
+    }
+
+    showMessage("Ingreso correcto.", "success");
+
+    await redirectAfterAuthentication(profile, "./");
+  } catch (error) {
+    console.error(error);
+
+    showMessage("Correo electrónico o contraseña incorrectos.");
+
+    loginButton.disabled = false;
+
+    loginButton.textContent = "Ingresar";
+  }
+});
+
+async function checkExistingSession() {
+  try {
+    const user = await getCurrentUser();
 
     if (!user) {
-
       return;
-
     }
 
+    const profile = await getCurrentProfile();
 
-    const profile =
-      await getCurrentProfile();
-
-
-    if (
-      !profile
-      ||
-      !profile.activo
-    ) {
-
+    if (!profile || !profile.activo) {
       return;
-
     }
 
-
-    if (
-      requiresPasswordChange(
-        user
-      )
-    ) {
-
-      redirectToPasswordChange(
-        "./"
-      );
+    if (requiresPasswordChange(user)) {
+      redirectToPasswordChange("./");
 
       return;
-
     }
 
-
-    await redirectAfterAuthentication(
-      profile,
-      "./"
-    );
-
-
+    await redirectAfterAuthentication(profile, "./");
   } catch (error) {
-
-    console.error(
-      error
-    );
-
+    console.error(error);
   }
 }
-
 
 showUrlMessage();
 

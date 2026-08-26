@@ -5,1435 +5,669 @@
 // Reportes y búsqueda operativa.
 // ============================================================
 
-
 import {
     initAdminLayout,
-
     setAdminTopbarSubtitle,
-
-    setAdminTopbarTitle
-} from '../components/admin-layout.js';
-
-
+    setAdminTopbarTitle,
+} from "../components/admin-layout.js";
 
 import {
     getLocations,
-
     getMaintenanceTypes,
-
     getShifts,
+    getTechnicians,
+} from "../services/tasks.js";
 
-    getTechnicians
-} from '../services/tasks.js';
+import { getWorkTypes } from "../services/executions.js";
 
-
-
-import {
-    getWorkTypes
-} from '../services/executions.js';
-
-
-
-import {
-    getOperationalReport
-} from '../services/reports.js';
-
-
+import { getOperationalReport } from "../services/reports.js";
 
 // ============================================================
 // ELEMENTOS
 // ============================================================
 
-const form =
-    document.getElementById(
-        'reportsFilterForm'
-    );
+const form = document.getElementById("reportsFilterForm");
 
+const dateFrom = document.getElementById("reportDateFrom");
 
-const dateFrom =
-    document.getElementById(
-        'reportDateFrom'
-    );
+const dateTo = document.getElementById("reportDateTo");
 
+const technicianSelect = document.getElementById("reportTechnician");
 
-const dateTo =
-    document.getElementById(
-        'reportDateTo'
-    );
+const locationSelect = document.getElementById("reportLocation");
 
+const shiftSelect = document.getElementById("reportShift");
 
-const technicianSelect =
-    document.getElementById(
-        'reportTechnician'
-    );
+const maintenanceSelect = document.getElementById("reportMaintenance");
 
+const workTypeSelect = document.getElementById("reportWorkType");
 
-const locationSelect =
-    document.getElementById(
-        'reportLocation'
-    );
+const taskStatusSelect = document.getElementById("reportTaskStatus");
 
+const technicianStatusSelect = document.getElementById(
+    "reportTechnicianStatus",
+);
 
-const shiftSelect =
-    document.getElementById(
-        'reportShift'
-    );
+const ticketInput = document.getElementById("reportTicket");
 
+const clearButton = document.getElementById("clearReportsButton");
 
-const maintenanceSelect =
-    document.getElementById(
-        'reportMaintenance'
-    );
+const searchButton = document.getElementById("searchReportsButton");
 
+const message = document.getElementById("reportsMessage");
 
-const workTypeSelect =
-    document.getElementById(
-        'reportWorkType'
-    );
+const loading = document.getElementById("reportsLoading");
 
+const emptyState = document.getElementById("reportsEmpty");
 
-const taskStatusSelect =
-    document.getElementById(
-        'reportTaskStatus'
-    );
+const tableWrapper = document.getElementById("reportsTableWrapper");
 
+const tableBody = document.getElementById("reportsTableBody");
 
-const technicianStatusSelect =
-    document.getElementById(
-        'reportTechnicianStatus'
-    );
+const resultCount = document.getElementById("reportsResultCount");
 
-
-const ticketInput =
-    document.getElementById(
-        'reportTicket'
-    );
-
-
-const clearButton =
-    document.getElementById(
-        'clearReportsButton'
-    );
-
-
-const searchButton =
-    document.getElementById(
-        'searchReportsButton'
-    );
-
-
-const message =
-    document.getElementById(
-        'reportsMessage'
-    );
-
-
-const loading =
-    document.getElementById(
-        'reportsLoading'
-    );
-
-
-const emptyState =
-    document.getElementById(
-        'reportsEmpty'
-    );
-
-
-const tableWrapper =
-    document.getElementById(
-        'reportsTableWrapper'
-    );
-
-
-const tableBody =
-    document.getElementById(
-        'reportsTableBody'
-    );
-
-
-const resultCount =
-    document.getElementById(
-        'reportsResultCount'
-    );
-
-const exportCsvButton =
-    document.getElementById(
-        'exportCsvButton'
-    );
-
-
+const exportCsvButton = document.getElementById("exportCsvButton");
 
 // ============================================================
 // ESTADO
 // ============================================================
 
-let currentRows =
-    [];
-
-
+let currentRows = [];
 
 // ============================================================
 // SELECT GENÉRICO
 // ============================================================
 
-function appendOptions(
-    select,
-    items,
-    getLabel
-) {
+function appendOptions(select, items, getLabel) {
+    for (const item of items) {
+        const option = document.createElement("option");
 
-    for (
-        const item of items
-    ) {
+        option.value = String(item.id);
 
-        const option =
-            document.createElement(
-                'option'
-            );
+        option.textContent = getLabel(item);
 
-
-        option.value =
-            String(
-                item.id
-            );
-
-
-        option.textContent =
-            getLabel(
-                item
-            );
-
-
-        select.append(
-            option
-        );
-
+        select.append(option);
     }
-
 }
-
-
 
 // ============================================================
 // FORMATOS
 // ============================================================
 
-function formatDate(
-    value
-) {
-
+function formatDate(value) {
     if (!value) {
-
-        return '-';
-
+        return "-";
     }
 
+    const parts = value.split("-");
 
-    const parts =
-        value.split('-');
-
-
-    if (
-        parts.length !== 3
-    ) {
-
+    if (parts.length !== 3) {
         return value;
-
     }
 
-
-    return (
-        `${parts[2]}/${parts[1]}/${parts[0]}`
-    );
-
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
 }
 
-
-
-function formatDuration(
-    minutes
-) {
-
-    if (
-        minutes === null
-        ||
-        minutes === undefined
-    ) {
-
-        return '-';
-
+function formatDuration(minutes) {
+    if (minutes === null || minutes === undefined) {
+        return "-";
     }
 
+    const total = Number(minutes);
 
-    const total =
-        Number(minutes);
-
-
-    if (
-        !Number.isFinite(total)
-    ) {
-
-        return '-';
-
+    if (!Number.isFinite(total)) {
+        return "-";
     }
 
-
-    if (
-        total < 60
-    ) {
-
+    if (total < 60) {
         return `${total} min`;
-
     }
 
+    const hours = Math.floor(total / 60);
 
-    const hours =
-        Math.floor(
-            total / 60
-        );
+    const remaining = total % 60;
 
-
-    const remaining =
-        total % 60;
-
-
-    if (
-        remaining === 0
-    ) {
-
+    if (remaining === 0) {
         return `${hours} h`;
-
     }
-
 
     return `${hours} h ${remaining} min`;
-
 }
-
-
 
 // ============================================================
 // LABELS
 // ============================================================
 
-function technicianStatusLabel(
-    state
-) {
-
+function technicianStatusLabel(state) {
     const labels = {
+        pendiente: "Pendiente",
 
-        pendiente:
-            'Pendiente',
+        aceptada: "Aceptada",
 
-        aceptada:
-            'Aceptada',
+        en_progreso: "En progreso",
 
-        en_progreso:
-            'En progreso',
+        completada: "Completada",
 
-        completada:
-            'Completada',
+        rechazada: "Rechazada",
 
-        rechazada:
-            'Rechazada',
-
-        cancelada:
-            'Cancelada'
-
+        cancelada: "Cancelada",
     };
 
-
-    return labels[state]
-        ?? state
-        ?? '-';
-
+    return labels[state] ?? state ?? "-";
 }
 
-
-
-function technicianStatusClass(
-    state
-) {
-
+function technicianStatusClass(state) {
     const classes = {
+        pendiente: "pending",
 
-        pendiente:
-            'pending',
+        aceptada: "accepted",
 
-        aceptada:
-            'accepted',
+        en_progreso: "progress",
 
-        en_progreso:
-            'progress',
+        completada: "completed",
 
-        completada:
-            'completed',
+        rechazada: "rejected",
 
-        rechazada:
-            'rejected',
-
-        cancelada:
-            'cancelled'
-
+        cancelada: "cancelled",
     };
 
-
-    return classes[state]
-        ?? 'neutral';
-
+    return classes[state] ?? "neutral";
 }
-
-
 
 // ============================================================
 // FILTROS
 // ============================================================
 
 function getFilters() {
-
     return {
+        dateFrom: dateFrom.value || null,
 
-        dateFrom:
-            dateFrom.value
-            || null,
+        dateTo: dateTo.value || null,
 
-        dateTo:
-            dateTo.value
-            || null,
+        technicianId: technicianSelect.value || null,
 
-        technicianId:
-            technicianSelect.value
-            || null,
+        locationId: locationSelect.value || null,
 
-        locationId:
-            locationSelect.value
-            || null,
+        shiftId: shiftSelect.value || null,
 
-        shiftId:
-            shiftSelect.value
-            || null,
+        maintenanceTypeId: maintenanceSelect.value || null,
 
-        maintenanceTypeId:
-            maintenanceSelect.value
-            || null,
+        workTypeId: workTypeSelect.value || null,
 
-        workTypeId:
-            workTypeSelect.value
-            || null,
+        taskStatus: taskStatusSelect.value || null,
 
-        taskStatus:
-            taskStatusSelect.value
-            || null,
+        technicianStatus: technicianStatusSelect.value || null,
 
-        technicianStatus:
-            technicianStatusSelect.value
-            || null,
-
-        ticket:
-            ticketInput
-                .value
-                .trim()
-            || null
-
+        ticket: ticketInput.value.trim() || null,
     };
-
 }
-
-
 
 // ============================================================
 // MENSAJES
 // ============================================================
 
 function clearMessage() {
+    message.textContent = "";
 
-    message.textContent =
-        '';
-
-
-    message.className =
-        'reports-message';
-
+    message.className = "reports-message";
 }
 
+function showError(text) {
+    message.textContent = text;
 
-
-function showError(
-    text
-) {
-
-    message.textContent =
-        text;
-
-
-    message.className =
-        'reports-message error';
-
+    message.className = "reports-message error";
 }
-
-
 
 // ============================================================
 // KPI
 // ============================================================
 
-function renderStats(
-    rows
-) {
+function renderStats(rows) {
+    const total = rows.length;
 
-    const total =
-        rows.length;
+    const completed = rows.filter(
+        (row) => row.technician_status === "completada",
+    ).length;
 
+    const progress = rows.filter(
+        (row) => row.technician_status === "en_progreso",
+    ).length;
 
-    const completed =
-        rows.filter(
+    const pending = rows.filter(
+        (row) => row.technician_status === "pendiente",
+    ).length;
 
-            row =>
-                row.technician_status ===
-                'completada'
+    const durations = rows
 
-        ).length;
+        .map((row) => row.duration_minutes)
 
+        .filter(
+            (value) =>
+                value !== null && value !== undefined && Number.isFinite(Number(value)),
+        )
 
-    const progress =
-        rows.filter(
-
-            row =>
-                row.technician_status ===
-                'en_progreso'
-
-        ).length;
-
-
-    const pending =
-        rows.filter(
-
-            row =>
-                row.technician_status ===
-                'pendiente'
-
-        ).length;
-
-
-    const durations =
-        rows
-
-            .map(
-                row =>
-                    row.duration_minutes
-            )
-
-            .filter(
-                value =>
-                    value !== null
-                    &&
-                    value !== undefined
-                    &&
-                    Number.isFinite(
-                        Number(value)
-                    )
-            )
-
-            .map(Number);
-
+        .map(Number);
 
     const average =
         durations.length > 0
-
             ? Math.round(
-
-                durations.reduce(
-                    (sum, value) =>
-                        sum + value,
-                    0
-                )
-
-                /
-
-                durations.length
-
+                durations.reduce((sum, value) => sum + value, 0) / durations.length,
             )
-
             : null;
 
+    document.getElementById("reportTotal").textContent = String(total);
 
+    document.getElementById("reportCompleted").textContent = String(completed);
 
-    document.getElementById(
-        'reportTotal'
-    ).textContent =
-        String(total);
+    document.getElementById("reportProgress").textContent = String(progress);
 
+    document.getElementById("reportPending").textContent = String(pending);
 
-    document.getElementById(
-        'reportCompleted'
-    ).textContent =
-        String(completed);
-
-
-    document.getElementById(
-        'reportProgress'
-    ).textContent =
-        String(progress);
-
-
-    document.getElementById(
-        'reportPending'
-    ).textContent =
-        String(pending);
-
-
-    document.getElementById(
-        'reportAverageTime'
-    ).textContent =
-
-        average === null
-
-            ? '-'
-
-            : formatDuration(
-                average
-            );
-
+    document.getElementById("reportAverageTime").textContent =
+        average === null ? "-" : formatDuration(average);
 }
-
-
 
 // ============================================================
 // CREAR CELDA
 // ============================================================
 
-function createCell(
-    text
-) {
+function createCell(text) {
+    const cell = document.createElement("td");
 
-    const cell =
-        document.createElement(
-            'td'
-        );
-
-
-    cell.textContent =
-        text ?? '-';
-
+    cell.textContent = text ?? "-";
 
     return cell;
-
 }
-
-
 
 // ============================================================
 // TRABAJOS REALIZADOS
 // ============================================================
 
-function createWorkTypesCell(
-    names
-) {
+function createWorkTypesCell(names) {
+    const cell = document.createElement("td");
 
-    const cell =
-        document.createElement(
-            'td'
-        );
+    const container = document.createElement("div");
 
+    container.className = "report-work-types";
 
-    const container =
-        document.createElement(
-            'div'
-        );
+    if (!Array.isArray(names) || names.length === 0) {
+        const empty = document.createElement("span");
 
+        empty.className = "report-work-empty";
 
-    container.className =
-        'report-work-types';
+        empty.textContent = "Sin registrar";
 
-
-
-    if (
-        !Array.isArray(names)
-        ||
-        names.length === 0
-    ) {
-
-        const empty =
-            document.createElement(
-                'span'
-            );
-
-
-        empty.className =
-            'report-work-empty';
-
-
-        empty.textContent =
-            'Sin registrar';
-
-
-        container.append(
-            empty
-        );
-
+        container.append(empty);
     } else {
+        for (const name of names) {
+            const chip = document.createElement("span");
 
-        for (
-            const name of names
-        ) {
+            chip.className = "report-work-chip";
 
-            const chip =
-                document.createElement(
-                    'span'
-                );
+            chip.textContent = name;
 
-
-            chip.className =
-                'report-work-chip';
-
-
-            chip.textContent =
-                name;
-
-
-            container.append(
-                chip
-            );
-
+            container.append(chip);
         }
-
     }
 
-
-    cell.append(
-        container
-    );
-
+    cell.append(container);
 
     return cell;
-
 }
-
-
 
 // ============================================================
 // ESTADO
 // ============================================================
 
-function createStatusCell(
-    state
-) {
+function createStatusCell(state) {
+    const cell = document.createElement("td");
 
-    const cell =
-        document.createElement(
-            'td'
-        );
-
-
-    const badge =
-        document.createElement(
-            'span'
-        );
-
+    const badge = document.createElement("span");
 
     badge.className =
+        "report-status " + `report-status-${technicianStatusClass(state)}`;
 
-        'report-status '
+    badge.textContent = technicianStatusLabel(state);
 
-        +
-
-        `report-status-${technicianStatusClass(
-            state
-        )
-
-        }`;
-
-
-    badge.textContent =
-        technicianStatusLabel(
-            state
-        );
-
-
-    cell.append(
-        badge
-    );
-
+    cell.append(badge);
 
     return cell;
-
 }
-
-
 
 // ============================================================
 // ACCIÓN
 // ============================================================
 
-function createActionCell(
-    taskId
-) {
+function createActionCell(taskId) {
+    const cell = document.createElement("td");
 
-    const cell =
-        document.createElement(
-            'td'
-        );
+    const link = document.createElement("a");
 
+    link.className = "report-detail-link";
 
-    const link =
-        document.createElement(
-            'a'
-        );
+    link.href = `./tarea-detalle.html?id=${taskId}`;
 
+    link.textContent = "Ver";
 
-    link.className =
-        'report-detail-link';
-
-
-    link.href =
-        `./tarea-detalle.html?id=${taskId}`;
-
-
-    link.textContent =
-        'Ver';
-
-
-    cell.append(
-        link
-    );
-
+    cell.append(link);
 
     return cell;
-
 }
-
-
 
 // ============================================================
 // RENDER TABLA
 // ============================================================
 
-function renderRows(
-    rows
-) {
-
+function renderRows(rows) {
     tableBody.replaceChildren();
 
-
-    loading.classList.add(
-        'hidden'
-    );
-
+    loading.classList.add("hidden");
 
     resultCount.textContent =
+        rows.length === 1 ? "1 intervención" : `${rows.length} intervenciones`;
 
-        rows.length === 1
+    if (rows.length === 0) {
+        tableWrapper.classList.add("hidden");
 
-            ? '1 intervención'
-
-            : `${rows.length} intervenciones`;
-
-
-
-    if (
-        rows.length === 0
-    ) {
-
-        tableWrapper.classList.add(
-            'hidden'
-        );
-
-
-        emptyState.classList.remove(
-            'hidden'
-        );
-
+        emptyState.classList.remove("hidden");
 
         return;
-
     }
 
-    exportCsvButton.disabled =
-        rows.length === 0;
+    exportCsvButton.disabled = rows.length === 0;
 
+    emptyState.classList.add("hidden");
 
+    tableWrapper.classList.remove("hidden");
 
-    emptyState.classList.add(
-        'hidden'
-    );
-
-
-    tableWrapper.classList.remove(
-        'hidden'
-    );
-
-
-
-    for (
-        const row of rows
-    ) {
-
-        const tr =
-            document.createElement(
-                'tr'
-            );
-
+    for (const row of rows) {
+        const tr = document.createElement("tr");
 
         tr.append(
+            createCell(formatDate(row.report_date)),
 
-            createCell(
-                formatDate(
-                    row.report_date
-                )
-            ),
+            createCell(`#${row.task_id} · ${row.task_title}`),
 
-            createCell(
-                `#${row.task_id} · ${row.task_title}`
-            ),
+            createCell(row.ticket_number || "Sin ticket"),
 
-            createCell(
-                row.ticket_number
-                || 'Sin ticket'
-            ),
+            createCell(row.technician_name),
 
-            createCell(
-                row.technician_name
-            ),
+            createCell(row.location_name),
 
-            createCell(
-                row.location_name
-            ),
+            createCell(row.maintenance_type_name),
 
-            createCell(
-                row.maintenance_type_name
-            ),
+            createWorkTypesCell(row.work_type_names),
 
-            createWorkTypesCell(
-                row.work_type_names
-            ),
+            createStatusCell(row.technician_status),
 
-            createStatusCell(
-                row.technician_status
-            ),
+            createCell(formatDuration(row.duration_minutes)),
 
-            createCell(
-                formatDuration(
-                    row.duration_minutes
-                )
-            ),
-
-            createActionCell(
-                row.task_id
-            )
-
+            createActionCell(row.task_id),
         );
 
-
-        tableBody.append(
-            tr
-        );
-
+        tableBody.append(tr);
     }
-
 }
-
-
 
 // ============================================================
 // CARGAR REPORTE
 // ============================================================
 
 async function loadReport() {
-
     clearMessage();
 
-
-    if (
-        dateFrom.value
-        &&
-        dateTo.value
-        &&
-        dateFrom.value >
-        dateTo.value
-    ) {
-
-        showError(
-            'La fecha Desde no puede ser posterior a Hasta.'
-        );
-
+    if (dateFrom.value && dateTo.value && dateFrom.value > dateTo.value) {
+        showError("La fecha Desde no puede ser posterior a Hasta.");
 
         return;
-
     }
 
+    loading.textContent = "Cargando reporte...";
 
+    loading.classList.remove("hidden");
 
-    loading.textContent =
-        'Cargando reporte...';
+    emptyState.classList.add("hidden");
 
+    tableWrapper.classList.add("hidden");
 
-    loading.classList.remove(
-        'hidden'
-    );
+    searchButton.disabled = true;
 
-
-    emptyState.classList.add(
-        'hidden'
-    );
-
-
-    tableWrapper.classList.add(
-        'hidden'
-    );
-
-
-    searchButton.disabled =
-        true;
-
-
-    searchButton.textContent =
-        'Buscando...';
-
-
+    searchButton.textContent = "Buscando...";
 
     try {
+        currentRows = await getOperationalReport(getFilters());
 
-        currentRows =
-            await getOperationalReport(
-                getFilters()
-            );
+        renderStats(currentRows);
 
-
-        renderStats(
-            currentRows
-        );
-
-
-        renderRows(
-            currentRows
-        );
-
-
+        renderRows(currentRows);
     } catch (error) {
+        console.error("Error cargando reporte:", error);
 
-        console.error(
-            'Error cargando reporte:',
-            error
-        );
+        loading.textContent = "No fue posible cargar el reporte.";
 
-
-        loading.textContent =
-            'No fue posible cargar el reporte.';
-
-
-        showError(
-
-            error?.message
-
-            ||
-
-            'No fue posible realizar la consulta.'
-
-        );
-
-
+        showError(error?.message || "No fue posible realizar la consulta.");
     } finally {
+        searchButton.disabled = false;
 
-        searchButton.disabled =
-            false;
-
-
-        searchButton.textContent =
-            'Buscar';
-
+        searchButton.textContent = "Buscar";
     }
-
 }
-
-
 
 // ============================================================
 // LIMPIAR
 // ============================================================
 
 clearButton.addEventListener(
-
-    'click',
+    "click",
 
     async () => {
-
         form.reset();
-
 
         clearMessage();
 
-
         await loadReport();
-
-    }
-
+    },
 );
-
-
 
 // ============================================================
 // BUSCAR
 // ============================================================
 
 form.addEventListener(
+    "submit",
 
-    'submit',
-
-    async event => {
-
+    async (event) => {
         event.preventDefault();
 
-
         await loadReport();
-
-    }
-
+    },
 );
 
 // ============================================================
 // CSV
 // ============================================================
 
-
 // ============================================================
 // ESCAPAR VALOR CSV
 // ============================================================
 
-function escapeCsvValue(
-    value
-) {
-
-    if (
-        value === null
-        ||
-        value === undefined
-    ) {
-
+function escapeCsvValue(value) {
+    if (value === null || value === undefined) {
         return '""';
-
     }
 
-
-    let text =
-        String(value);
-
+    let text = String(value);
 
     // Excel en configuración regional argentina
     // suele trabajar bien con punto y coma como separador.
 
-    text =
-        text.replaceAll(
-            '"',
-            '""'
-        );
-
+    text = text.replaceAll('"', '""');
 
     return `"${text}"`;
-
 }
-
-
 
 // ============================================================
 // FORMATEAR TRABAJOS PARA EXPORTACIÓN
 // ============================================================
 
-function formatWorkTypesForExport(
-    names
-) {
-
-    if (
-        !Array.isArray(names)
-        ||
-        names.length === 0
-    ) {
-
-        return 'Sin registrar';
-
+function formatWorkTypesForExport(names) {
+    if (!Array.isArray(names) || names.length === 0) {
+        return "Sin registrar";
     }
 
-
-    return names.join(
-        ' | '
-    );
-
+    return names.join(" | ");
 }
-
-
 
 // ============================================================
 // FORMATEAR ESTADO TAREA
 // ============================================================
 
-function taskStatusLabel(
-    state
-) {
-
+function taskStatusLabel(state) {
     const labels = {
+        pendiente: "Pendiente",
 
-        pendiente:
-            'Pendiente',
+        aceptada: "Aceptada",
 
-        aceptada:
-            'Aceptada',
+        en_progreso: "En progreso",
 
-        en_progreso:
-            'En progreso',
+        completada: "Completada",
 
-        completada:
-            'Completada',
+        cancelada: "Cancelada",
 
-        cancelada:
-            'Cancelada',
-
-        vencida:
-            'Vencida'
-
+        vencida: "Vencida",
     };
 
-
-    return labels[state]
-        ?? state
-        ?? '';
-
+    return labels[state] ?? state ?? "";
 }
-
-
 
 // ============================================================
 // CREAR NOMBRE DE ARCHIVO
 // ============================================================
 
 function createReportFileName() {
+    const now = new Date();
 
-    const now =
-        new Date();
+    const year = now.getFullYear();
 
+    const month = String(now.getMonth() + 1).padStart(2, "0");
 
-    const year =
-        now.getFullYear();
+    const day = String(now.getDate()).padStart(2, "0");
 
-
-    const month =
-        String(
-            now.getMonth() + 1
-        ).padStart(
-            2,
-            '0'
-        );
-
-
-    const day =
-        String(
-            now.getDate()
-        ).padStart(
-            2,
-            '0'
-        );
-
-
-    return (
-        `taskvoice_reporte_${year}-${month}-${day}.csv`
-    );
-
+    return `taskvoice_reporte_${year}-${month}-${day}.csv`;
 }
-
-
 
 // ============================================================
 // EXPORTAR CSV
 // ============================================================
 
 function exportCurrentReportToCsv() {
-
-    if (
-        !Array.isArray(currentRows)
-        ||
-        currentRows.length === 0
-    ) {
-
-        showError(
-            'No hay resultados para exportar.'
-        );
-
+    if (!Array.isArray(currentRows) || currentRows.length === 0) {
+        showError("No hay resultados para exportar.");
 
         return;
-
     }
 
-
     clearMessage();
-
-
 
     // ========================================================
     // ENCABEZADOS
     // ========================================================
 
     const headers = [
+        "Fecha",
 
-        'Fecha',
+        "ID Tarea",
 
-        'ID Tarea',
+        "Tarea",
 
-        'Tarea',
+        "N° Ticket",
 
-        'N° Ticket',
+        "Técnico",
 
-        'Técnico',
+        "Email técnico",
 
-        'Email técnico',
+        "Lugar",
 
-        'Lugar',
+        "Turno",
 
-        'Turno',
+        "Tipo de mantenimiento",
 
-        'Tipo de mantenimiento',
+        "Prioridad",
 
-        'Prioridad',
+        "Estado tarea",
 
-        'Estado tarea',
+        "Estado técnico",
 
-        'Estado técnico',
+        "Trabajo realizado",
 
-        'Trabajo realizado',
+        "Inicio",
 
-        'Inicio',
+        "Finalización",
 
-        'Finalización',
+        "Duración minutos",
 
-        'Duración minutos',
+        "Descripción",
 
-        'Descripción',
+        "Transcripción",
 
-        'Transcripción',
-
-        'Tiene audio'
-
+        "Tiene audio",
     ];
-
-
 
     // ========================================================
     // FILAS
     // ========================================================
 
-    const rows =
-        currentRows.map(
+    const rows = currentRows.map((row) => [
+        formatDate(row.report_date),
 
-            row => [
+        row.task_id,
 
-                formatDate(
-                    row.report_date
-                ),
+        row.task_title,
 
-                row.task_id,
+        row.ticket_number || "",
 
-                row.task_title,
+        row.technician_name || "",
 
-                row.ticket_number
-                || '',
+        row.technician_email || "",
 
-                row.technician_name
-                || '',
+        row.location_name || "",
 
-                row.technician_email
-                || '',
+        row.shift_name || "",
 
-                row.location_name
-                || '',
+        row.maintenance_type_name || "",
 
-                row.shift_name
-                || '',
+        row.priority || "",
 
-                row.maintenance_type_name
-                || '',
+        taskStatusLabel(row.task_status),
 
-                row.priority
-                || '',
+        technicianStatusLabel(row.technician_status),
 
-                taskStatusLabel(
-                    row.task_status
-                ),
+        formatWorkTypesForExport(row.work_type_names),
 
-                technicianStatusLabel(
-                    row.technician_status
-                ),
+        row.started_at ? new Date(row.started_at).toLocaleString("es-AR") : "",
 
-                formatWorkTypesForExport(
-                    row.work_type_names
-                ),
+        row.finished_at ? new Date(row.finished_at).toLocaleString("es-AR") : "",
 
-                row.started_at
-                    ? new Date(
-                        row.started_at
-                    ).toLocaleString(
-                        'es-AR'
-                    )
-                    : '',
+        row.duration_minutes ?? "",
 
-                row.finished_at
-                    ? new Date(
-                        row.finished_at
-                    ).toLocaleString(
-                        'es-AR'
-                    )
-                    : '',
+        row.description || "",
 
-                row.duration_minutes
-                ?? '',
+        row.transcription || "",
 
-                row.description
-                || '',
-
-                row.transcription
-                || '',
-
-                row.has_audio
-                    ? 'Sí'
-                    : 'No'
-
-            ]
-
-        );
-
-
+        row.has_audio ? "Sí" : "No",
+    ]);
 
     // ========================================================
     // CONSTRUIR CSV
     // ========================================================
 
-    const separator =
-        ';';
-
+    const separator = ";";
 
     const lines = [
+        headers.map(escapeCsvValue).join(separator),
 
-        headers
-            .map(
-                escapeCsvValue
-            )
-            .join(
-                separator
-            ),
-
-        ...rows.map(
-
-            row =>
-                row
-                    .map(
-                        escapeCsvValue
-                    )
-                    .join(
-                        separator
-                    )
-
-        )
-
+        ...rows.map((row) => row.map(escapeCsvValue).join(separator)),
     ];
-
-
 
     // ========================================================
     // BOM UTF-8
@@ -1442,81 +676,37 @@ function exportCurrentReportToCsv() {
     // á, é, í, ó, ú, ñ, etc.
     // ========================================================
 
-    const csvContent =
+    const csvContent = "\uFEFF" + lines.join("\r\n");
 
-        '\uFEFF'
+    const blob = new Blob(
+        [csvContent],
 
-        +
-
-        lines.join(
-            '\r\n'
-        );
-
-
-
-    const blob =
-        new Blob(
-
-            [
-                csvContent
-            ],
-
-            {
-                type:
-                    'text/csv;charset=utf-8;'
-            }
-
-        );
-
-
-
-    const url =
-        URL.createObjectURL(
-            blob
-        );
-
-
-
-    const link =
-        document.createElement(
-            'a'
-        );
-
-
-    link.href =
-        url;
-
-
-    link.download =
-        createReportFileName();
-
-
-    document.body.append(
-        link
+        {
+            type: "text/csv;charset=utf-8;",
+        },
     );
 
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+
+    link.href = url;
+
+    link.download = createReportFileName();
+
+    document.body.append(link);
 
     link.click();
 
-
     link.remove();
 
-
-
     setTimeout(
-
         () => {
-
-            URL.revokeObjectURL(
-                url
-            );
-
+            URL.revokeObjectURL(url);
         },
 
-        1000
-
+        1000,
     );
-
 }
 
 // ============================================================
@@ -1524,15 +714,11 @@ function exportCurrentReportToCsv() {
 // ============================================================
 
 exportCsvButton.addEventListener(
-
-    'click',
+    "click",
 
     () => {
-
         exportCurrentReportToCsv();
-
-    }
-
+    },
 );
 
 // ============================================================
@@ -1540,160 +726,85 @@ exportCsvButton.addEventListener(
 // ============================================================
 
 async function initialize() {
+    const profile = await initAdminLayout({
+        activePage: "reportes",
 
-    const profile =
-        await initAdminLayout({
+        title: "Reportes",
 
-            activePage:
-                'reportes',
-
-            title:
-                'Reportes',
-
-            subtitle:
-                'Búsqueda y análisis operativo'
-
-        });
-
+        subtitle: "Búsqueda y análisis operativo",
+    });
 
     if (!profile) {
-
         return;
-
     }
 
-
-
     try {
+        const [technicians, locations, shifts, maintenanceTypes, workTypes] =
+            await Promise.all([
+                getTechnicians(),
 
-        const [
+                getLocations(),
 
-            technicians,
+                getShifts(),
 
-            locations,
+                getMaintenanceTypes(),
 
-            shifts,
-
-            maintenanceTypes,
-
-            workTypes
-
-        ] = await Promise.all([
-
-            getTechnicians(),
-
-            getLocations(),
-
-            getShifts(),
-
-            getMaintenanceTypes(),
-
-            getWorkTypes()
-
-        ]);
-
-
+                getWorkTypes(),
+            ]);
 
         appendOptions(
-
             technicianSelect,
 
             technicians,
 
-            technician =>
-                `${technician.nombre ?? ''
-
-                    } ${technician.apellido ?? ''
-
-                    }`.trim()
-
+            (technician) =>
+                `${technician.nombre ?? ""} ${technician.apellido ?? ""}`.trim(),
         );
 
-
         appendOptions(
-
             locationSelect,
 
             locations,
 
-            item =>
-                item.nombre
-
+            (item) => item.nombre,
         );
 
-
         appendOptions(
-
             shiftSelect,
 
             shifts,
 
-            item =>
-                item.nombre
-
+            (item) => item.nombre,
         );
 
-
         appendOptions(
-
             maintenanceSelect,
 
             maintenanceTypes,
 
-            item =>
-                item.nombre
-
+            (item) => item.nombre,
         );
 
-
         appendOptions(
-
             workTypeSelect,
 
             workTypes,
 
-            item =>
-                item.nombre
-
+            (item) => item.nombre,
         );
 
+        setAdminTopbarTitle("Reportes");
 
-
-        setAdminTopbarTitle(
-            'Reportes'
-        );
-
-
-        setAdminTopbarSubtitle(
-            'Búsqueda y análisis operativo'
-        );
-
-
+        setAdminTopbarSubtitle("Búsqueda y análisis operativo");
 
         await loadReport();
-
-
     } catch (error) {
+        console.error("Error inicializando reportes:", error);
 
-        console.error(
-            'Error inicializando reportes:',
-            error
-        );
+        loading.textContent = "No fue posible inicializar Reportes.";
 
-
-        loading.textContent =
-            'No fue posible inicializar Reportes.';
-
-
-        showError(
-            error?.message
-            ||
-            'No fue posible cargar los datos necesarios.'
-        );
-
+        showError(error?.message || "No fue posible cargar los datos necesarios.");
     }
-
 }
-
 
 initialize();

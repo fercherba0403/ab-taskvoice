@@ -5,21 +5,15 @@
 // Layout común de todas las páginas administrativas.
 // ============================================================
 
-import {
-    logout,
-    requireRole
-} from '../core/auth.js';
+import { logout, requireRole } from "../core/auth.js";
 
-import {
-    supabase
-} from '../core/supabase.js';
+import { supabase } from "../core/supabase.js";
 
 // ============================================================
 // ICONOS
 // ============================================================
 
 const ICONS = {
-
     dashboard: `
         <svg viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="2">
@@ -104,8 +98,7 @@ const ICONS = {
                      a2 2 0 1 1 0 4h-.09
                      A1.7 1.7 0 0 0 19.4 15z"></path>
         </svg>
-    `
-
+    `,
 };
 
 // ============================================================
@@ -113,56 +106,54 @@ const ICONS = {
 // ============================================================
 
 const NAV_ITEMS = [
-
     {
-        key: 'dashboard',
-        label: 'Dashboard',
-        icon: 'dashboard',
-        href: './dashboard.html',
-        enabled: true
+        key: "dashboard",
+        label: "Dashboard",
+        icon: "dashboard",
+        href: "./dashboard.html",
+        enabled: true,
     },
 
     {
-        key: 'tareas',
-        label: 'Tareas',
-        icon: 'tasks',
-        href: './tareas.html',
-        enabled: true
+        key: "tareas",
+        label: "Tareas",
+        icon: "tasks",
+        href: "./tareas.html",
+        enabled: true,
     },
 
     {
-        key: 'usuarios',
-        label: 'Usuarios',
-        icon: 'users',
-        href: '#',
-        enabled: false
-    },
-
-    {
-        key: 'registros',
-        label: 'Registros',
-        icon: 'records',
-        href: '#',
-        enabled: false
-    },
-
-    {
-        key: 'reportes',
-        label: 'Reportes',
-        icon: 'reports',
-        href: './reportes.html',
-        enabled: true
-    },
-
-    {
-        key: 'configuracion',
-        label: 'Configuración',
-        icon: 'settings',
-        href: '#',
+        key: "usuarios",
+        label: "Usuarios",
+        icon: "users",
+        href: "#",
         enabled: false,
-        separator: true
-    }
+    },
 
+    {
+        key: "registros",
+        label: "Registros",
+        icon: "records",
+        href: "#",
+        enabled: false,
+    },
+
+    {
+        key: "reportes",
+        label: "Reportes",
+        icon: "reports",
+        href: "./reportes.html",
+        enabled: true,
+    },
+
+    {
+        key: "configuracion",
+        label: "Configuración",
+        icon: "settings",
+        href: "#",
+        enabled: false,
+        separator: true,
+    },
 ];
 
 // ============================================================
@@ -170,11 +161,10 @@ const NAV_ITEMS = [
 // ============================================================
 
 function formatRole(role) {
-
     const roles = {
-        admin: 'Administrador',
-        supervisor: 'Supervisor',
-        trabajador: 'Trabajador'
+        admin: "Administrador",
+        supervisor: "Supervisor",
+        trabajador: "Trabajador",
     };
 
     return roles[role] ?? role;
@@ -185,18 +175,11 @@ function formatRole(role) {
 // ============================================================
 
 function getInitials(profile) {
+    const first = profile.nombre?.charAt(0)?.toUpperCase() ?? "";
 
-    const first =
-        profile.nombre
-            ?.charAt(0)
-            ?.toUpperCase() ?? '';
+    const last = profile.apellido?.charAt(0)?.toUpperCase() ?? "";
 
-    const last =
-        profile.apellido
-            ?.charAt(0)
-            ?.toUpperCase() ?? '';
-
-    return `${first}${last}` || 'U';
+    return `${first}${last}` || "U";
 }
 
 // ============================================================
@@ -204,46 +187,31 @@ function getInitials(profile) {
 // ============================================================
 
 function renderSidebar(activePage) {
-
-    const sidebar =
-        document.getElementById(
-            'adminSidebar'
-        );
+    const sidebar = document.getElementById("adminSidebar");
 
     if (!sidebar) {
-
-        throw new Error(
-            'TaskVoice: falta #adminSidebar.'
-        );
+        throw new Error("TaskVoice: falta #adminSidebar.");
     }
 
-    sidebar.className =
-        'sidebar';
+    sidebar.className = "sidebar";
 
-    const navigation =
-        NAV_ITEMS.map(item => {
+    const navigation = NAV_ITEMS.map((item) => {
+        const active = item.key === activePage;
 
-            const active =
-                item.key === activePage;
+        const separator = item.separator ? '<div class="nav-divider"></div>' : "";
 
-            const separator =
-                item.separator
-                    ? '<div class="nav-divider"></div>'
-                    : '';
+        const disabledAttribute = item.enabled
+            ? ""
+            : `data-coming-soon="${item.label}"`;
 
-            const disabledAttribute =
-                item.enabled
-                    ? ''
-                    : `data-coming-soon="${item.label}"`;
-
-            return `
+        return `
 
                 ${separator}
 
                 <a
                     href="${item.href}"
-                    class="nav-item ${active ? 'active' : ''}"
-                    ${active ? 'aria-current="page"' : ''}
+                    class="nav-item ${active ? "active" : ""}"
+                    ${active ? 'aria-current="page"' : ""}
                     ${disabledAttribute}
                 >
 
@@ -257,9 +225,7 @@ function renderSidebar(activePage) {
 
                 </a>
             `;
-
-        }).join('');
-
+    }).join("");
 
     sidebar.innerHTML = `
 
@@ -316,26 +282,14 @@ function renderSidebar(activePage) {
 // TOPBAR
 // ============================================================
 
-function renderTopbar(
-    title,
-    subtitle,
-    action
-)
-
-{
-    const topbar =
-        document.getElementById(
-            'adminTopbar'
-        );
+function renderTopbar(title, subtitle, action) {
+    const topbar = document.getElementById("adminTopbar");
 
     if (!topbar) {
-
-        throw new Error(
-            'TaskVoice: falta #adminTopbar.'
-        );
+        throw new Error("TaskVoice: falta #adminTopbar.");
     }
- 
-    topbar.className = 'topbar';
+
+    topbar.className = "topbar";
 
     topbar.innerHTML = `
 
@@ -358,62 +312,34 @@ function renderTopbar(
         <div id="layoutTopbarActions"></div>
     `;
 
-    setAdminTopbarTitle(
-        title
-    );
+    setAdminTopbarTitle(title);
 
-    setAdminTopbarSubtitle(
-        subtitle
-    );
+    setAdminTopbarSubtitle(subtitle);
 
     if (action) {
+        const container = document.getElementById("layoutTopbarActions");
 
-        const container =
-            document.getElementById(
-                'layoutTopbarActions'
-            );
+        const link = document.createElement("a");
 
-        const link =
-            document.createElement(
-                'a'
-            );
+        link.className = "new-task-button admin-topbar-action";
 
-        link.className =
-            'new-task-button admin-topbar-action';
-
-        link.href =
-            action.href;
+        link.href = action.href;
 
         if (action.icon) {
+            const icon = document.createElement("span");
 
-            const icon =
-                document.createElement(
-                    'span'
-                );
+            icon.textContent = action.icon;
 
-            icon.textContent =
-                action.icon;
-
-            link.append(
-                icon
-            );
+            link.append(icon);
         }
 
-        const label =
-            document.createElement(
-                'span'
-            );
+        const label = document.createElement("span");
 
-        label.textContent =
-            action.label;
+        label.textContent = action.label;
 
-        link.append(
-            label
-        );
+        link.append(label);
 
-        container.append(
-            link
-        );
+        container.append(link);
     }
 }
 
@@ -422,457 +348,217 @@ function renderTopbar(
 // ============================================================
 
 function ensureOverlay() {
-
-    let overlay =
-        document.getElementById(
-            'adminSidebarOverlay'
-        );
+    let overlay = document.getElementById("adminSidebarOverlay");
 
     if (!overlay) {
+        overlay = document.createElement("div");
 
-        overlay =
-            document.createElement(
-                'div'
-            );
+        overlay.id = "adminSidebarOverlay";
 
+        overlay.className = "sidebar-overlay";
 
-        overlay.id =
-            'adminSidebarOverlay';
-
-
-        overlay.className =
-            'sidebar-overlay';
-
-
-        document.body.append(
-            overlay
-        );
+        document.body.append(overlay);
     }
-
 
     return overlay;
 }
-
 
 // ============================================================
 // TOAST
 // ============================================================
 
 function ensureToast() {
-
-    let toast =
-        document.getElementById(
-            'adminToast'
-        );
-
+    let toast = document.getElementById("adminToast");
 
     if (!toast) {
+        toast = document.createElement("div");
 
-        toast =
-            document.createElement(
-                'div'
-            );
+        toast.id = "adminToast";
 
+        toast.className = "toast";
 
-        toast.id =
-            'adminToast';
+        toast.setAttribute("role", "status");
 
+        toast.setAttribute("aria-live", "polite");
 
-        toast.className =
-            'toast';
-
-
-        toast.setAttribute(
-            'role',
-            'status'
-        );
-
-
-        toast.setAttribute(
-            'aria-live',
-            'polite'
-        );
-
-
-        document.body.append(
-            toast
-        );
+        document.body.append(toast);
     }
-
 
     return toast;
 }
 
-
 let toastTimer = null;
 
+export function showAdminToast(message, type = "info") {
+    const toast = ensureToast();
 
-export function showAdminToast(
-    message,
-    type = 'info'
-) {
+    toast.textContent = message;
 
-    const toast =
-        ensureToast();
+    toast.className = `toast toast-${type} show`;
 
+    clearTimeout(toastTimer);
 
-    toast.textContent =
-        message;
-
-
-    toast.className =
-        `toast toast-${type} show`;
-
-
-    clearTimeout(
-        toastTimer
-    );
-
-
-    toastTimer =
-        setTimeout(
-            () => {
-
-                toast.classList.remove(
-                    'show'
-                );
-
-            },
-            3000
-        );
+    toastTimer = setTimeout(() => {
+        toast.classList.remove("show");
+    }, 3000);
 }
-
 
 // ============================================================
 // TOPBAR API
 // ============================================================
 
-export function setAdminTopbarTitle(
-    title
-) {
-
-    const element =
-        document.getElementById(
-            'layoutPageTitle'
-        );
-
+export function setAdminTopbarTitle(title) {
+    const element = document.getElementById("layoutPageTitle");
 
     if (element) {
-
-        element.textContent =
-            title ?? '';
+        element.textContent = title ?? "";
     }
 }
 
-
-export function setAdminTopbarSubtitle(
-    subtitle
-) {
-
-    const element =
-        document.getElementById(
-            'layoutPageSubtitle'
-        );
-
+export function setAdminTopbarSubtitle(subtitle) {
+    const element = document.getElementById("layoutPageSubtitle");
 
     if (element) {
-
-        element.textContent =
-            subtitle ?? '';
+        element.textContent = subtitle ?? "";
     }
 }
-
 
 // ============================================================
 // EMPRESA
 // ============================================================
 
-async function loadOrganizationName(
-    profile
-) {
+async function loadOrganizationName(profile) {
+    const element = document.getElementById("layoutOrganizationName");
 
-    const element =
-        document.getElementById(
-            'layoutOrganizationName'
-        );
+    const { data, error } = await supabase
 
+        .from("organizations")
 
-    const {
-        data,
-        error
-    } = await supabase
+        .select("nombre")
 
-        .from('organizations')
-
-        .select('nombre')
-
-        .eq(
-            'id',
-            profile.organization_id
-        )
+        .eq("id", profile.organization_id)
 
         .single();
 
-
     if (error) {
+        console.error("Error obteniendo organización:", error);
 
-        console.error(
-            'Error obteniendo organización:',
-            error
-        );
-
-
-        element.textContent =
-            'Organización';
+        element.textContent = "Organización";
 
         return;
     }
 
-
-    element.textContent =
-        data.nombre;
+    element.textContent = data.nombre;
 }
-
 
 // ============================================================
 // IDENTIDAD
 // ============================================================
 
-async function renderIdentity(
-    profile
-) {
+async function renderIdentity(profile) {
+    document.getElementById("layoutUserName").textContent =
+        `${profile.nombre} ${profile.apellido}`.trim();
 
-    document.getElementById(
-        'layoutUserName'
-    ).textContent =
-
-        `${profile.nombre} ${profile.apellido}`
-            .trim();
-
-
-    document.getElementById(
-        'layoutUserRole'
-    ).textContent =
-
-        formatRole(
-            profile.rol
-        );
-
-
-    document.getElementById(
-        'layoutUserAvatar'
-    ).textContent =
-
-        getInitials(
-            profile
-        );
-
-
-    await loadOrganizationName(
-        profile
+    document.getElementById("layoutUserRole").textContent = formatRole(
+        profile.rol,
     );
-}
 
+    document.getElementById("layoutUserAvatar").textContent =
+        getInitials(profile);
+
+    await loadOrganizationName(profile);
+}
 
 // ============================================================
 // EVENTOS
 // ============================================================
 
 function bindLayoutEvents() {
+    const overlay = ensureOverlay();
 
-    const overlay =
-        ensureOverlay();
+    const menuButton = document.getElementById("layoutMenuButton");
 
+    const logoutButton = document.getElementById("layoutLogoutButton");
 
-    const menuButton =
-        document.getElementById(
-            'layoutMenuButton'
-        );
+    menuButton?.addEventListener("click", () => {
+        document.body.classList.add("sidebar-open");
+    });
 
+    overlay.addEventListener("click", () => {
+        document.body.classList.remove("sidebar-open");
+    });
 
-    const logoutButton =
-        document.getElementById(
-            'layoutLogoutButton'
-        );
-
-
-    menuButton?.addEventListener(
-        'click',
-        () => {
-
-            document.body.classList.add(
-                'sidebar-open'
-            );
-
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+            document.body.classList.remove("sidebar-open");
         }
-    );
+    });
 
+    document.querySelectorAll("[data-coming-soon]").forEach((item) => {
+        item.addEventListener("click", (event) => {
+            event.preventDefault();
 
-    overlay.addEventListener(
-        'click',
-        () => {
-
-            document.body.classList.remove(
-                'sidebar-open'
+            showAdminToast(
+                `${item.dataset.comingSoon}: módulo pendiente de construcción.`,
             );
-
-        }
-    );
-
-
-    document.addEventListener(
-        'keydown',
-        event => {
-
-            if (
-                event.key === 'Escape'
-            ) {
-
-                document.body.classList.remove(
-                    'sidebar-open'
-                );
-            }
-
-        }
-    );
-
-
-    document
-        .querySelectorAll(
-            '[data-coming-soon]'
-        )
-        .forEach(item => {
-
-            item.addEventListener(
-                'click',
-                event => {
-
-                    event.preventDefault();
-
-
-                    showAdminToast(
-                        `${item.dataset.comingSoon}: módulo pendiente de construcción.`
-                    );
-
-                }
-            );
-
         });
+    });
 
-
-    document
-        .querySelectorAll(
-            '.sidebar .nav-item'
-        )
-        .forEach(item => {
-
-            item.addEventListener(
-                'click',
-                () => {
-
-                    if (
-                        !item.dataset.comingSoon
-                    ) {
-
-                        document.body.classList.remove(
-                            'sidebar-open'
-                        );
-                    }
-
-                }
-            );
-
-        });
-
-
-    logoutButton?.addEventListener(
-        'click',
-        async () => {
-
-            logoutButton.disabled =
-                true;
-
-
-            logoutButton.textContent =
-                'Cerrando...';
-
-
-            try {
-
-                await logout();
-
-            } finally {
-
-                window.location.replace(
-                    '../index.html'
-                );
+    document.querySelectorAll(".sidebar .nav-item").forEach((item) => {
+        item.addEventListener("click", () => {
+            if (!item.dataset.comingSoon) {
+                document.body.classList.remove("sidebar-open");
             }
+        });
+    });
 
+    logoutButton?.addEventListener("click", async () => {
+        logoutButton.disabled = true;
+
+        logoutButton.textContent = "Cerrando...";
+
+        try {
+            await logout();
+        } finally {
+            window.location.replace("../index.html");
         }
-    );
+    });
 }
-
 
 // ============================================================
 // INICIALIZACIÓN PÚBLICA
 // ============================================================
 
 export async function initAdminLayout({
+    activePage = "dashboard",
 
-    activePage = 'dashboard',
+    title = "TaskVoice",
 
-    title = 'TaskVoice',
+    subtitle = "",
 
-    subtitle = '',
-
-    action = null
-
+    action = null,
 } = {}) {
+    const profile = await requireRole(
+        ["admin", "supervisor"],
 
-
-    const profile =
-        await requireRole(
-
-            [
-                'admin',
-                'supervisor'
-            ],
-
-            '../'
-
-        );
-
+        "../",
+    );
 
     if (!profile) {
-
         return null;
     }
 
+    renderSidebar(activePage);
 
-    renderSidebar(
-        activePage
-    );
-
-
-    renderTopbar(
-        title,
-        subtitle,
-        action
-    );
-
+    renderTopbar(title, subtitle, action);
 
     ensureOverlay();
 
     ensureToast();
 
-
-    await renderIdentity(
-        profile
-    );
-
+    await renderIdentity(profile);
 
     bindLayoutEvents();
-
 
     return profile;
 }
