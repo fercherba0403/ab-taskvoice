@@ -1944,6 +1944,9 @@ function reportStatusLabel(
 
     const labels = {
 
+        not_required:
+            'Sin audio',
+
         pending:
             'Pendiente',
 
@@ -1971,6 +1974,7 @@ function reportStatusClass(
 ) {
 
     const allowed = [
+        'not_required',
         'pending',
         'processing',
         'completed',
@@ -2067,6 +2071,20 @@ function updateSaveReportButton() {
         'recording';
 
 
+    const hasText =
+        Boolean(
+            reportDescription
+                .value
+                .trim()
+        );
+
+
+    const hasAudio =
+        Boolean(
+            audioBlob
+        );
+
+
     const canSave =
         currentAssignment?.estado ===
             'en_progreso'
@@ -2075,8 +2093,10 @@ function updateSaveReportButton() {
             currentExecutionId
         )
         &&
-        Boolean(
-            audioBlob
+        (
+            hasText
+            ||
+            hasAudio
         )
         &&
         !recording
@@ -2086,6 +2106,28 @@ function updateSaveReportButton() {
 
     saveReportButton.disabled =
         !canSave;
+
+
+    if (!reportOperationBusy) {
+
+        if (hasAudio) {
+
+            saveReportButton.textContent =
+                'Guardar y transcribir reporte';
+
+        } else if (hasText) {
+
+            saveReportButton.textContent =
+                'Guardar reporte escrito';
+
+        } else {
+
+            saveReportButton.textContent =
+                'Guardar reporte';
+
+        }
+
+    }
 
 }
 
@@ -2258,6 +2300,14 @@ function createExecutionReportItem(
 
         if (
             report.transcription_status ===
+            'not_required'
+        ) {
+
+            stateMessage.textContent =
+                'Reporte escrito. No requiere transcripción.';
+
+        } else if (
+            report.transcription_status ===
             'processing'
         ) {
 
@@ -2304,31 +2354,33 @@ function createExecutionReportItem(
         'worker-report-actions';
 
 
-    const audioContainer =
-        document.createElement(
-            'div'
-        );
+    if (report.audio_path) {
+
+        const audioContainer =
+            document.createElement(
+                'div'
+            );
 
 
-    const audioButton =
-        document.createElement(
-            'button'
-        );
+        const audioButton =
+            document.createElement(
+                'button'
+            );
 
 
-    audioButton.type =
-        'button';
+        audioButton.type =
+            'button';
 
 
-    audioButton.className =
-        'worker-report-audio-button';
+        audioButton.className =
+            'worker-report-audio-button';
 
 
-    audioButton.textContent =
-        'Escuchar audio';
+        audioButton.textContent =
+            'Escuchar audio';
 
 
-    audioButton.addEventListener(
+        audioButton.addEventListener(
 
         'click',
 
@@ -2417,20 +2469,26 @@ function createExecutionReportItem(
 
         }
 
-    );
+        );
 
 
-    audioContainer.append(
-        audioButton
-    );
+        audioContainer.append(
+            audioButton
+        );
 
 
-    actions.append(
-        audioContainer
-    );
+        actions.append(
+            audioContainer
+        );
+
+    }
 
 
     const canRetry =
+        Boolean(
+            report.audio_path
+        )
+        &&
         (
             report.transcription_status ===
             'pending'
@@ -2483,9 +2541,15 @@ function createExecutionReportItem(
     }
 
 
-    item.append(
-        actions
-    );
+    if (
+        actions.childElementCount > 0
+    ) {
+
+        item.append(
+            actions
+        );
+
+    }
 
 
     return item;
@@ -3114,6 +3178,17 @@ discardRecordButton.addEventListener(
 
 
 // ============================================================
+// HABILITAR GUARDADO DE REPORTE ESCRITO
+// ============================================================
+
+reportDescription.addEventListener(
+    'input',
+    updateSaveReportButton
+);
+
+
+
+// ============================================================
 // GUARDAR Y TRANSCRIBIR REPORTE PARCIAL
 //
 // Esta operación NO completa la ejecución y NO cambia estados.
@@ -3144,6 +3219,12 @@ saveReportButton.addEventListener(
         }
 
 
+        const description =
+            reportDescription
+                .value
+                .trim();
+
+
         if (
             mediaRecorder?.state ===
             'recording'
@@ -3160,10 +3241,14 @@ saveReportButton.addEventListener(
         }
 
 
-        if (!audioBlob) {
+        if (
+            !description
+            &&
+            !audioBlob
+        ) {
 
             showWorkMessage(
-                'Grabá un informe de voz antes de guardar el reporte.',
+                'Escribí un detalle, grabá un informe de voz o ingresá ambos.',
                 'error'
             );
 
@@ -3189,12 +3274,6 @@ saveReportButton.addEventListener(
             return;
 
         }
-
-
-        const description =
-            reportDescription
-                .value
-                .trim();
 
 
         reportOperationBusy =
@@ -3238,21 +3317,31 @@ saveReportButton.addEventListener(
 
         try {
 
-            showWorkMessage(
-                'Subiendo audio del reporte...'
-            );
+            if (audioBlob) {
 
-
-            uploadedAudioPath =
-                await uploadExecutionReportAudio(
-
-                    currentTask,
-
-                    currentExecutionId,
-
-                    audioBlob
-
+                showWorkMessage(
+                    'Subiendo audio del reporte...'
                 );
+
+
+                uploadedAudioPath =
+                    await uploadExecutionReportAudio(
+
+                        currentTask,
+
+                        currentExecutionId,
+
+                        audioBlob
+
+                    );
+
+            } else {
+
+                showWorkMessage(
+                    'Guardando reporte escrito...'
+                );
+
+            }
 
 
             const reportId =
@@ -3283,40 +3372,44 @@ saveReportButton.addEventListener(
             );
 
 
-            showWorkMessage(
-                'Reporte guardado. Generando transcripción...'
-            );
-
-
-            showReportsMessage(
-                'Reporte guardado. Generando transcripción...'
-            );
-
-
             let transcriptionGenerated =
                 false;
 
 
-            try {
+            if (uploadedAudioPath) {
 
-                const transcription =
-                    await transcribeExecutionReport(
-                        reportId
-                    );
-
-
-                transcriptionGenerated =
-                    Boolean(
-                        transcription
-                    );
-
-
-            } catch (transcriptionError) {
-
-                console.warn(
-                    'El reporte se guardó, pero no pudo transcribirse:',
-                    transcriptionError
+                showWorkMessage(
+                    'Reporte guardado. Generando transcripción...'
                 );
+
+
+                showReportsMessage(
+                    'Reporte guardado. Generando transcripción...'
+                );
+
+
+                try {
+
+                    const transcription =
+                        await transcribeExecutionReport(
+                            reportId
+                        );
+
+
+                    transcriptionGenerated =
+                        Boolean(
+                            transcription
+                        );
+
+
+                } catch (transcriptionError) {
+
+                    console.warn(
+                        'El reporte se guardó, pero no pudo transcribirse:',
+                        transcriptionError
+                    );
+
+                }
 
             }
 
@@ -3326,7 +3419,20 @@ saveReportButton.addEventListener(
             );
 
 
-            if (transcriptionGenerated) {
+            if (!uploadedAudioPath) {
+
+                showWorkMessage(
+                    'Reporte escrito guardado. La tarea continúa en progreso.',
+                    'success'
+                );
+
+
+                showReportsMessage(
+                    'Reporte escrito guardado correctamente.',
+                    'success'
+                );
+
+            } else if (transcriptionGenerated) {
 
                 showWorkMessage(
                     'Reporte guardado y transcripto. La tarea continúa en progreso.',
@@ -3399,10 +3505,6 @@ saveReportButton.addEventListener(
 
             reportOperationBusy =
                 false;
-
-
-            saveReportButton.textContent =
-                'Guardar y transcribir reporte';
 
 
             recordButton.disabled =

@@ -2355,6 +2355,11 @@
   color: #92400e;
 }
 
+.worker-report-status-not_required {
+  background: #e2e8f0;
+  color: #475569;
+}
+
 .worker-report-status-processing {
   background: #dbeafe;
   color: #1d4ed8;
