@@ -2,15 +2,21 @@
 <html lang="es">
 
 <head>
+
     <meta charset="UTF-8" />
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>AB TaskVoice | Usuario</title>
+
     <link rel="icon" href="../img/icon-512.png" sizes="any">
 
     <link rel="stylesheet" href="../css/base.css" />
+
     <link rel="stylesheet" href="../css/admin.css" />
+
     <link rel="stylesheet" href="../css/users-v2.css" />
+
 </head>
 
 <body class="admin-body">
@@ -29,121 +35,126 @@
                     ← Volver a usuarios
                 </a>
 
-
-                <div
-                    id="userDetailLoading"
-                    class="users-state-message"
-                >
+                <div id="userDetailLoading" class="users-state-message">
                     Cargando usuario...
                 </div>
 
-
-                <div
-                    id="userDetailContent"
-                    class="hidden"
-                >
+                <div id="userDetailContent" class="hidden">
 
                     <section class="users-profile-header">
 
                         <div>
 
-                            <div
-                                id="userDetailAvatar"
-                                class="users-profile-avatar"
-                            >
+                            <div id="userDetailAvatar" class="users-profile-avatar">
                                 U
                             </div>
 
                             <div>
+
                                 <h2 id="userDetailName">Usuario</h2>
+
                                 <p id="userDetailEmail"></p>
+
                             </div>
 
                         </div>
 
+                        <span id="userDetailStatus" class="users-status">
 
-                        <span
-                            id="userDetailStatus"
-                            class="users-status"
-                        ></span>
+                        </span>
 
                     </section>
-
 
                     <div class="users-detail-grid">
 
                         <section class="users-form-card">
 
                             <div class="users-form-header">
+
                                 <h2>Información</h2>
 
                                 <p>
-                                    Los cambios de email y perfil también se sincronizan con Auth y con los roles habilitados.
+                                    Los cambios de email y perfil también se sincronizan con Auth y con los roles
+                                    habilitados.
                                 </p>
-                            </div>
 
+                            </div>
 
                             <form id="editUserForm">
 
                                 <div class="users-form-grid">
 
                                     <div class="users-field">
+
                                         <label for="nombre">Nombre</label>
-                                        <input id="nombre" type="text" maxlength="100" required autocomplete="given-name" />
+
+                                        <input id="nombre" type="text" maxlength="100" required
+                                            autocomplete="given-name" />
+
                                     </div>
 
                                     <div class="users-field">
+
                                         <label for="apellido">Apellido</label>
-                                        <input id="apellido" type="text" maxlength="100" required autocomplete="family-name" />
+
+                                        <input id="apellido" type="text" maxlength="100" required
+                                            autocomplete="family-name" />
+
                                     </div>
 
                                     <div class="users-field">
+
                                         <label for="email">Correo electrónico</label>
+
                                         <input id="email" type="email" maxlength="200" required autocomplete="email" />
+
                                     </div>
 
                                     <div class="users-field">
+
                                         <label for="telefono">
                                             Teléfono <span>opcional</span>
                                         </label>
+
                                         <input id="telefono" type="tel" maxlength="50" autocomplete="tel" />
+
                                     </div>
 
                                     <div class="users-field">
+
                                         <label for="profileType">Perfil habilitado</label>
 
                                         <select id="profileType" required>
+
                                             <option value="tecnico">Técnico</option>
+
                                             <option value="jefatura">Jefatura</option>
+
                                             <option value="jefatura_tecnico">Jefatura + Técnico</option>
+
                                             <option value="admin">Administrador</option>
+
                                         </select>
+
                                     </div>
 
                                 </div>
 
+                                <div id="editUserMessage" class="users-form-message" aria-live="polite">
 
-                                <div
-                                    id="editUserMessage"
-                                    class="users-form-message"
-                                    aria-live="polite"
-                                ></div>
-
+                                </div>
 
                                 <div class="users-form-actions">
-                                    <button
-                                        id="saveUserButton"
-                                        class="users-primary-button"
-                                        type="submit"
-                                    >
+
+                                    <button id="saveUserButton" class="users-primary-button" type="submit">
                                         Guardar cambios
                                     </button>
+
                                 </div>
 
                             </form>
 
                         </section>
-
 
                         <aside class="users-security-column">
 
@@ -155,16 +166,11 @@
                                     Administrá si este usuario puede ingresar a TaskVoice.
                                 </p>
 
-                                <button
-                                    id="toggleUserStatusButton"
-                                    class="users-danger-button"
-                                    type="button"
-                                >
+                                <button id="toggleUserStatusButton" class="users-danger-button" type="button">
                                     Desactivar usuario
                                 </button>
 
                             </section>
-
 
                             <section class="users-action-card">
 
@@ -177,28 +183,29 @@
                                 <form id="passwordForm">
 
                                     <div class="users-field">
+
                                         <label for="newPassword">Nueva contraseña</label>
-                                        <input id="newPassword" type="password" minlength="10" required autocomplete="new-password" />
+
+                                        <input id="newPassword" type="password" minlength="10" required
+                                            autocomplete="new-password" />
+
                                     </div>
 
                                     <div class="users-field">
+
                                         <label for="newPasswordConfirm">Repetir contraseña</label>
-                                        <input id="newPasswordConfirm" type="password" minlength="10" required autocomplete="new-password" />
+
+                                        <input id="newPasswordConfirm" type="password" minlength="10" required
+                                            autocomplete="new-password" />
+
                                     </div>
 
+                                    <div id="passwordMessage" class="users-form-message" aria-live="polite">
 
-                                    <div
-                                        id="passwordMessage"
-                                        class="users-form-message"
-                                        aria-live="polite"
-                                    ></div>
+                                    </div>
 
-
-                                    <button
-                                        id="passwordButton"
-                                        class="users-secondary-button users-full-button"
-                                        type="submit"
-                                    >
+                                    <button id="passwordButton" class="users-secondary-button users-full-button"
+                                        type="submit">
                                         Actualizar contraseña
                                     </button>
 
@@ -218,12 +225,10 @@
 
     </div>
 
-
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script
-        type="module"
-        src="../js/pages/admin-user-detail-v2.js"
-    ></script>
+
+    <script type="module" src="../js/pages/admin-user-detail-v2.js"></script>
 
 </body>
+
 </html>

@@ -1,5 +1,4 @@
 <!doctype html>
-
 <html lang="es">
 
 <head>
@@ -8,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>AB TaskVoice | Nueva tarea</title>
+
     <link rel="icon" href="../img/icon-512.png" sizes="any">
 
     <link rel="stylesheet" href="../css/base.css" />
@@ -15,32 +15,29 @@
     <link rel="stylesheet" href="../css/admin.css" />
 
     <link rel="stylesheet" href="../css/tasks.css" />
+
 </head>
 
 <body class="admin-body">
 
     <aside id="adminSidebar"></aside>
 
-
     <div class="admin-main">
 
         <header id="adminTopbar"></header>
 
-
         <main class="dashboard-content">
 
-
             <div class="form-page form-page-embedded">
-                <div class="form-page-header">
-                    <a href="./tareas.html" class="back-link"> ← Volver a tareas </a>
 
+                <div class="form-page-header">
+
+                    <a href="./tareas.html" class="back-link"> ← Volver a tareas </a>
 
                 </div>
 
                 <form id="taskForm" class="task-form-card">
-                    <!-- ======================================================
-     TÍTULO
-======================================================= -->
+                    <!-- === TÍTULO === -->
 
                     <div class="form-group">
 
@@ -52,10 +49,7 @@
 
                     </div>
 
-
-                    <!-- ======================================================
-     DESCRIPCIÓN
-======================================================= -->
+                    <!-- === DESCRIPCIÓN === -->
 
                     <div class="form-group">
 
@@ -67,10 +61,7 @@
 
                     </div>
 
-
-                    <!-- ======================================================
-     LUGAR / TURNO
-======================================================= -->
+                    <!-- === LUGAR / TURNO === -->
 
                     <div class="form-grid">
 
@@ -90,7 +81,6 @@
 
                         </div>
 
-
                         <div class="form-group">
 
                             <label for="turno">
@@ -109,10 +99,7 @@
 
                     </div>
 
-
-                    <!-- ======================================================
-     TICKET / TIPO MANTENIMIENTO
-======================================================= -->
+                    <!-- === TICKET / TIPO MANTENIMIENTO === -->
 
                     <div class="form-grid">
 
@@ -126,7 +113,6 @@
                                 placeholder="Ej.: INC-12345">
 
                         </div>
-
 
                         <div class="form-group">
 
@@ -146,10 +132,7 @@
 
                     </div>
 
-
-                    <!-- ======================================================
-     TÉCNICOS
-======================================================= -->
+                    <!-- === TÉCNICOS === -->
 
                     <fieldset class="technicians-fieldset">
 
@@ -157,11 +140,9 @@
                             Técnicos asignados *
                         </legend>
 
-
                         <p class="technicians-help">
                             Seleccioná uno o más técnicos para realizar esta tarea.
                         </p>
-
 
                         <div id="techniciansList" class="technicians-list">
 
@@ -171,17 +152,13 @@
 
                         </div>
 
-
                         <div id="techniciansSummary" class="technicians-summary" aria-live="polite">
                             Ningún técnico seleccionado
                         </div>
 
                     </fieldset>
 
-
-                    <!-- ======================================================
-     PRIORIDAD / FECHA
-======================================================= -->
+                    <!-- === PRIORIDAD / FECHA === -->
 
                     <div class="form-grid task-secondary-fields">
 
@@ -213,7 +190,6 @@
 
                         </div>
 
-
                         <div class="form-group">
 
                             <label for="fechaLimite">
@@ -226,10 +202,7 @@
 
                     </div>
 
-
-                    <!-- ======================================================
-     HORA
-======================================================= -->
+                    <!-- === HORA === -->
 
                     <div class="form-grid task-time-grid">
 
@@ -245,24 +218,17 @@
 
                     </div>
 
-
-                    <!-- ======================================================
-     MENSAJE
-======================================================= -->
+                    <!-- === MENSAJE === -->
 
                     <div id="formMessage" class="form-message" aria-live="polite"></div>
 
-
-                    <!-- ======================================================
-     ACCIONES
-======================================================= -->
+                    <!-- === ACCIONES === -->
 
                     <div class="form-actions">
 
                         <a href="./tareas.html" class="secondary-button link-button">
                             Cancelar
                         </a>
-
 
                         <button id="saveButton" type="submit" class="new-task-button">
                             Crear tarea

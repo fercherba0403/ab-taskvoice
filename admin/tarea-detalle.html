@@ -1,13 +1,14 @@
 <!doctype html>
-
 <html lang="es">
 
 <head>
+
     <meta charset="UTF-8" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>AB TaskVoice | Detalle de tarea</title>
+
     <link rel="icon" href="../img/icon-512.png" sizes="any">
 
     <link rel="stylesheet" href="../css/base.css" />
@@ -15,9 +16,11 @@
     <link rel="stylesheet" href="../css/admin.css" />
 
     <link rel="stylesheet" href="../css/tasks-v2.css" />
+
 </head>
 
 <body class="admin-body">
+
     <aside id="adminSidebar"></aside>
 
     <div class="admin-main">
@@ -54,7 +57,7 @@
 
                             <form id="editForm">
 
-                                <!-- ========== TÍTULO ========== -->
+                                <!-- === TÍTULO === -->
 
                                 <div class="form-group">
 
@@ -66,7 +69,7 @@
 
                                 </div>
 
-                                <!-- ========== DESCRIPCIÓN ========== -->
+                                <!-- === DESCRIPCIÓN === -->
 
                                 <div class="form-group">
 
@@ -78,7 +81,7 @@
 
                                 </div>
 
-                                <!-- ========== LUGAR / TURNO ========== -->
+                                <!-- === LUGAR / TURNO === -->
 
                                 <div class="form-grid">
 
@@ -116,7 +119,7 @@
 
                                 </div>
 
-                                <!-- ======== TICKET / TIPO DE MANTENIMIENTO ======= -->
+                                <!-- === TICKET / TIPO DE MANTENIMIENTO === -->
 
                                 <div class="form-grid">
 
@@ -148,7 +151,7 @@
 
                                 </div>
 
-                                <!-- ============ TÉCNICOS ============= -->
+                                <!-- === TÉCNICOS === -->
 
                                 <fieldset class="detail-technicians-fieldset">
 
@@ -177,7 +180,7 @@
 
                                 </fieldset>
 
-                                <!-- ============ PRIORIDAD / FECHA =================== -->
+                                <!-- === PRIORIDAD / FECHA === -->
 
                                 <div class="form-grid">
 
@@ -221,7 +224,7 @@
 
                                 </div>
 
-                                <!-- ============= HORA ================= -->
+                                <!-- === HORA === -->
 
                                 <div class="form-grid detail-time-grid">
 
@@ -237,11 +240,11 @@
 
                                 </div>
 
-                                <!-- ============ MENSAJE ============= -->
+                                <!-- === MENSAJE === -->
 
                                 <div id="message" class="form-message" aria-live="polite"></div>
 
-                                <!-- =========== GUARDAR ============== -->
+                                <!-- === GUARDAR === -->
 
                                 <button id="saveButton" class="new-task-button" type="submit">
                                     Guardar cambios
@@ -250,7 +253,7 @@
                             </form>
                         </section>
 
-                        <!-- HISTORIAL -->
+                        <!-- === HISTORIAL === -->
 
                         <section class="task-form-card">
                             <h2>Historial</h2>
@@ -259,9 +262,7 @@
                         </section>
                     </div>
 
-                    <!-- ======================================================
-     EJECUCIONES / TRABAJO REALIZADO
-======================================================= -->
+                    <!-- === EJECUCIONES / TRABAJO REALIZADO === -->
 
                     <section class="task-form-card task-executions-card">
 
@@ -279,20 +280,15 @@
 
                             </div>
 
-
                             <span id="executionsCount" class="task-executions-count">
                                 0 ejecuciones
                             </span>
 
                         </div>
 
-
-
                         <div id="executionsLoading" class="task-executions-loading">
                             Cargando ejecuciones...
                         </div>
-
-
 
                         <div id="executionsEmpty" class="task-executions-empty hidden">
 
@@ -300,8 +296,6 @@
                             para esta tarea.
 
                         </div>
-
-
 
                         <div id="executionsList" class="admin-executions-list hidden"></div>
 
