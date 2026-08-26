@@ -3,55 +3,38 @@
 // services/tasks.js
 // ============================================================
 
-import {
-    supabase
-} from '../core/supabase.js';
-
-
+import { supabase } from "../core/supabase.js";
 
 // ============================================================
 // OBTENER TRABAJADORES / USUARIOS ACTIVOS
 // ============================================================
 
 export async function getAssignableUsers() {
+    const { data, error } = await supabase
 
-    const {
-        data,
-        error
-    } = await supabase
+        .from("profiles")
 
-        .from('profiles')
-
-        .select(`
+        .select(
+            `
             id,
             nombre,
             apellido,
             email,
             rol
-        `)
-
-        .eq(
-            'activo',
-            true
+        `,
         )
 
-        .order(
-            'nombre',
-            {
-                ascending: true
-            }
-        );
+        .eq("activo", true)
 
+        .order("nombre", {
+            ascending: true,
+        });
 
     if (error) {
-
         throw error;
-
     }
 
-
     return data ?? [];
-
 }
 
 // ============================================================
@@ -66,224 +49,143 @@ export async function getAssignableUsers() {
 // ============================================================
 
 export async function getTechnicians() {
-
-    const {
-        data,
-        error
-    } = await supabase.rpc(
-        'get_assignable_technicians'
-    );
-
+    const { data, error } = await supabase.rpc("get_assignable_technicians");
 
     if (error) {
-
         throw error;
-
     }
 
-
     return data ?? [];
-
 }
-
 
 // ============================================================
 // LUGARES
 // ============================================================
 
 export async function getLocations() {
+    const { data, error } = await supabase
 
-    const {
-        data,
-        error
-    } = await supabase
+        .from("locations")
 
-        .from('locations')
-
-        .select(`
+        .select(
+            `
             id,
             nombre
-        `)
-
-        .eq(
-            'activo',
-            true
+        `,
         )
 
-        .order(
-            'orden',
-            {
-                ascending: true
-            }
-        )
+        .eq("activo", true)
 
-        .order(
-            'nombre',
-            {
-                ascending: true
-            }
-        );
+        .order("orden", {
+            ascending: true,
+        })
 
+        .order("nombre", {
+            ascending: true,
+        });
 
     if (error) {
-
         throw error;
-
     }
 
-
     return data ?? [];
-
 }
-
-
 
 // ============================================================
 // TURNOS
 // ============================================================
 
 export async function getShifts() {
+    const { data, error } = await supabase
 
-    const {
-        data,
-        error
-    } = await supabase
+        .from("shifts")
 
-        .from('shifts')
-
-        .select(`
+        .select(
+            `
             id,
             nombre
-        `)
-
-        .eq(
-            'activo',
-            true
+        `,
         )
 
-        .order(
-            'orden',
-            {
-                ascending: true
-            }
-        )
+        .eq("activo", true)
 
-        .order(
-            'nombre',
-            {
-                ascending: true
-            }
-        );
+        .order("orden", {
+            ascending: true,
+        })
 
+        .order("nombre", {
+            ascending: true,
+        });
 
     if (error) {
-
         throw error;
-
     }
 
-
     return data ?? [];
-
 }
-
-
 
 // ============================================================
 // TIPOS DE MANTENIMIENTO
 // ============================================================
 
 export async function getMaintenanceTypes() {
+    const { data, error } = await supabase
 
-    const {
-        data,
-        error
-    } = await supabase
+        .from("maintenance_types")
 
-        .from('maintenance_types')
-
-        .select(`
+        .select(
+            `
             id,
             nombre
-        `)
-
-        .eq(
-            'activo',
-            true
+        `,
         )
 
-        .order(
-            'orden',
-            {
-                ascending: true
-            }
-        )
+        .eq("activo", true)
 
-        .order(
-            'nombre',
-            {
-                ascending: true
-            }
-        );
+        .order("orden", {
+            ascending: true,
+        })
 
+        .order("nombre", {
+            ascending: true,
+        });
 
     if (error) {
-
         throw error;
-
     }
 
-
     return data ?? [];
-
 }
-
-
 
 // ============================================================
 // OBTENER PLANTILLAS ACTIVAS
 // ============================================================
 
 export async function getTaskTemplates() {
+    const { data, error } = await supabase
 
-    const {
-        data,
-        error
-    } = await supabase
+        .from("task_templates")
 
-        .from('task_templates')
-
-        .select(`
+        .select(
+            `
             id,
             nombre,
             descripcion
-        `)
-
-        .eq(
-            'activa',
-            true
+        `,
         )
 
-        .order(
-            'nombre',
-            {
-                ascending: true
-            }
-        );
+        .eq("activa", true)
 
+        .order("nombre", {
+            ascending: true,
+        });
 
     if (error) {
-
         throw error;
-
     }
 
-
     return data ?? [];
-
 }
-
-
 
 // ============================================================
 // LISTAR TAREAS
@@ -299,12 +201,8 @@ export async function getTaskTemplates() {
 // - filtros por técnico real
 // ============================================================
 
-export async function getTasks(
-    filters = {}
-) {
-
+export async function getTasks(filters = {}) {
     let allowedTaskIds = null;
-
 
     // ========================================================
     // FILTRO POR TÉCNICO
@@ -312,70 +210,33 @@ export async function getTasks(
     // La relación real ahora está en task_assignees.
     // ========================================================
 
-    if (
-        filters.userId &&
-        filters.userId !== 'todos'
-    ) {
+    if (filters.userId && filters.userId !== "todos") {
+        const { data: assignments, error: assignmentsError } = await supabase
 
-        const {
-            data: assignments,
-            error: assignmentsError
-        } = await supabase
+            .from("task_assignees")
 
-            .from('task_assignees')
+            .select("task_id")
 
-            .select('task_id')
-
-            .eq(
-                'user_id',
-                filters.userId
-            );
-
+            .eq("user_id", filters.userId);
 
         if (assignmentsError) {
-
             throw assignmentsError;
-
         }
-
 
         allowedTaskIds = [
-
-            ...new Set(
-
-                (assignments ?? [])
-                    .map(
-                        item =>
-                            item.task_id
-                    )
-
-            )
-
+            ...new Set((assignments ?? []).map((item) => item.task_id)),
         ];
 
-
-        if (
-            allowedTaskIds.length === 0
-        ) {
-
+        if (allowedTaskIds.length === 0) {
             return [];
-
         }
-
     }
-
-
 
     // ========================================================
     // CONSULTA PRINCIPAL
     // ========================================================
 
-    let query =
-        supabase
-
-            .from('tasks')
-
-            .select(`
+    let query = supabase.from("tasks").select(`
                 id,
                 titulo,
                 descripcion,
@@ -394,776 +255,407 @@ export async function getTasks(
                 updated_at
             `);
 
-
-
     // ========================================================
     // BUSCADOR
     // ========================================================
 
-    if (
-        filters.search &&
-        filters.search.trim()
-    ) {
-
-        query =
-            query.ilike(
-                'titulo',
-                `%${filters.search.trim()}%`
-            );
-
+    if (filters.search && filters.search.trim()) {
+        query = query.ilike("titulo", `%${filters.search.trim()}%`);
     }
-
-
 
     // ========================================================
     // ESTADO
     // ========================================================
 
-    if (
-        filters.status &&
-        filters.status !== 'todos'
-    ) {
-
-        query =
-            query.eq(
-                'estado',
-                filters.status
-            );
-
+    if (filters.status && filters.status !== "todos") {
+        query = query.eq("estado", filters.status);
     }
-
-
 
     // ========================================================
     // PRIORIDAD
     // ========================================================
 
-    if (
-        filters.priority &&
-        filters.priority !== 'todas'
-    ) {
-
-        query =
-            query.eq(
-                'prioridad',
-                filters.priority
-            );
-
+    if (filters.priority && filters.priority !== "todas") {
+        query = query.eq("prioridad", filters.priority);
     }
 
     // ========================================================
     // LUGAR
     // ========================================================
 
-    if (
-        filters.locationId &&
-        filters.locationId !== 'todos'
-    ) {
-
-        query =
-            query.eq(
-                'location_id',
-                Number(
-                    filters.locationId
-                )
-            );
-
+    if (filters.locationId && filters.locationId !== "todos") {
+        query = query.eq("location_id", Number(filters.locationId));
     }
-
-
 
     // ========================================================
     // TÉCNICO
     // ========================================================
 
-    if (
-        allowedTaskIds !== null
-    ) {
-
-        query =
-            query.in(
-                'id',
-                allowedTaskIds
-            );
-
+    if (allowedTaskIds !== null) {
+        query = query.in("id", allowedTaskIds);
     }
-
-
 
     // ========================================================
     // FECHAS
     // ========================================================
 
     if (filters.dateFrom) {
-
-        query =
-            query.gte(
-                'fecha_limite',
-                filters.dateFrom
-            );
-
+        query = query.gte("fecha_limite", filters.dateFrom);
     }
-
 
     if (filters.dateTo) {
-
-        query =
-            query.lte(
-                'fecha_limite',
-                filters.dateTo
-            );
-
+        query = query.lte("fecha_limite", filters.dateTo);
     }
-
-
 
     // ========================================================
     // ORDEN
     // ========================================================
 
-    query =
-        query.order(
-            'created_at',
-            {
-                ascending: false
-            }
-        );
+    query = query.order("created_at", {
+        ascending: false,
+    });
 
-
-
-    const {
-        data,
-        error
-    } = await query;
-
+    const { data, error } = await query;
 
     if (error) {
-
         throw error;
-
     }
 
+    const tasks = data ?? [];
 
-
-    const tasks =
-        data ?? [];
-
-
-    if (
-        tasks.length === 0
-    ) {
-
+    if (tasks.length === 0) {
         return [];
-
     }
-
-
 
     // ========================================================
     // IDS DE TAREAS
     // ========================================================
 
-    const taskIds =
-        tasks.map(
-            task =>
-                task.id
-        );
-
-
+    const taskIds = tasks.map((task) => task.id);
 
     // ========================================================
     // ASIGNACIONES
     // ========================================================
 
-    const {
-        data: assignments,
-        error: assignmentError
-    } = await supabase
+    const { data: assignments, error: assignmentError } = await supabase
 
-        .from('task_assignees')
+        .from("task_assignees")
 
-        .select(`
+        .select(
+            `
             task_id,
             user_id,
             estado
-        `)
+        `,
+        )
 
-        .in(
-            'task_id',
-            taskIds
-        );
-
+        .in("task_id", taskIds);
 
     if (assignmentError) {
-
         throw assignmentError;
-
     }
-
-
 
     // ========================================================
     // IDS DE TÉCNICOS
     // ========================================================
 
     const technicianIds = [
-
         ...new Set(
-
             (assignments ?? [])
 
-                .map(
-                    assignment =>
-                        assignment.user_id
-                )
+                .map((assignment) => assignment.user_id)
 
-                .filter(Boolean)
-
-        )
-
+                .filter(Boolean),
+        ),
     ];
-
-
 
     // ========================================================
     // TÉCNICOS
     // ========================================================
 
-    const techniciansMap =
-        new Map();
+    const techniciansMap = new Map();
 
+    if (technicianIds.length > 0) {
+        const { data: technicians, error: technicianError } = await supabase
 
-    if (
-        technicianIds.length > 0
-    ) {
+            .from("profiles")
 
-        const {
-            data: technicians,
-            error: technicianError
-        } = await supabase
-
-            .from('profiles')
-
-            .select(`
+            .select(
+                `
                 id,
                 nombre,
                 apellido
-            `)
+            `,
+            )
 
-            .in(
-                'id',
-                technicianIds
-            );
-
+            .in("id", technicianIds);
 
         if (technicianError) {
-
             throw technicianError;
-
         }
 
-
-        for (
-            const technician of
-            technicians ?? []
-        ) {
-
+        for (const technician of technicians ?? []) {
             techniciansMap.set(
-
                 technician.id,
 
                 {
+                    id: technician.id,
 
-                    id:
-                        technician.id,
-
-                    nombre:
-                        `${technician.nombre} ${technician.apellido}`
-                            .trim()
-
-                }
-
+                    nombre: `${technician.nombre} ${technician.apellido}`.trim(),
+                },
             );
-
         }
-
     }
-
-
 
     // ========================================================
     // MAP DE ASIGNACIONES POR TAREA
     // ========================================================
 
-    const assignmentsMap =
-        new Map();
+    const assignmentsMap = new Map();
 
-
-    for (
-        const assignment of
-        assignments ?? []
-    ) {
-
-        if (
-            !assignmentsMap.has(
-                assignment.task_id
-            )
-        ) {
-
-            assignmentsMap.set(
-                assignment.task_id,
-                []
-            );
-
+    for (const assignment of assignments ?? []) {
+        if (!assignmentsMap.has(assignment.task_id)) {
+            assignmentsMap.set(assignment.task_id, []);
         }
 
+        const technician = techniciansMap.get(assignment.user_id);
 
-        const technician =
-            techniciansMap.get(
-                assignment.user_id
-            );
+        assignmentsMap.get(assignment.task_id).push({
+            id: assignment.user_id,
 
+            nombre: technician?.nombre ?? "Usuario",
 
-        assignmentsMap
-            .get(
-                assignment.task_id
-            )
-            .push({
-
-                id:
-                    assignment.user_id,
-
-                nombre:
-                    technician?.nombre
-                    ?? 'Usuario',
-
-                estado:
-                    assignment.estado
-
-            });
-
+            estado: assignment.estado,
+        });
     }
-
-
 
     // ========================================================
     // LUGARES
     // ========================================================
 
     const locationIds = [
-
         ...new Set(
-
             tasks
 
-                .map(
-                    task =>
-                        task.location_id
-                )
+                .map((task) => task.location_id)
 
-                .filter(Boolean)
-
-        )
-
+                .filter(Boolean),
+        ),
     ];
 
+    const locationsMap = new Map();
 
-    const locationsMap =
-        new Map();
+    if (locationIds.length > 0) {
+        const { data: locations, error: locationError } = await supabase
 
+            .from("locations")
 
-    if (
-        locationIds.length > 0
-    ) {
-
-        const {
-            data: locations,
-            error: locationError
-        } = await supabase
-
-            .from('locations')
-
-            .select(`
+            .select(
+                `
                 id,
                 nombre
-            `)
+            `,
+            )
 
-            .in(
-                'id',
-                locationIds
-            );
-
+            .in("id", locationIds);
 
         if (locationError) {
-
             throw locationError;
-
         }
 
-
-        for (
-            const location of
-            locations ?? []
-        ) {
-
-            locationsMap.set(
-                location.id,
-                location.nombre
-            );
-
+        for (const location of locations ?? []) {
+            locationsMap.set(location.id, location.nombre);
         }
-
     }
-
-
 
     // ========================================================
     // TURNOS
     // ========================================================
 
     const shiftIds = [
-
         ...new Set(
-
             tasks
 
-                .map(
-                    task =>
-                        task.shift_id
-                )
+                .map((task) => task.shift_id)
 
-                .filter(Boolean)
-
-        )
-
+                .filter(Boolean),
+        ),
     ];
 
+    const shiftsMap = new Map();
 
-    const shiftsMap =
-        new Map();
+    if (shiftIds.length > 0) {
+        const { data: shifts, error: shiftError } = await supabase
 
+            .from("shifts")
 
-    if (
-        shiftIds.length > 0
-    ) {
-
-        const {
-            data: shifts,
-            error: shiftError
-        } = await supabase
-
-            .from('shifts')
-
-            .select(`
+            .select(
+                `
                 id,
                 nombre
-            `)
+            `,
+            )
 
-            .in(
-                'id',
-                shiftIds
-            );
-
+            .in("id", shiftIds);
 
         if (shiftError) {
-
             throw shiftError;
-
         }
 
-
-        for (
-            const shift of
-            shifts ?? []
-        ) {
-
-            shiftsMap.set(
-                shift.id,
-                shift.nombre
-            );
-
+        for (const shift of shifts ?? []) {
+            shiftsMap.set(shift.id, shift.nombre);
         }
-
     }
-
-
 
     // ========================================================
     // TIPOS DE MANTENIMIENTO
     // ========================================================
 
     const maintenanceIds = [
-
         ...new Set(
-
             tasks
 
-                .map(
-                    task =>
-                        task.maintenance_type_id
-                )
+                .map((task) => task.maintenance_type_id)
 
-                .filter(Boolean)
-
-        )
-
+                .filter(Boolean),
+        ),
     ];
 
+    const maintenanceMap = new Map();
 
-    const maintenanceMap =
-        new Map();
+    if (maintenanceIds.length > 0) {
+        const { data: maintenanceTypes, error: maintenanceError } = await supabase
 
+            .from("maintenance_types")
 
-    if (
-        maintenanceIds.length > 0
-    ) {
-
-        const {
-            data: maintenanceTypes,
-            error: maintenanceError
-        } = await supabase
-
-            .from(
-                'maintenance_types'
-            )
-
-            .select(`
+            .select(
+                `
                 id,
                 nombre
-            `)
+            `,
+            )
 
-            .in(
-                'id',
-                maintenanceIds
-            );
-
+            .in("id", maintenanceIds);
 
         if (maintenanceError) {
-
             throw maintenanceError;
-
         }
 
-
-        for (
-            const type of
-            maintenanceTypes ?? []
-        ) {
-
-            maintenanceMap.set(
-                type.id,
-                type.nombre
-            );
-
+        for (const type of maintenanceTypes ?? []) {
+            maintenanceMap.set(type.id, type.nombre);
         }
-
     }
-
-
 
     // ========================================================
     // RESULTADO ENRIQUECIDO
     // ========================================================
 
-    return tasks.map(
+    return tasks.map((task) => {
+        const assignedUsers = assignmentsMap.get(task.id) ?? [];
 
-        task => {
+        return {
+            ...task,
 
-            const assignedUsers =
-                assignmentsMap.get(
-                    task.id
-                ) ?? [];
+            assigned_users: assignedUsers,
 
+            assigned_count: assignedUsers.length,
 
-            return {
+            location_name: locationsMap.get(task.location_id) ?? "Sin lugar",
 
-                ...task,
+            shift_name: shiftsMap.get(task.shift_id) ?? "Sin turno",
 
-
-                assigned_users:
-                    assignedUsers,
-
-
-                assigned_count:
-                    assignedUsers.length,
-
-
-                location_name:
-
-                    locationsMap.get(
-                        task.location_id
-                    )
-
-                    ?? 'Sin lugar',
-
-
-                shift_name:
-
-                    shiftsMap.get(
-                        task.shift_id
-                    )
-
-                    ?? 'Sin turno',
-
-
-                maintenance_type_name:
-
-                    maintenanceMap.get(
-                        task.maintenance_type_id
-                    )
-
-                    ?? 'Sin tipo'
-
-            };
-
-        }
-
-    );
-
+            maintenance_type_name:
+                maintenanceMap.get(task.maintenance_type_id) ?? "Sin tipo",
+        };
+    });
 }
-
-
 
 // ============================================================
 // OBTENER UNA TAREA
 // ============================================================
 
-export async function getTask(
-    taskId
-) {
+export async function getTask(taskId) {
+    const { data, error } = await supabase
 
-    const {
-        data,
-        error
-    } = await supabase
+        .from("tasks")
 
-        .from('tasks')
+        .select("*")
 
-        .select('*')
-
-        .eq(
-            'id',
-            taskId
-        )
+        .eq("id", taskId)
 
         .single();
 
-
     if (error) {
-
         throw error;
-
     }
-
 
     let assignedUser = null;
 
-
     if (data.asignado_a) {
+        const { data: user, error: userError } = await supabase
 
-        const {
-            data: user,
-            error: userError
-        } = await supabase
+            .from("profiles")
 
-            .from('profiles')
-
-            .select(`
+            .select(
+                `
                 id,
                 nombre,
                 apellido,
                 email
-            `)
-
-            .eq(
-                'id',
-                data.asignado_a
+            `,
             )
+
+            .eq("id", data.asignado_a)
 
             .single();
 
-
         if (!userError) {
-
-            assignedUser =
-                user;
-
+            assignedUser = user;
         }
-
     }
 
-
     return {
-
         ...data,
 
-        assignedUser
-
+        assignedUser,
     };
-
 }
-
-
 
 // ============================================================
 // HISTORIAL
 // ============================================================
 
-export async function getTaskHistory(
-    taskId
-) {
+export async function getTaskHistory(taskId) {
+    const { data, error } = await supabase
 
-    const {
-        data,
-        error
-    } = await supabase
+        .from("task_history")
 
-        .from('task_history')
+        .select("*")
 
-        .select('*')
+        .eq("task_id", taskId)
 
-        .eq(
-            'task_id',
-            taskId
-        )
-
-        .order(
-            'created_at',
-            {
-                ascending: false
-            }
-        );
-
+        .order("created_at", {
+            ascending: false,
+        });
 
     if (error) {
-
         throw error;
-
     }
 
-
     return data ?? [];
-
 }
-
-
 
 // ============================================================
 // EJECUCIONES
 // ============================================================
 
-export async function getTaskExecutions(
-    taskId
-) {
+export async function getTaskExecutions(taskId) {
+    const { data, error } = await supabase
 
-    const {
-        data,
-        error
-    } = await supabase
+        .from("task_executions")
 
-        .from('task_executions')
-
-        .select(`
+        .select(
+            `
             id,
             user_id,
             inicio,
@@ -1172,262 +664,157 @@ export async function getTaskExecutions(
             transcripcion,
             audio_path,
             created_at
-        `)
-
-        .eq(
-            'task_id',
-            taskId
+        `,
         )
 
-        .order(
-            'created_at',
-            {
-                ascending: false
-            }
-        );
+        .eq("task_id", taskId)
 
+        .order("created_at", {
+            ascending: false,
+        });
 
     if (error) {
-
         throw error;
-
     }
 
-
     return data ?? [];
-
 }
-
-
 
 // ============================================================
 // CREAR TAREA
 // ============================================================
 
-export async function createTask(
-    task
-) {
-
-    const {
-        data,
-        error
-    } = await supabase.rpc(
-
-        'create_task',
+export async function createTask(task) {
+    const { data, error } = await supabase.rpc(
+        "create_task",
 
         {
+            p_titulo: task.titulo,
 
-            p_titulo:
-                task.titulo,
+            p_asignado_a: task.asignado_a,
 
-            p_asignado_a:
-                task.asignado_a,
+            p_descripcion: task.descripcion || null,
 
-            p_descripcion:
-                task.descripcion || null,
+            p_prioridad: task.prioridad,
 
-            p_prioridad:
-                task.prioridad,
+            p_fecha_limite: task.fecha_limite || null,
 
-            p_fecha_limite:
-                task.fecha_limite || null,
+            p_hora_limite: task.hora_limite || null,
 
-            p_hora_limite:
-                task.hora_limite || null,
-
-            p_template_id:
-                task.template_id || null
-
-        }
-
+            p_template_id: task.template_id || null,
+        },
     );
 
-
     if (error) {
-
         throw error;
-
     }
 
-
     return data;
-
 }
 
 // ============================================================
 // CREAR TAREA MULTI-TÉCNICO
 // ============================================================
 
-export async function createTaskMulti(
-    task
-) {
-
-    const {
-        data,
-        error
-    } = await supabase.rpc(
-
-        'create_task_multi',
+export async function createTaskMulti(task) {
+    const { data, error } = await supabase.rpc(
+        "create_task_multi",
 
         {
+            p_titulo: task.titulo,
 
-            p_titulo:
-                task.titulo,
+            p_asignados: task.asignados,
 
-            p_asignados:
-                task.asignados,
+            p_descripcion: task.descripcion || null,
 
-            p_descripcion:
-                task.descripcion || null,
+            p_prioridad: task.prioridad,
 
-            p_prioridad:
-                task.prioridad,
+            p_fecha_limite: task.fecha_limite || null,
 
-            p_fecha_limite:
-                task.fecha_limite || null,
+            p_hora_limite: task.hora_limite || null,
 
-            p_hora_limite:
-                task.hora_limite || null,
+            p_template_id: task.template_id || null,
 
-            p_template_id:
-                task.template_id || null,
+            p_location_id: task.location_id || null,
 
-            p_location_id:
-                task.location_id || null,
+            p_shift_id: task.shift_id || null,
 
-            p_shift_id:
-                task.shift_id || null,
+            p_ticket_number: task.ticket_number || null,
 
-            p_ticket_number:
-                task.ticket_number || null,
-
-            p_maintenance_type_id:
-                task.maintenance_type_id || null
-
-        }
-
+            p_maintenance_type_id: task.maintenance_type_id || null,
+        },
     );
 
-
     if (error) {
-
         throw error;
-
     }
 
-
     return data;
-
 }
 
 // ============================================================
 // EDITAR TAREA
 // ============================================================
 
-export async function updateTask(
-    taskId,
-    task
-) {
-
-    const {
-        error
-    } = await supabase.rpc(
-
-        'update_task',
+export async function updateTask(taskId, task) {
+    const { error } = await supabase.rpc(
+        "update_task",
 
         {
+            p_task_id: taskId,
 
-            p_task_id:
-                taskId,
+            p_titulo: task.titulo,
 
-            p_titulo:
-                task.titulo,
+            p_asignado_a: task.asignado_a,
 
-            p_asignado_a:
-                task.asignado_a,
+            p_descripcion: task.descripcion || null,
 
-            p_descripcion:
-                task.descripcion || null,
+            p_prioridad: task.prioridad,
 
-            p_prioridad:
-                task.prioridad,
+            p_fecha_limite: task.fecha_limite || null,
 
-            p_fecha_limite:
-                task.fecha_limite || null,
+            p_hora_limite: task.hora_limite || null,
 
-            p_hora_limite:
-                task.hora_limite || null,
-
-            p_template_id:
-                task.template_id || null
-
-        }
-
+            p_template_id: task.template_id || null,
+        },
     );
 
-
     if (error) {
-
         throw error;
-
     }
-
 }
-
-
 
 // ============================================================
 // CANCELAR TAREA
 // ============================================================
 
-export async function cancelTask(
-    taskId,
-    comment
-) {
-
-    const {
-        error
-    } = await supabase.rpc(
-
-        'cancel_task',
+export async function cancelTask(taskId, comment) {
+    const { error } = await supabase.rpc(
+        "cancel_task",
 
         {
+            p_task_id: taskId,
 
-            p_task_id:
-                taskId,
-
-            p_comentario:
-                comment || null
-
-        }
-
+            p_comentario: comment || null,
+        },
     );
 
-
     if (error) {
-
         throw error;
-
     }
-
 }
 
 // ============================================================
 // OBTENER TAREA - MODELO MULTI-TÉCNICO
 // ============================================================
 
-export async function getTaskMulti(
-    taskId
-) {
+export async function getTaskMulti(taskId) {
+    const { data, error } = await supabase
 
-    const {
-        data,
-        error
-    } = await supabase
+        .from("tasks")
 
-        .from('tasks')
-
-        .select(`
+        .select(
+            `
             id,
             organization_id,
             template_id,
@@ -1446,43 +833,31 @@ export async function getTaskMulti(
             maintenance_type_id,
             created_at,
             updated_at
-        `)
-
-        .eq(
-            'id',
-            taskId
+        `,
         )
+
+        .eq("id", taskId)
 
         .single();
 
-
     if (error) {
-
         throw error;
-
     }
 
-
     return data;
-
 }
 
 // ============================================================
 // OBTENER TÉCNICOS ASIGNADOS A UNA TAREA
 // ============================================================
 
-export async function getTaskAssignees(
-    taskId
-) {
+export async function getTaskAssignees(taskId) {
+    const { data: assignments, error: assignmentsError } = await supabase
 
-    const {
-        data: assignments,
-        error: assignmentsError
-    } = await supabase
+        .from("task_assignees")
 
-        .from('task_assignees')
-
-        .select(`
+        .select(
+            `
             task_id,
             user_id,
             estado,
@@ -1490,192 +865,107 @@ export async function getTaskAssignees(
             accepted_at,
             started_at,
             completed_at
-        `)
+        `,
+        )
 
-        .eq(
-            'task_id',
-            taskId
-        );
-
+        .eq("task_id", taskId);
 
     if (assignmentsError) {
-
         throw assignmentsError;
-
     }
 
-
-    if (
-        !assignments
-        ||
-        assignments.length === 0
-    ) {
-
+    if (!assignments || assignments.length === 0) {
         return [];
-
     }
 
+    const userIds = assignments.map((assignment) => assignment.user_id);
 
-    const userIds =
-        assignments.map(
-            assignment =>
-                assignment.user_id
-        );
+    const { data: users, error: usersError } = await supabase
 
+        .from("profiles")
 
-    const {
-        data: users,
-        error: usersError
-    } = await supabase
-
-        .from('profiles')
-
-        .select(`
+        .select(
+            `
             id,
             nombre,
             apellido,
             email,
             rol,
             activo
-        `)
+        `,
+        )
 
-        .in(
-            'id',
-            userIds
-        );
-
+        .in("id", userIds);
 
     if (usersError) {
-
         throw usersError;
-
     }
 
+    const usersMap = new Map();
 
-    const usersMap =
-        new Map();
-
-
-    for (
-        const user of users ?? []
-    ) {
-
-        usersMap.set(
-            user.id,
-            user
-        );
-
+    for (const user of users ?? []) {
+        usersMap.set(user.id, user);
     }
-
 
     return assignments
 
-        .map(
-            assignment => {
+        .map((assignment) => {
+            const user = usersMap.get(assignment.user_id);
 
-                const user =
-                    usersMap.get(
-                        assignment.user_id
-                    );
+            return {
+                ...assignment,
 
+                nombre: user ? `${user.nombre} ${user.apellido}`.trim() : "Usuario",
 
-                return {
+                email: user?.email ?? "",
 
-                    ...assignment,
+                activo: user?.activo ?? false,
 
-                    nombre:
-                        user
-                            ? `${user.nombre} ${user.apellido}`.trim()
-                            : 'Usuario',
+                rol: user?.rol ?? null,
+            };
+        })
 
-                    email:
-                        user?.email ?? '',
-
-                    activo:
-                        user?.activo ?? false,
-
-                    rol:
-                        user?.rol ?? null
-
-                };
-
-            }
-        )
-
-        .sort(
-            (a, b) =>
-                a.nombre.localeCompare(
-                    b.nombre,
-                    'es'
-                )
-        );
-
+        .sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
 }
 
 // ============================================================
 // ACTUALIZAR TAREA MULTI-TÉCNICO
 // ============================================================
 
-export async function updateTaskMulti(
-    taskId,
-    task
-) {
-
-    const {
-        error
-    } = await supabase.rpc(
-
-        'update_task_multi',
+export async function updateTaskMulti(taskId, task) {
+    const { error } = await supabase.rpc(
+        "update_task_multi",
 
         {
+            p_task_id: taskId,
 
-            p_task_id:
-                taskId,
+            p_titulo: task.titulo,
 
-            p_titulo:
-                task.titulo,
+            p_asignados: task.asignados,
 
-            p_asignados:
-                task.asignados,
+            p_descripcion: task.descripcion || null,
 
-            p_descripcion:
-                task.descripcion || null,
+            p_prioridad: task.prioridad,
 
-            p_prioridad:
-                task.prioridad,
+            p_fecha_limite: task.fecha_limite || null,
 
-            p_fecha_limite:
-                task.fecha_limite || null,
+            p_hora_limite: task.hora_limite || null,
 
-            p_hora_limite:
-                task.hora_limite || null,
+            p_template_id: task.template_id || null,
 
-            p_template_id:
-                task.template_id || null,
+            p_location_id: task.location_id || null,
 
-            p_location_id:
-                task.location_id || null,
+            p_shift_id: task.shift_id || null,
 
-            p_shift_id:
-                task.shift_id || null,
+            p_ticket_number: task.ticket_number || null,
 
-            p_ticket_number:
-                task.ticket_number || null,
-
-            p_maintenance_type_id:
-                task.maintenance_type_id || null
-
-        }
-
+            p_maintenance_type_id: task.maintenance_type_id || null,
+        },
     );
 
-
     if (error) {
-
         throw error;
-
     }
-
 }
 
 // ============================================================
@@ -1691,52 +981,29 @@ export async function updateTaskMulti(
 // ============================================================
 
 export async function getMyWorkerTasks() {
-
-
     // ========================================================
     // USUARIO AUTENTICADO
     // ========================================================
 
     const {
-        data: {
-            user
-        },
-        error: userError
-    } =
-        await supabase
-            .auth
-            .getUser();
+        data: { user },
+        error: userError,
+    } = await supabase.auth.getUser();
 
-
-    if (
-        userError
-        ||
-        !user
-    ) {
-
-        throw new Error(
-            'No fue posible identificar al usuario.'
-        );
-
+    if (userError || !user) {
+        throw new Error("No fue posible identificar al usuario.");
     }
-
-
 
     // ========================================================
     // ASIGNACIONES DEL TÉCNICO
     // ========================================================
 
-    const {
-        data: assignments,
-        error: assignmentsError
-    } =
-        await supabase
+    const { data: assignments, error: assignmentsError } = await supabase
 
-            .from(
-                'task_assignees'
-            )
+        .from("task_assignees")
 
-            .select(`
+        .select(
+            `
                 task_id,
                 user_id,
                 estado,
@@ -1744,75 +1011,41 @@ export async function getMyWorkerTasks() {
                 accepted_at,
                 started_at,
                 completed_at
-            `)
+            `,
+        )
 
-            .eq(
-                'user_id',
-                user.id
-            )
+        .eq("user_id", user.id)
 
-            .order(
-                'assigned_at',
-                {
-                    ascending: false
-                }
-            );
-
+        .order("assigned_at", {
+            ascending: false,
+        });
 
     if (assignmentsError) {
-
         throw assignmentsError;
-
     }
 
-
-
-    if (
-        !assignments
-        ||
-        assignments.length === 0
-    ) {
-
+    if (!assignments || assignments.length === 0) {
         return [];
-
     }
-
-
 
     // ========================================================
     // IDS DE TAREAS
     // ========================================================
 
     const taskIds = [
-
-        ...new Set(
-
-            assignments.map(
-                assignment =>
-                    assignment.task_id
-            )
-
-        )
-
+        ...new Set(assignments.map((assignment) => assignment.task_id)),
     ];
-
-
 
     // ========================================================
     // TAREAS
     // ========================================================
 
-    const {
-        data: tasks,
-        error: tasksError
-    } =
-        await supabase
+    const { data: tasks, error: tasksError } = await supabase
 
-            .from(
-                'tasks'
-            )
+        .from("tasks")
 
-            .select(`
+        .select(
+            `
                 id,
                 titulo,
                 descripcion,
@@ -1827,351 +1060,178 @@ export async function getMyWorkerTasks() {
                 maintenance_type_id,
                 created_at,
                 updated_at
-            `)
+            `,
+        )
 
-            .in(
-                'id',
-                taskIds
-            );
-
+        .in("id", taskIds);
 
     if (tasksError) {
-
         throw tasksError;
-
     }
-
-
 
     // ========================================================
     // MAP DE ASIGNACIONES
     // ========================================================
 
-    const assignmentsMap =
-        new Map();
+    const assignmentsMap = new Map();
 
-
-    for (
-        const assignment of assignments
-    ) {
-
-        assignmentsMap.set(
-            assignment.task_id,
-            assignment
-        );
-
+    for (const assignment of assignments) {
+        assignmentsMap.set(assignment.task_id, assignment);
     }
-
-
 
     // ========================================================
     // LUGARES
     // ========================================================
 
     const locationIds = [
-
         ...new Set(
-
             (tasks ?? [])
 
-                .map(
-                    task =>
-                        task.location_id
-                )
+                .map((task) => task.location_id)
 
-                .filter(Boolean)
-
-        )
-
+                .filter(Boolean),
+        ),
     ];
 
+    const locationsMap = new Map();
 
-    const locationsMap =
-        new Map();
+    if (locationIds.length > 0) {
+        const { data: locations, error: locationsError } = await supabase
 
+            .from("locations")
 
-    if (
-        locationIds.length > 0
-    ) {
-
-        const {
-            data: locations,
-            error: locationsError
-        } =
-            await supabase
-
-                .from(
-                    'locations'
-                )
-
-                .select(`
+            .select(
+                `
                     id,
                     nombre
-                `)
+                `,
+            )
 
-                .in(
-                    'id',
-                    locationIds
-                );
-
+            .in("id", locationIds);
 
         if (locationsError) {
-
             throw locationsError;
-
         }
 
-
-        for (
-            const location of
-            locations ?? []
-        ) {
-
-            locationsMap.set(
-                location.id,
-                location.nombre
-            );
-
+        for (const location of locations ?? []) {
+            locationsMap.set(location.id, location.nombre);
         }
-
     }
-
-
 
     // ========================================================
     // TURNOS
     // ========================================================
 
     const shiftIds = [
-
         ...new Set(
-
             (tasks ?? [])
 
-                .map(
-                    task =>
-                        task.shift_id
-                )
+                .map((task) => task.shift_id)
 
-                .filter(Boolean)
-
-        )
-
+                .filter(Boolean),
+        ),
     ];
 
+    const shiftsMap = new Map();
 
-    const shiftsMap =
-        new Map();
+    if (shiftIds.length > 0) {
+        const { data: shifts, error: shiftsError } = await supabase
 
+            .from("shifts")
 
-    if (
-        shiftIds.length > 0
-    ) {
-
-        const {
-            data: shifts,
-            error: shiftsError
-        } =
-            await supabase
-
-                .from(
-                    'shifts'
-                )
-
-                .select(`
+            .select(
+                `
                     id,
                     nombre
-                `)
+                `,
+            )
 
-                .in(
-                    'id',
-                    shiftIds
-                );
-
+            .in("id", shiftIds);
 
         if (shiftsError) {
-
             throw shiftsError;
-
         }
 
-
-        for (
-            const shift of
-            shifts ?? []
-        ) {
-
-            shiftsMap.set(
-                shift.id,
-                shift.nombre
-            );
-
+        for (const shift of shifts ?? []) {
+            shiftsMap.set(shift.id, shift.nombre);
         }
-
     }
-
-
 
     // ========================================================
     // TIPOS DE MANTENIMIENTO
     // ========================================================
 
     const maintenanceIds = [
-
         ...new Set(
-
             (tasks ?? [])
 
-                .map(
-                    task =>
-                        task.maintenance_type_id
-                )
+                .map((task) => task.maintenance_type_id)
 
-                .filter(Boolean)
-
-        )
-
+                .filter(Boolean),
+        ),
     ];
 
+    const maintenanceMap = new Map();
 
-    const maintenanceMap =
-        new Map();
+    if (maintenanceIds.length > 0) {
+        const { data: maintenanceTypes, error: maintenanceError } = await supabase
 
+            .from("maintenance_types")
 
-    if (
-        maintenanceIds.length > 0
-    ) {
-
-        const {
-            data: maintenanceTypes,
-            error: maintenanceError
-        } =
-            await supabase
-
-                .from(
-                    'maintenance_types'
-                )
-
-                .select(`
+            .select(
+                `
                     id,
                     nombre
-                `)
+                `,
+            )
 
-                .in(
-                    'id',
-                    maintenanceIds
-                );
-
+            .in("id", maintenanceIds);
 
         if (maintenanceError) {
-
             throw maintenanceError;
-
         }
 
-
-        for (
-            const type of
-            maintenanceTypes ?? []
-        ) {
-
-            maintenanceMap.set(
-                type.id,
-                type.nombre
-            );
-
+        for (const type of maintenanceTypes ?? []) {
+            maintenanceMap.set(type.id, type.nombre);
         }
-
     }
-
-
 
     // ========================================================
     // RESULTADO FINAL
     // ========================================================
 
-    const result =
-        (tasks ?? [])
+    const result = (tasks ?? []).map((task) => {
+        const assignment = assignmentsMap.get(task.id);
 
-            .map(
-                task => {
+        return {
+            ...task,
 
-                    const assignment =
-                        assignmentsMap.get(
-                            task.id
-                        );
+            // -------------------------------------
+            // ESTADO PERSONAL DEL TÉCNICO
+            // -------------------------------------
 
+            assignment_state: assignment?.estado ?? "pendiente",
 
-                    return {
+            assigned_at: assignment?.assigned_at ?? null,
 
-                        ...task,
+            accepted_at: assignment?.accepted_at ?? null,
 
+            started_at: assignment?.started_at ?? null,
 
-                        // -------------------------------------
-                        // ESTADO PERSONAL DEL TÉCNICO
-                        // -------------------------------------
+            completed_at: assignment?.completed_at ?? null,
 
-                        assignment_state:
-                            assignment?.estado
-                            ?? 'pendiente',
+            // -------------------------------------
+            // CATÁLOGOS
+            // -------------------------------------
 
+            location_name: locationsMap.get(task.location_id) ?? "Sin lugar",
 
-                        assigned_at:
-                            assignment?.assigned_at
-                            ?? null,
+            shift_name: shiftsMap.get(task.shift_id) ?? "Sin turno",
 
-
-                        accepted_at:
-                            assignment?.accepted_at
-                            ?? null,
-
-
-                        started_at:
-                            assignment?.started_at
-                            ?? null,
-
-
-                        completed_at:
-                            assignment?.completed_at
-                            ?? null,
-
-
-                        // -------------------------------------
-                        // CATÁLOGOS
-                        // -------------------------------------
-
-                        location_name:
-
-                            locationsMap.get(
-                                task.location_id
-                            )
-
-                            ?? 'Sin lugar',
-
-
-                        shift_name:
-
-                            shiftsMap.get(
-                                task.shift_id
-                            )
-
-                            ?? 'Sin turno',
-
-
-                        maintenance_type_name:
-
-                            maintenanceMap.get(
-                                task.maintenance_type_id
-                            )
-
-                            ?? 'Sin tipo'
-
-                    };
-
-                }
-            );
-
-
+            maintenance_type_name:
+                maintenanceMap.get(task.maintenance_type_id) ?? "Sin tipo",
+        };
+    });
 
     // ========================================================
     // ORDEN OPERATIVO
@@ -2184,7 +1244,6 @@ export async function getMyWorkerTasks() {
     // ========================================================
 
     const stateOrder = {
-
         en_progreso: 1,
 
         aceptada: 2,
@@ -2193,110 +1252,53 @@ export async function getMyWorkerTasks() {
 
         completada: 4,
 
-        cancelada: 5
-
+        cancelada: 5,
     };
 
+    result.sort((a, b) => {
+        const orderA = stateOrder[a.assignment_state] ?? 99;
 
-    result.sort(
+        const orderB = stateOrder[b.assignment_state] ?? 99;
 
-        (a, b) => {
-
-            const orderA =
-                stateOrder[
-                a.assignment_state
-                ] ?? 99;
-
-
-            const orderB =
-                stateOrder[
-                b.assignment_state
-                ] ?? 99;
-
-
-            if (
-                orderA !== orderB
-            ) {
-
-                return orderA - orderB;
-
-            }
-
-
-            // -----------------------------------------------
-            // Dentro del mismo estado:
-            // primero la fecha límite más próxima.
-            // -----------------------------------------------
-
-            if (
-                a.fecha_limite
-                &&
-                b.fecha_limite
-            ) {
-
-                return a.fecha_limite.localeCompare(
-                    b.fecha_limite
-                );
-
-            }
-
-
-            return (
-                b.id - a.id
-            );
-
+        if (orderA !== orderB) {
+            return orderA - orderB;
         }
 
-    );
+        // -----------------------------------------------
+        // Dentro del mismo estado:
+        // primero la fecha límite más próxima.
+        // -----------------------------------------------
 
+        if (a.fecha_limite && b.fecha_limite) {
+            return a.fecha_limite.localeCompare(b.fecha_limite);
+        }
+
+        return b.id - a.id;
+    });
 
     return result;
-
 }
 
 // ============================================================
 // OBTENER MI ASIGNACIÓN DE UNA TAREA
 // ============================================================
 
-export async function getMyTaskAssignment(
-    taskId
-) {
-
+export async function getMyTaskAssignment(taskId) {
     const {
-        data: {
-            user
-        },
-        error: userError
-    } =
-        await supabase
-            .auth
-            .getUser();
+        data: { user },
+        error: userError,
+    } = await supabase.auth.getUser();
 
-
-    if (
-        userError
-        ||
-        !user
-    ) {
-
-        throw new Error(
-            'Usuario no autenticado.'
-        );
-
+    if (userError || !user) {
+        throw new Error("Usuario no autenticado.");
     }
 
+    const { data, error } = await supabase
 
-    const {
-        data,
-        error
-    } =
-        await supabase
+        .from("task_assignees")
 
-            .from(
-                'task_assignees'
-            )
-
-            .select(`
+        .select(
+            `
                 task_id,
                 user_id,
                 estado,
@@ -2306,69 +1308,40 @@ export async function getMyTaskAssignment(
                 completed_at,
                 rejected_at,
                 rejection_reason
-            `)
+            `,
+        )
 
-            .eq(
-                'task_id',
-                taskId
-            )
+        .eq("task_id", taskId)
 
-            .eq(
-                'user_id',
-                user.id
-            )
+        .eq("user_id", user.id)
 
-            .single();
-
+        .single();
 
     if (error) {
-
         throw error;
-
     }
 
-
     return data;
-
 }
-
-
 
 // ============================================================
 // RECHAZAR TAREA
 // ============================================================
 
-export async function rejectTask(
-    taskId,
-    reason
-) {
+export async function rejectTask(taskId, reason) {
+    const { error } = await supabase.rpc(
+        "reject_task",
 
-    const {
-        error
-    } =
-        await supabase.rpc(
+        {
+            p_task_id: taskId,
 
-            'reject_task',
-
-            {
-
-                p_task_id:
-                    taskId,
-
-                p_motivo:
-                    reason
-
-            }
-
-        );
-
+            p_motivo: reason,
+        },
+    );
 
     if (error) {
-
         throw error;
-
     }
-
 }
 
 // ============================================================
@@ -2378,32 +1351,18 @@ export async function rejectTask(
 // La lógica real se ejecuta en PostgreSQL mediante accept_task.
 // ============================================================
 
-export async function acceptTask(
-    taskId
-) {
-
-    const {
-        error
-    } = await supabase.rpc(
-
-        'accept_task',
+export async function acceptTask(taskId) {
+    const { error } = await supabase.rpc(
+        "accept_task",
 
         {
-
-            p_task_id:
-                taskId
-
-        }
-
+            p_task_id: taskId,
+        },
     );
 
-
     if (error) {
-
         throw error;
-
     }
-
 }
 
 // ============================================================
@@ -2413,32 +1372,18 @@ export async function acceptTask(
 // Devuelve el ID de su ejecución.
 // ============================================================
 
-export async function startTask(
-    taskId
-) {
-
-    const {
-        data,
-        error
-    } = await supabase.rpc(
-
-        'start_task',
+export async function startTask(taskId) {
+    const { data, error } = await supabase.rpc(
+        "start_task",
 
         {
-            p_task_id:
-                taskId
-        }
-
+            p_task_id: taskId,
+        },
     );
 
-
     if (error) {
-
         throw error;
-
     }
 
-
     return data;
-
 }

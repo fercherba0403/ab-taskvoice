@@ -6,33 +6,19 @@
 // Compatible con el flujo grupal implementado en 13_team_task_flow.sql.
 // ============================================================
 
-import {
-
-    supabase
-
-} from '../core/supabase.js';
-
-
+import { supabase } from "../core/supabase.js";
 
 // ============================================================
 // OBTENER EJECUCIÓN ABIERTA COMPARTIDA DE LA TAREA
 // ============================================================
 
-export async function getTaskOpenExecution(
-    taskId
-) {
+export async function getTaskOpenExecution(taskId) {
+    const { data, error } = await supabase
 
-    const {
-        data,
-        error
-    } =
-        await supabase
+        .from("task_executions")
 
-            .from(
-                'task_executions'
-            )
-
-            .select(`
+        .select(
+            `
                 id,
                 task_id,
                 user_id,
@@ -41,41 +27,25 @@ export async function getTaskOpenExecution(
                 descripcion,
                 transcripcion,
                 audio_path
-            `)
+            `,
+        )
 
-            .eq(
-                'task_id',
-                taskId
-            )
+        .eq("task_id", taskId)
 
-            .is(
-                'fin',
-                null
-            )
+        .is("fin", null)
 
-            .order(
-                'id',
-                {
-                    ascending: false
-                }
-            )
+        .order("id", {
+            ascending: false,
+        })
 
-            .limit(1);
-
+        .limit(1);
 
     if (error) {
-
         throw error;
-
     }
 
-
-    return data?.[0]
-        ?? null;
-
+    return data?.[0] ?? null;
 }
-
-
 
 // ============================================================
 // ALIAS DE COMPATIBILIDAD
@@ -84,77 +54,43 @@ export async function getTaskOpenExecution(
 // que todavía puedan importarlo.
 // ============================================================
 
-export const getMyOpenExecution =
-    getTaskOpenExecution;
-
-
+export const getMyOpenExecution = getTaskOpenExecution;
 
 // ============================================================
 // NORMALIZAR MIME
 // ============================================================
 
-function normalizeMimeType(
-    mimeType
-) {
-
+function normalizeMimeType(mimeType) {
     if (!mimeType) {
-
-        return 'audio/webm';
-
+        return "audio/webm";
     }
 
-
-    return mimeType
-        .split(';')[0]
-        .trim();
-
+    return mimeType.split(";")[0].trim();
 }
-
-
 
 // ============================================================
 // EXTENSIÓN
 // ============================================================
 
-function getAudioExtension(
-    mimeType
-) {
-
-    const type =
-        normalizeMimeType(
-            mimeType
-        );
-
+function getAudioExtension(mimeType) {
+    const type = normalizeMimeType(mimeType);
 
     const extensions = {
+        "audio/webm": "webm",
 
-        'audio/webm':
-            'webm',
+        "audio/ogg": "ogg",
 
-        'audio/ogg':
-            'ogg',
+        "audio/mpeg": "mp3",
 
-        'audio/mpeg':
-            'mp3',
+        "audio/mp4": "mp4",
 
-        'audio/mp4':
-            'mp4',
+        "audio/wav": "wav",
 
-        'audio/wav':
-            'wav',
-
-        'audio/x-wav':
-            'wav'
-
+        "audio/x-wav": "wav",
     };
 
-
-    return extensions[type]
-        ?? 'webm';
-
+    return extensions[type] ?? "webm";
 }
-
-
 
 // ============================================================
 // SUBIR AUDIO
@@ -165,164 +101,87 @@ function getAudioExtension(
 // ============================================================
 
 export async function uploadExecutionAudio(
-
     task,
 
     executionId,
 
-    audioBlob
-
+    audioBlob,
 ) {
-
-    if (
-        !task?.organization_id
-        ||
-        !task?.id
-    ) {
-
-        throw new Error(
-            'No se pudo determinar la organización de la tarea.'
-        );
-
+    if (!task?.organization_id || !task?.id) {
+        throw new Error("No se pudo determinar la organización de la tarea.");
     }
-
 
     if (!audioBlob) {
-
-        throw new Error(
-            'No existe una grabación para subir.'
-        );
-
+        throw new Error("No existe una grabación para subir.");
     }
 
+    const contentType = normalizeMimeType(audioBlob.type);
 
-    const contentType =
-        normalizeMimeType(
-            audioBlob.type
-        );
-
-
-    const extension =
-        getAudioExtension(
-            contentType
-        );
-
+    const extension = getAudioExtension(contentType);
 
     const audioPath =
-
-        `${task.organization_id}`
-
-        +
-
-        `/${task.id}`
-
-        +
-
-        `/${executionId}`
-
-        +
-
+        `${task.organization_id}` +
+        `/${task.id}` +
+        `/${executionId}` +
         `/audio.${extension}`;
 
+    const { error } = await supabase.storage
 
+        .from("audios")
 
-    const {
-        error
-    } =
-        await supabase
+        .upload(
+            audioPath,
 
-            .storage
+            audioBlob,
 
-            .from(
-                'audios'
-            )
+            {
+                contentType,
 
-            .upload(
+                cacheControl: "3600",
 
-                audioPath,
-
-                audioBlob,
-
-                {
-
-                    contentType,
-
-                    cacheControl:
-                        '3600',
-
-                    upsert:
-                        true
-
-                }
-
-            );
-
+                upsert: true,
+            },
+        );
 
     if (error) {
-
         throw error;
-
     }
 
-
     return audioPath;
-
 }
-
-
 
 // ============================================================
 // COMPLETAR EJECUCIÓN
 // ============================================================
 
 export async function completeExecution(
-
     executionId,
 
     {
-
         descripcion = null,
 
         transcripcion = null,
 
-        audioPath = null
-
-    } = {}
-
+        audioPath = null,
+    } = {},
 ) {
+    const { error } = await supabase.rpc(
+        "complete_task",
 
-    const {
-        error
-    } =
-        await supabase.rpc(
+        {
+            p_execution_id: executionId,
 
-            'complete_task',
+            p_descripcion: descripcion || null,
 
-            {
+            p_transcripcion: transcripcion || null,
 
-                p_execution_id:
-                    executionId,
-
-                p_descripcion:
-                    descripcion || null,
-
-                p_transcripcion:
-                    transcripcion || null,
-
-                p_audio_path:
-                    audioPath || null
-
-            }
-
-        );
-
+            p_audio_path: audioPath || null,
+        },
+    );
 
     if (error) {
-
         throw error;
-
     }
-
 }
 
 // ============================================================
@@ -330,130 +189,84 @@ export async function completeExecution(
 // ============================================================
 
 export async function getWorkTypes() {
+    const { data, error } = await supabase
 
-    const {
-        data,
-        error
-    } =
-        await supabase
+        .from("work_types")
 
-            .from(
-                'work_types'
-            )
-
-            .select(`
+        .select(
+            `
                 id,
                 nombre,
                 orden
-            `)
+            `,
+        )
 
-            .eq(
-                'activo',
-                true
-            )
+        .eq("activo", true)
 
-            .order(
-                'orden',
-                {
-                    ascending: true
-                }
-            );
-
+        .order("orden", {
+            ascending: true,
+        });
 
     if (error) {
-
         throw error;
-
     }
 
-
     return data ?? [];
-
 }
-
-
 
 // ============================================================
 // COMPLETAR EJECUCIÓN CON TIPOS DE TRABAJO
 // ============================================================
 
 export async function completeExecutionWithWorkTypes(
-
     executionId,
 
     workTypeIds,
 
     {
-
         descripcion = null,
 
         transcripcion = null,
 
-        audioPath = null
-
-    } = {}
-
+        audioPath = null,
+    } = {},
 ) {
+    const { error } = await supabase.rpc(
+        "complete_task_with_work_types",
 
-    const {
-        error
-    } =
-        await supabase.rpc(
+        {
+            p_execution_id: executionId,
 
-            'complete_task_with_work_types',
+            p_work_type_ids: workTypeIds,
 
-            {
+            p_descripcion: descripcion || null,
 
-                p_execution_id:
-                    executionId,
+            p_transcripcion: transcripcion || null,
 
-                p_work_type_ids:
-                    workTypeIds,
-
-                p_descripcion:
-                    descripcion || null,
-
-                p_transcripcion:
-                    transcripcion || null,
-
-                p_audio_path:
-                    audioPath || null
-
-            }
-
-        );
+            p_audio_path: audioPath || null,
+        },
+    );
 
     if (error) {
-
         throw error;
-
     }
-
 }
 
 // ============================================================
 // OBTENER EJECUCIONES DE UNA TAREA - ADMIN
 // ============================================================
 
-export async function getTaskExecutionsForAdmin(
-    taskId
-) {
-
+export async function getTaskExecutionsForAdmin(taskId) {
     // ========================================================
     // EJECUCIONES
     // ========================================================
 
-    const {
-        data: executions,
-        error: executionsError
-    } =
-        await supabase
+    const { data: executions, error: executionsError } = await supabase
 
-            .from(
-                'task_executions'
-            )
+        .from("task_executions")
 
-            .select(`
+        .select(
+            `
                 id,
                 task_id,
                 user_id,
@@ -463,385 +276,176 @@ export async function getTaskExecutionsForAdmin(
                 transcripcion,
                 audio_path,
                 created_at
-            `)
-
-            .eq(
-                'task_id',
-                taskId
-            )
-
-            .order(
-                'inicio',
-                {
-                    ascending: true
-                }
-            );
-
-
-    if (executionsError) {
-
-        throw executionsError;
-
-    }
-
-
-    if (
-        !executions
-        ||
-        executions.length === 0
-    ) {
-
-        return [];
-
-    }
-
-
-
-    const executionIds =
-        executions.map(
-            execution =>
-                execution.id
-        );
-
-
-    const userIds = [
-
-        ...new Set(
-
-            executions.map(
-                execution =>
-                    execution.user_id
-            )
-
+            `,
         )
 
+        .eq("task_id", taskId)
+
+        .order("inicio", {
+            ascending: true,
+        });
+
+    if (executionsError) {
+        throw executionsError;
+    }
+
+    if (!executions || executions.length === 0) {
+        return [];
+    }
+
+    const executionIds = executions.map((execution) => execution.id);
+
+    const userIds = [
+        ...new Set(executions.map((execution) => execution.user_id)),
     ];
-
-
 
     // ========================================================
     // TÉCNICOS
     // ========================================================
 
-    const {
-        data: profiles,
-        error: profilesError
-    } =
-        await supabase
+    const { data: profiles, error: profilesError } = await supabase
 
-            .from(
-                'profiles'
-            )
+        .from("profiles")
 
-            .select(`
+        .select(
+            `
                 id,
                 nombre,
                 apellido,
                 email
-            `)
+            `,
+        )
 
-            .in(
-                'id',
-                userIds
-            );
-
+        .in("id", userIds);
 
     if (profilesError) {
-
         throw profilesError;
-
     }
-
-
 
     // ========================================================
     // RELACIÓN EJECUCIÓN / TIPO DE TRABAJO
     // ========================================================
 
-    const {
-        data: relations,
-        error: relationsError
-    } =
-        await supabase
+    const { data: relations, error: relationsError } = await supabase
 
-            .from(
-                'execution_work_types'
-            )
+        .from("execution_work_types")
 
-            .select(`
+        .select(
+            `
                 execution_id,
                 work_type_id
-            `)
-
-            .in(
-                'execution_id',
-                executionIds
-            );
-
-
-    if (relationsError) {
-
-        throw relationsError;
-
-    }
-
-
-
-    const workTypeIds = [
-
-        ...new Set(
-
-            (relations ?? [])
-
-                .map(
-                    relation =>
-                        relation.work_type_id
-                )
-
+            `,
         )
 
+        .in("execution_id", executionIds);
+
+    if (relationsError) {
+        throw relationsError;
+    }
+
+    const workTypeIds = [
+        ...new Set((relations ?? []).map((relation) => relation.work_type_id)),
     ];
 
+    let workTypes = [];
 
+    if (workTypeIds.length > 0) {
+        const { data, error } = await supabase
 
-    let workTypes =
-        [];
+            .from("work_types")
 
-
-    if (
-        workTypeIds.length > 0
-    ) {
-
-        const {
-            data,
-            error
-        } =
-            await supabase
-
-                .from(
-                    'work_types'
-                )
-
-                .select(`
+            .select(
+                `
                     id,
                     nombre,
                     orden
-                `)
+                `,
+            )
 
-                .in(
-                    'id',
-                    workTypeIds
-                )
+            .in("id", workTypeIds)
 
-                .order(
-                    'orden',
-                    {
-                        ascending: true
-                    }
-                );
-
+            .order("orden", {
+                ascending: true,
+            });
 
         if (error) {
-
             throw error;
-
         }
 
-
-        workTypes =
-            data ?? [];
-
+        workTypes = data ?? [];
     }
-
-
 
     // ========================================================
     // MAPS
     // ========================================================
 
-    const profilesMap =
-        new Map();
+    const profilesMap = new Map();
 
-
-    for (
-        const profile of profiles ?? []
-    ) {
-
-        profilesMap.set(
-            profile.id,
-            profile
-        );
-
+    for (const profile of profiles ?? []) {
+        profilesMap.set(profile.id, profile);
     }
 
+    const workTypesMap = new Map();
 
-
-    const workTypesMap =
-        new Map();
-
-
-    for (
-        const workType of workTypes
-    ) {
-
-        workTypesMap.set(
-            workType.id,
-            workType
-        );
-
+    for (const workType of workTypes) {
+        workTypesMap.set(workType.id, workType);
     }
 
+    const executionWorkTypesMap = new Map();
 
-
-    const executionWorkTypesMap =
-        new Map();
-
-
-    for (
-        const relation of relations ?? []
-    ) {
-
-        if (
-            !executionWorkTypesMap.has(
-                relation.execution_id
-            )
-        ) {
-
-            executionWorkTypesMap.set(
-                relation.execution_id,
-                []
-            );
-
+    for (const relation of relations ?? []) {
+        if (!executionWorkTypesMap.has(relation.execution_id)) {
+            executionWorkTypesMap.set(relation.execution_id, []);
         }
 
-
-        const workType =
-            workTypesMap.get(
-                relation.work_type_id
-            );
-
+        const workType = workTypesMap.get(relation.work_type_id);
 
         if (workType) {
-
-            executionWorkTypesMap
-                .get(
-                    relation.execution_id
-                )
-                .push(
-                    workType
-                );
-
+            executionWorkTypesMap.get(relation.execution_id).push(workType);
         }
-
     }
-
-
 
     // ========================================================
     // RESULTADO
     // ========================================================
 
-    return executions.map(
+    return executions.map((execution) => {
+        const profile = profilesMap.get(execution.user_id);
 
-        execution => {
+        return {
+            ...execution,
 
-            const profile =
-                profilesMap.get(
-                    execution.user_id
-                );
+            technician_name: profile
+                ? `${profile.nombre ?? ""} ${profile.apellido ?? ""}`.trim()
+                : "Técnico",
 
+            technician_email: profile?.email ?? "",
 
-            return {
-
-                ...execution,
-
-                technician_name:
-
-                    profile
-
-                        ? `${
-
-                            profile.nombre ?? ''
-
-                        } ${
-
-                            profile.apellido ?? ''
-
-                        }`.trim()
-
-                        : 'Técnico',
-
-
-                technician_email:
-                    profile?.email ?? '',
-
-
-                work_types:
-
-                    executionWorkTypesMap.get(
-                        execution.id
-                    )
-
-                    ?? []
-
-            };
-
-        }
-
-    );
-
+            work_types: executionWorkTypesMap.get(execution.id) ?? [],
+        };
+    });
 }
-
-
 
 // ============================================================
 // URL FIRMADA PARA AUDIO PRIVADO
 // ============================================================
 
-export async function createExecutionAudioSignedUrl(
-    audioPath
-) {
-
+export async function createExecutionAudioSignedUrl(audioPath) {
     if (!audioPath) {
-
         return null;
-
     }
 
+    const { data, error } = await supabase.storage
 
-    const {
-        data,
-        error
-    } =
-        await supabase
+        .from("audios")
 
-            .storage
-
-            .from(
-                'audios'
-            )
-
-            .createSignedUrl(
-                audioPath,
-                3600
-            );
-
+        .createSignedUrl(audioPath, 3600);
 
     if (error) {
-
         throw error;
-
     }
 
-
-    return (
-        data?.signedUrl
-        ??
-        data?.signedURL
-        ??
-        null
-    );
-
+    return data?.signedUrl ?? data?.signedURL ?? null;
 }
 
 // ============================================================
@@ -851,25 +455,17 @@ export async function createExecutionAudioSignedUrl(
 // incluyendo los tipos de trabajo realizados.
 // ============================================================
 
-export async function getTaskCompletedExecution(
-    taskId
-) {
-
+export async function getTaskCompletedExecution(taskId) {
     // ========================================================
     // EJECUCIÓN
     // ========================================================
 
-    const {
-        data: executions,
-        error: executionError
-    } =
-        await supabase
+    const { data: executions, error: executionError } = await supabase
 
-            .from(
-                'task_executions'
-            )
+        .from("task_executions")
 
-            .select(`
+        .select(
+            `
                 id,
                 task_id,
                 user_id,
@@ -879,153 +475,87 @@ export async function getTaskCompletedExecution(
                 transcripcion,
                 audio_path,
                 created_at
-            `)
+            `,
+        )
 
-            .eq(
-                'task_id',
-                taskId
-            )
+        .eq("task_id", taskId)
 
-            .not(
-                'fin',
-                'is',
-                null
-            )
+        .not("fin", "is", null)
 
-            .order(
-                'fin',
-                {
-                    ascending: false
-                }
-            )
+        .order("fin", {
+            ascending: false,
+        })
 
-            .limit(1);
-
+        .limit(1);
 
     if (executionError) {
-
         throw executionError;
-
     }
 
-
-    const execution =
-        executions?.[0]
-        ?? null;
-
+    const execution = executions?.[0] ?? null;
 
     if (!execution) {
-
         return null;
-
     }
-
-
 
     // ========================================================
     // RELACIONES CON TIPOS DE TRABAJO
     // ========================================================
 
-    const {
-        data: relations,
-        error: relationsError
-    } =
-        await supabase
+    const { data: relations, error: relationsError } = await supabase
 
-            .from(
-                'execution_work_types'
-            )
+        .from("execution_work_types")
 
-            .select(`
+        .select(
+            `
                 work_type_id
-            `)
+            `,
+        )
 
-            .eq(
-                'execution_id',
-                execution.id
-            );
-
+        .eq("execution_id", execution.id);
 
     if (relationsError) {
-
         throw relationsError;
-
     }
 
+    const workTypeIds = (relations ?? []).map(
+        (relation) => relation.work_type_id,
+    );
 
+    let workTypes = [];
 
-    const workTypeIds =
-        (relations ?? [])
-            .map(
-                relation =>
-                    relation.work_type_id
-            );
+    if (workTypeIds.length > 0) {
+        const { data, error } = await supabase
 
+            .from("work_types")
 
-
-    let workTypes =
-        [];
-
-
-    if (
-        workTypeIds.length > 0
-    ) {
-
-        const {
-            data,
-            error
-        } =
-            await supabase
-
-                .from(
-                    'work_types'
-                )
-
-                .select(`
+            .select(
+                `
                     id,
                     nombre,
                     orden
-                `)
+                `,
+            )
 
-                .in(
-                    'id',
-                    workTypeIds
-                )
+            .in("id", workTypeIds)
 
-                .order(
-                    'orden',
-                    {
-                        ascending: true
-                    }
-                );
-
+            .order("orden", {
+                ascending: true,
+            });
 
         if (error) {
-
             throw error;
-
         }
 
-
-        workTypes =
-            data ?? [];
-
+        workTypes = data ?? [];
     }
 
-
-
     return {
-
         ...execution,
 
-        work_types:
-            workTypes
-
+        work_types: workTypes,
     };
-
 }
-
-
 
 // ============================================================
 // ALIAS DE COMPATIBILIDAD
@@ -1033,68 +563,30 @@ export async function getTaskCompletedExecution(
 // Se conserva el nombre anterior para no romper otros módulos.
 // ============================================================
 
-export const getMyCompletedExecution =
-    getTaskCompletedExecution;
-
+export const getMyCompletedExecution = getTaskCompletedExecution;
 
 // ============================================================
 // TRANSCRIBIR EJECUCIÓN
 // ============================================================
 
-export async function transcribeExecution(
-    executionId
-) {
+export async function transcribeExecution(executionId) {
+    const { data, error } = await supabase.functions.invoke(
+        "transcribe-execution",
 
-    const {
-        data,
-        error
-    } =
-        await supabase
-            .functions
-            .invoke(
-
-                'transcribe-execution',
-
-                {
-
-                    body: {
-
-                        execution_id:
-                            executionId
-
-                    }
-
-                }
-
-            );
-
-
-    if (error) {
-
-        throw error;
-
-    }
-
-
-    if (
-        data?.error
-    ) {
-
-        throw new Error(
-            data.error
-        );
-
-    }
-
-
-    return (
-
-        data?.transcription
-
-        ??
-
-        null
-
+        {
+            body: {
+                execution_id: executionId,
+            },
+        },
     );
 
+    if (error) {
+        throw error;
+    }
+
+    if (data?.error) {
+        throw new Error(data.error);
+    }
+
+    return data?.transcription ?? null;
 }
