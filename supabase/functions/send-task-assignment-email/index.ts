@@ -1,8 +1,4 @@
-import {
-    createClient,
-    type SupabaseClient
-} from 'npm:@supabase/supabase-js@2';
-
+import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2";
 
 // ============================================================
 // AB TASKVOICE
@@ -13,494 +9,219 @@ import {
 // función sea invocada por el Database Webhook.
 // ============================================================
 
+const BREVO_ENDPOINT = "https://api.brevo.com/v3/smtp/email";
 
-const BREVO_ENDPOINT =
-    'https://api.brevo.com/v3/smtp/email';
+const SENDER_NAME = "AB TaskVoice Reporte de turno";
 
+const EMAIL_SUBJECT = "Nueva tarea asignada en AB TaskVoice";
 
-const SENDER_NAME =
-    'AB TaskVoice Reporte de turno';
+const TASKVOICE_EMAIL_TAG = "ab_taskvoice";
 
-
-const EMAIL_SUBJECT =
-    'Nueva tarea asignada en AB TaskVoice';
-
-const TASKVOICE_EMAIL_TAG =
-    'ab_taskvoice';
-
-
-const TASKVOICE_NOTIFICATION_TAG_PREFIX =
-    'ab_taskvoice_notification_';
-
+const TASKVOICE_NOTIFICATION_TAG_PREFIX = "ab_taskvoice_notification_";
 
 const APPLICATION_URL =
-    'https://reporteaubasa.pages.dev/trabajador/inicio.html';
+  "https://reporteaubasa.pages.dev/trabajador/inicio.html";
 
+const WEBHOOK_SECRET_HEADER = "x-taskvoice-webhook-secret";
 
-const WEBHOOK_SECRET_HEADER =
-    'x-taskvoice-webhook-secret';
+const MAX_PROVIDER_ERROR_LENGTH = 1000;
 
-
-const MAX_PROVIDER_ERROR_LENGTH =
-    1000;
-
-
-const EMAIL_PATTERN =
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const UUID_PATTERN =
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
+type JsonObject = Record<string, unknown>;
 
-type JsonObject =
-    Record<string, unknown>;
-
-
-type EmailStatus =
-    'sent'
-    | 'failed'
-    | 'skipped';
-
+type EmailStatus = "sent" | "failed" | "skipped";
 
 interface ClaimedEmail {
+  notification_id: number;
 
-    notification_id: number;
+  task_id: number | null;
 
-    task_id: number | null;
+  email_attempts: number;
 
-    email_attempts: number;
+  email_idempotency_key: string | null;
 
-    email_idempotency_key: string | null;
+  recipient: string | null;
 
-    recipient: string | null;
+  technician_name: string | null;
 
-    technician_name: string | null;
+  profile_active: boolean | null;
 
-    profile_active: boolean | null;
-
-    task_title: string | null;
-
+  task_title: string | null;
 }
-
 
 interface EmailContent {
+  htmlContent: string;
 
-    htmlContent: string;
-
-    textContent: string;
-
+  textContent: string;
 }
-
 
 interface ProviderResult {
+  code: string;
 
-    code: string;
+  message: string;
 
-    message: string;
-
-    messageId: string | null;
-
+  messageId: string | null;
 }
-
 
 // ============================================================
 // RESPUESTA JSON
 // ============================================================
 
-function jsonResponse(
-    body: unknown,
-    status = 200
-) {
+function jsonResponse(body: unknown, status = 200) {
+  return new Response(
+    JSON.stringify(body),
 
-    return new Response(
+    {
+      status,
 
-        JSON.stringify(
-            body
-        ),
+      headers: {
+        "Cache-Control": "no-store",
 
-        {
-
-            status,
-
-            headers: {
-
-                'Cache-Control':
-                    'no-store',
-
-                'Content-Type':
-                    'application/json; charset=utf-8'
-
-            }
-
-        }
-
-    );
-
+        "Content-Type": "application/json; charset=utf-8",
+      },
+    },
+  );
 }
-
 
 // ============================================================
 // VALIDACIONES BÁSICAS
 // ============================================================
 
-function isObject(
-    value: unknown
-): value is JsonObject {
-
-    return (
-        typeof value ===
-            'object'
-        &&
-        value !==
-            null
-        &&
-        !Array.isArray(
-            value
-        )
-    );
-
+function isObject(value: unknown): value is JsonObject {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-
-function normalizeString(
-    value: unknown
-) {
-
-    return typeof value ===
-        'string'
-
-        ? value.trim()
-
-        : '';
-
+function normalizeString(value: unknown) {
+  return typeof value === "string" ? value.trim() : "";
 }
 
+function nullableString(value: unknown) {
+  const normalized = normalizeString(value);
 
-function nullableString(
-    value: unknown
-) {
-
-    const normalized =
-        normalizeString(
-            value
-        );
-
-
-    return normalized
-        || null;
-
+  return normalized || null;
 }
 
+function isPositiveSafeInteger(value: unknown) {
+  const numericValue = Number(value);
 
-function isPositiveSafeInteger(
-    value: unknown
-) {
-
-    const numericValue =
-        Number(
-            value
-        );
-
-
-    return (
-        Number.isSafeInteger(
-            numericValue
-        )
-        &&
-        numericValue >
-            0
-    );
-
+  return Number.isSafeInteger(numericValue) && numericValue > 0;
 }
 
+function parsePositiveSafeInteger(value: unknown) {
+  if (!isPositiveSafeInteger(value)) {
+    return null;
+  }
 
-function parsePositiveSafeInteger(
-    value: unknown
-) {
-
-    if (
-        !isPositiveSafeInteger(
-            value
-        )
-    ) {
-
-        return null;
-
-    }
-
-
-    return Number(
-        value
-    );
-
+  return Number(value);
 }
 
-
-function isValidEmail(
-    value: string
-) {
-
-    return EMAIL_PATTERN.test(
-        value
-    );
-
+function isValidEmail(value: string) {
+  return EMAIL_PATTERN.test(value);
 }
 
-
-function isUuid(
-    value: string
-) {
-
-    return UUID_PATTERN.test(
-        value
-    );
-
+function isUuid(value: string) {
+  return UUID_PATTERN.test(value);
 }
-
 
 // ============================================================
 // COMPARACIÓN DEL SECRETO DEL WEBHOOK
 // ============================================================
 
-async function secureEquals(
-    provided: string,
-    expected: string
-) {
+async function secureEquals(provided: string, expected: string) {
+  const encoder = new TextEncoder();
 
-    const encoder =
-        new TextEncoder();
+  const [providedHash, expectedHash] = await Promise.all([
+    crypto.subtle.digest("SHA-256", encoder.encode(provided)),
 
+    crypto.subtle.digest("SHA-256", encoder.encode(expected)),
+  ]);
 
-    const [
-        providedHash,
-        expectedHash
-    ] =
-        await Promise.all([
+  const left = new Uint8Array(providedHash);
 
-            crypto.subtle.digest(
-                'SHA-256',
-                encoder.encode(
-                    provided
-                )
-            ),
+  const right = new Uint8Array(expectedHash);
 
-            crypto.subtle.digest(
-                'SHA-256',
-                encoder.encode(
-                    expected
-                )
-            )
+  let difference = 0;
 
-        ]);
+  for (let index = 0; index < left.length; index += 1) {
+    difference |= left[index] ^ right[index];
+  }
 
-
-    const left =
-        new Uint8Array(
-            providedHash
-        );
-
-
-    const right =
-        new Uint8Array(
-            expectedHash
-        );
-
-
-    let difference =
-        0;
-
-
-    for (
-        let index = 0;
-        index < left.length;
-        index += 1
-    ) {
-
-        difference |=
-            left[index]
-            ^
-            right[index];
-
-    }
-
-
-    return difference ===
-        0;
-
+  return difference === 0;
 }
-
 
 // ============================================================
 // CLAIM DEVUELTO POR POSTGRESQL
 // ============================================================
 
-function parseClaimedEmail(
-    value: unknown
-): ClaimedEmail | null {
+function parseClaimedEmail(value: unknown): ClaimedEmail | null {
+  if (!isObject(value)) {
+    return null;
+  }
 
-    if (!isObject(value)) {
+  const notificationId = parsePositiveSafeInteger(value.notification_id);
 
-        return null;
+  const attempts = parsePositiveSafeInteger(value.email_attempts);
 
-    }
+  if (!notificationId || !attempts) {
+    return null;
+  }
 
+  return {
+    notification_id: notificationId,
 
-    const notificationId =
-        parsePositiveSafeInteger(
-            value.notification_id
-        );
+    task_id: parsePositiveSafeInteger(value.task_id),
 
+    email_attempts: attempts,
 
-    const attempts =
-        parsePositiveSafeInteger(
-            value.email_attempts
-        );
+    email_idempotency_key: nullableString(value.email_idempotency_key),
 
+    recipient: nullableString(value.recipient),
 
-    if (
-        !notificationId
-        ||
-        !attempts
-    ) {
+    technician_name: nullableString(value.technician_name),
 
-        return null;
+    profile_active:
+      typeof value.profile_active === "boolean" ? value.profile_active : null,
 
-    }
-
-
-    return {
-
-        notification_id:
-            notificationId,
-
-        task_id:
-            parsePositiveSafeInteger(
-                value.task_id
-            ),
-
-        email_attempts:
-            attempts,
-
-        email_idempotency_key:
-            nullableString(
-                value.email_idempotency_key
-            ),
-
-        recipient:
-            nullableString(
-                value.recipient
-            ),
-
-        technician_name:
-            nullableString(
-                value.technician_name
-            ),
-
-        profile_active:
-            typeof value.profile_active ===
-                'boolean'
-
-                ? value.profile_active
-
-                : null,
-
-        task_title:
-            nullableString(
-                value.task_title
-            )
-
-    };
-
+    task_title: nullableString(value.task_title),
+  };
 }
-
 
 // ============================================================
 // CONTENIDO SEGURO DEL EMAIL
 // ============================================================
 
-function escapeHtml(
-    value: string
-) {
-
-    return value
-        .replaceAll(
-            '&',
-            '&amp;'
-        )
-        .replaceAll(
-            '<',
-            '&lt;'
-        )
-        .replaceAll(
-            '>',
-            '&gt;'
-        )
-        .replaceAll(
-            '"',
-            '&quot;'
-        )
-        .replaceAll(
-            "'",
-            '&#039;'
-        );
-
+function escapeHtml(value: string) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
-
 function buildEmailContent(
-    technicianName: string | null,
-    taskTitle: string
+  technicianName: string | null,
+  taskTitle: string,
 ): EmailContent {
+  const safeName = technicianName
+    ? escapeHtml(technicianName.slice(0, 120))
+    : "";
 
-    const safeName =
-        technicianName
+  const safeTaskTitle = escapeHtml(taskTitle.slice(0, 500));
 
-            ? escapeHtml(
-                technicianName
-                    .slice(
-                        0,
-                        120
-                    )
-            )
+  const safeApplicationUrl = escapeHtml(APPLICATION_URL);
 
-            : '';
+  const htmlGreeting = safeName ? `Hola, ${safeName}.` : "Hola.";
 
+  const textGreeting = technicianName
+    ? `Hola, ${technicianName.slice(0, 120)}.`
+    : "Hola.";
 
-    const safeTaskTitle =
-        escapeHtml(
-            taskTitle
-                .slice(
-                    0,
-                    500
-                )
-        );
-
-
-    const safeApplicationUrl =
-        escapeHtml(
-            APPLICATION_URL
-        );
-
-
-    const htmlGreeting =
-        safeName
-
-            ? `Hola, ${safeName}.`
-
-            : 'Hola.';
-
-
-    const textGreeting =
-        technicianName
-
-            ? `Hola, ${technicianName.slice(0, 120)}.`
-
-            : 'Hola.';
-
-
-    const htmlContent =
-        `<!doctype html>
+  const htmlContent = `<!doctype html>
 <html lang="es">
 <head>
     <meta charset="utf-8">
@@ -553,1390 +274,742 @@ function buildEmailContent(
 </body>
 </html>`;
 
+  const textContent = [
+    textGreeting,
+    "",
+    "Se te asignó una nueva tarea:",
+    taskTitle.slice(0, 500),
+    "",
+    "Ingresá a AB TaskVoice para consultar los detalles:",
+    APPLICATION_URL,
+    "",
+    "Este es un aviso automático.",
+  ].join("\n");
 
-    const textContent =
-        [
-            textGreeting,
-            '',
-            'Se te asignó una nueva tarea:',
-            taskTitle.slice(
-                0,
-                500
-            ),
-            '',
-            'Ingresá a AB TaskVoice para consultar los detalles:',
-            APPLICATION_URL,
-            '',
-            'Este es un aviso automático.'
-        ]
-            .join(
-                '\n'
-            );
-
-
-    return {
-        htmlContent,
-        textContent
-    };
-
+  return {
+    htmlContent,
+    textContent,
+  };
 }
-
 
 // ============================================================
 // ESTADO FINAL DEL OUTBOX
 // ============================================================
 
 async function updateClaimedNotification(
-    adminClient: SupabaseClient,
-    claim: ClaimedEmail,
-    values: JsonObject
+  adminClient: SupabaseClient,
+  claim: ClaimedEmail,
+  values: JsonObject,
 ) {
+  const { data, error } = await adminClient
 
-    const {
-        data,
-        error
-    } =
-        await adminClient
+    .from("notifications")
 
-            .from(
-                'notifications'
-            )
+    .update(values)
 
-            .update(
-                values
-            )
+    .eq("id", claim.notification_id)
 
-            .eq(
-                'id',
-                claim.notification_id
-            )
+    .eq("email_status", "processing")
 
-            .eq(
-                'email_status',
-                'processing'
-            )
+    .eq("email_attempts", claim.email_attempts)
 
-            .eq(
-                'email_attempts',
-                claim.email_attempts
-            )
+    .select("id")
 
-            .select(
-                'id'
-            )
+    .maybeSingle();
 
-            .maybeSingle();
+  if (error || !data) {
+    console.error(
+      "send-task-assignment-email update outbox:",
+      claim.notification_id,
+      error?.message ?? "No matching processing row.",
+    );
 
+    return false;
+  }
 
-    if (
-        error
-        ||
-        !data
-    ) {
-
-        console.error(
-            'send-task-assignment-email update outbox:',
-            claim.notification_id,
-            error?.message
-            ??
-            'No matching processing row.'
-        );
-
-
-        return false;
-
-    }
-
-
-    return true;
-
+  return true;
 }
 
+function retryAtForAttempt(attempts: number) {
+  if (attempts >= 5) {
+    return null;
+  }
 
-function retryAtForAttempt(
-    attempts: number
-) {
+  const retryMinutes = [5, 15, 60, 360];
 
-    if (
-        attempts >=
-        5
-    ) {
+  const minutes = retryMinutes[Math.min(attempts - 1, retryMinutes.length - 1)];
 
-        return null;
-
-    }
-
-
-    const retryMinutes = [
-        5,
-        15,
-        60,
-        360
-    ];
-
-
-    const minutes =
-        retryMinutes[
-            Math.min(
-                attempts - 1,
-                retryMinutes.length - 1
-            )
-        ];
-
-
-    return new Date(
-        Date.now()
-        +
-        minutes
-        *
-        60_000
-    )
-        .toISOString();
-
+  return new Date(Date.now() + minutes * 60_000).toISOString();
 }
-
 
 function markSkipped(
-    adminClient: SupabaseClient,
-    claim: ClaimedEmail,
-    reason: string,
-    recipient: string | null
+  adminClient: SupabaseClient,
+  claim: ClaimedEmail,
+  reason: string,
+  recipient: string | null,
 ) {
+  return updateClaimedNotification(
+    adminClient,
 
-    return updateClaimedNotification(
+    claim,
 
-        adminClient,
+    {
+      email_status: "skipped" satisfies EmailStatus,
 
-        claim,
+      email_recipient: recipient,
 
-        {
+      email_provider: null,
 
-            email_status:
-                'skipped' satisfies EmailStatus,
+      email_provider_message_id: null,
 
-            email_recipient:
-                recipient,
+      email_last_error: reason.slice(0, MAX_PROVIDER_ERROR_LENGTH),
 
-            email_provider:
-                null,
+      email_next_retry_at: null,
 
-            email_provider_message_id:
-                null,
-
-            email_last_error:
-                reason.slice(
-                    0,
-                    MAX_PROVIDER_ERROR_LENGTH
-                ),
-
-            email_next_retry_at:
-                null,
-
-            email_sent_at:
-                null
-
-        }
-
-    );
-
+      email_sent_at: null,
+    },
+  );
 }
-
 
 function markFailed(
-    adminClient: SupabaseClient,
-    claim: ClaimedEmail,
-    reason: string,
-    recipient: string | null,
-    provider = 'brevo'
+  adminClient: SupabaseClient,
+  claim: ClaimedEmail,
+  reason: string,
+  recipient: string | null,
+  provider = "brevo",
 ) {
+  return updateClaimedNotification(
+    adminClient,
 
-    return updateClaimedNotification(
+    claim,
 
-        adminClient,
+    {
+      email_status: "failed" satisfies EmailStatus,
 
-        claim,
+      email_recipient: recipient,
 
-        {
+      email_provider: provider,
 
-            email_status:
-                'failed' satisfies EmailStatus,
+      email_provider_message_id: null,
 
-            email_recipient:
-                recipient,
+      email_last_error: reason.slice(0, MAX_PROVIDER_ERROR_LENGTH),
 
-            email_provider:
-                provider,
+      email_next_retry_at: retryAtForAttempt(claim.email_attempts),
 
-            email_provider_message_id:
-                null,
-
-            email_last_error:
-                reason.slice(
-                    0,
-                    MAX_PROVIDER_ERROR_LENGTH
-                ),
-
-            email_next_retry_at:
-                retryAtForAttempt(
-                    claim.email_attempts
-                ),
-
-            email_sent_at:
-                null
-
-        }
-
-    );
-
+      email_sent_at: null,
+    },
+  );
 }
-
 
 function markSandboxAccepted(
-    adminClient: SupabaseClient,
-    claim: ClaimedEmail,
-    recipient: string,
-    providerMessageId: string | null
+  adminClient: SupabaseClient,
+  claim: ClaimedEmail,
+  recipient: string,
+  providerMessageId: string | null,
 ) {
+  return updateClaimedNotification(
+    adminClient,
 
-    return updateClaimedNotification(
+    claim,
 
-        adminClient,
+    {
+      email_status: "skipped" satisfies EmailStatus,
 
-        claim,
+      email_recipient: recipient,
 
-        {
+      email_provider: "brevo_sandbox",
 
-            email_status:
-                'skipped' satisfies EmailStatus,
+      email_provider_message_id: providerMessageId,
 
-            email_recipient:
-                recipient,
+      email_last_error:
+        "Sandbox de Brevo: solicitud aceptada sin entregar el email.",
 
-            email_provider:
-                'brevo_sandbox',
+      email_next_retry_at: null,
 
-            email_provider_message_id:
-                providerMessageId,
-
-            email_last_error:
-                'Sandbox de Brevo: solicitud aceptada sin entregar el email.',
-
-            email_next_retry_at:
-                null,
-
-            email_sent_at:
-                null
-
-        }
-
-    );
-
+      email_sent_at: null,
+    },
+  );
 }
-
 
 function markSent(
-    adminClient: SupabaseClient,
-    claim: ClaimedEmail,
-    recipient: string,
-    providerMessageId: string | null
+  adminClient: SupabaseClient,
+  claim: ClaimedEmail,
+  recipient: string,
+  providerMessageId: string | null,
 ) {
+  return updateClaimedNotification(
+    adminClient,
 
-    return updateClaimedNotification(
+    claim,
 
-        adminClient,
+    {
+      email_status: "sent" satisfies EmailStatus,
 
-        claim,
+      email_recipient: recipient,
 
-        {
+      email_provider: "brevo",
 
-            email_status:
-                'sent' satisfies EmailStatus,
+      email_provider_message_id: providerMessageId,
 
-            email_recipient:
-                recipient,
+      email_last_error: null,
 
-            email_provider:
-                'brevo',
+      email_next_retry_at: null,
 
-            email_provider_message_id:
-                providerMessageId,
-
-            email_last_error:
-                null,
-
-            email_next_retry_at:
-                null,
-
-            email_sent_at:
-                new Date()
-                    .toISOString()
-
-        }
-
-    );
-
+      email_sent_at: new Date().toISOString(),
+    },
+  );
 }
-
 
 // ============================================================
 // RESPUESTA DE BREVO
 // ============================================================
 
-function parseProviderResult(
-    responseText: string
-): ProviderResult {
+function parseProviderResult(responseText: string): ProviderResult {
+  let body: unknown = null;
 
-    let body:
-        unknown =
-            null;
+  try {
+    body = JSON.parse(responseText);
+  } catch {
+    body = null;
+  }
 
-
-    try {
-
-        body =
-            JSON.parse(
-                responseText
-            );
-
-    } catch {
-
-        body =
-            null;
-
-    }
-
-
-    if (!isObject(body)) {
-
-        return {
-
-            code:
-                '',
-
-            message:
-                responseText
-                    .trim()
-                    .slice(
-                        0,
-                        MAX_PROVIDER_ERROR_LENGTH
-                    ),
-
-            messageId:
-                null
-
-        };
-
-    }
-
-
+  if (!isObject(body)) {
     return {
+      code: "",
 
-        code:
-            normalizeString(
-                body.code
-            ),
+      message: responseText.trim().slice(0, MAX_PROVIDER_ERROR_LENGTH),
 
-        message:
-            normalizeString(
-                body.message
-            ),
-
-        messageId:
-            nullableString(
-                body.messageId
-            )
-
+      messageId: null,
     };
+  }
 
+  return {
+    code: normalizeString(body.code),
+
+    message: normalizeString(body.message),
+
+    messageId: nullableString(body.messageId),
+  };
 }
 
+function providerErrorMessage(status: number, providerResult: ProviderResult) {
+  const detail = [providerResult.code, providerResult.message]
+    .filter(Boolean)
+    .join(": ");
 
-function providerErrorMessage(
-    status: number,
-    providerResult: ProviderResult
-) {
-
-    const detail = [
-        providerResult.code,
-        providerResult.message
-    ]
-        .filter(Boolean)
-        .join(
-            ': '
-        );
-
-
-    return (
-        detail
-
-            ? `Brevo HTTP ${status}: ${detail}`
-
-            : `Brevo HTTP ${status}.`
-    )
-        .slice(
-            0,
-            MAX_PROVIDER_ERROR_LENGTH
-        );
-
+  return (
+    detail ? `Brevo HTTP ${status}: ${detail}` : `Brevo HTTP ${status}.`
+  ).slice(0, MAX_PROVIDER_ERROR_LENGTH);
 }
 
-
-function isIdempotencyDuplicate(
-    providerResult: ProviderResult
-) {
-
-    return (
-        providerResult.code ===
-            'duplicate_parameter'
-        &&
-        providerResult.message
-            .toLowerCase()
-            .includes(
-                'idempotency'
-            )
-    );
-
+function isIdempotencyDuplicate(providerResult: ProviderResult) {
+  return (
+    providerResult.code === "duplicate_parameter" &&
+    providerResult.message.toLowerCase().includes("idempotency")
+  );
 }
 
+function errorMessage(error: unknown) {
+  if (error instanceof Error) {
+    return error.message.slice(0, MAX_PROVIDER_ERROR_LENGTH);
+  }
 
-function errorMessage(
-    error: unknown
-) {
-
-    if (
-        error instanceof
-        Error
-    ) {
-
-        return error.message
-            .slice(
-                0,
-                MAX_PROVIDER_ERROR_LENGTH
-            );
-
-    }
-
-
-    return 'Unexpected server error.';
-
+  return "Unexpected server error.";
 }
-
 
 // ============================================================
 // FUNCIÓN PRINCIPAL
 // ============================================================
 
-Deno.serve(
+Deno.serve(async (request: Request) => {
+  if (request.method !== "POST") {
+    return jsonResponse(
+      {
+        error: "Método no permitido.",
+      },
+      405,
+    );
+  }
+
+  const expectedWebhookSecret =
+    Deno.env.get("TASK_EMAIL_WEBHOOK_SECRET")?.trim() ?? "";
+
+  if (!expectedWebhookSecret) {
+    console.error("TASK_EMAIL_WEBHOOK_SECRET no configurado.");
+
+    return jsonResponse(
+      {
+        error: "Configuración del servidor incompleta.",
+      },
+      500,
+    );
+  }
+
+  const providedWebhookSecret =
+    request.headers.get(WEBHOOK_SECRET_HEADER)?.trim() ?? "";
+
+  if (
+    !providedWebhookSecret ||
+    !(await secureEquals(providedWebhookSecret, expectedWebhookSecret))
+  ) {
+    return jsonResponse(
+      {
+        error: "Solicitud no autorizada.",
+      },
+      401,
+    );
+  }
+
+  let payload: unknown;
+
+  try {
+    payload = await request.json();
+  } catch {
+    return jsonResponse(
+      {
+        error: "Payload JSON inválido.",
+      },
+      400,
+    );
+  }
+
+  if (!isObject(payload)) {
+    return jsonResponse(
+      {
+        error: "Payload inválido.",
+      },
+      400,
+    );
+  }
+
+  if (
+    payload.type !== "INSERT" ||
+    payload.schema !== "public" ||
+    payload.table !== "notifications"
+  ) {
+    return jsonResponse({
+      ok: true,
+
+      processed: false,
+
+      reason: "ignored_event",
+    });
+  }
+
+  if (!isObject(payload.record)) {
+    return jsonResponse(
+      {
+        error: "Registro de notificación inválido.",
+      },
+      400,
+    );
+  }
+
+  const notificationId = parsePositiveSafeInteger(payload.record.id);
+
+  if (!notificationId) {
+    return jsonResponse(
+      {
+        error: "notification_id inválido.",
+      },
+      400,
+    );
+  }
+
+  if (
+    payload.record.tipo !== "tarea_asignada" ||
+    payload.record.email_status !== "pending"
+  ) {
+    return jsonResponse({
+      ok: true,
 
-    async (
-        request: Request
-    ) => {
+      processed: false,
 
+      notification_id: notificationId,
 
-        if (
-            request.method !==
-            'POST'
-        ) {
+      reason: "not_an_assignment_email",
+    });
+  }
 
-            return jsonResponse(
-                {
-                    error:
-                        'Método no permitido.'
-                },
-                405
-            );
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
 
-        }
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
+  if (!supabaseUrl || !serviceRoleKey) {
+    console.error("Variables administrativas de Supabase incompletas.");
 
-        const expectedWebhookSecret =
-            Deno.env.get(
-                'TASK_EMAIL_WEBHOOK_SECRET'
-            )
-                ?.trim()
-            ??
-            '';
+    return jsonResponse(
+      {
+        error: "Configuración del servidor incompleta.",
+      },
+      500,
+    );
+  }
 
+  const adminClient = createClient(
+    supabaseUrl,
 
-        if (!expectedWebhookSecret) {
+    serviceRoleKey,
 
-            console.error(
-                'TASK_EMAIL_WEBHOOK_SECRET no configurado.'
-            );
+    {
+      auth: {
+        persistSession: false,
 
+        autoRefreshToken: false,
+      },
+    },
+  );
 
-            return jsonResponse(
-                {
-                    error:
-                        'Configuración del servidor incompleta.'
-                },
-                500
-            );
+  let activeClaim: ClaimedEmail | null = null;
 
-        }
+  let activeProvider = "brevo";
 
+  try {
+    const { data: claimData, error: claimError } = await adminClient.rpc(
+      "claim_task_assignment_email",
+      {
+        p_notification_id: notificationId,
+      },
+    );
 
-        const providedWebhookSecret =
-            request.headers.get(
-                WEBHOOK_SECRET_HEADER
-            )
-                ?.trim()
-            ??
-            '';
+    if (claimError) {
+      console.error(
+        "send-task-assignment-email claim:",
+        notificationId,
+        claimError.message,
+      );
 
-
-        if (
-            !providedWebhookSecret
-            ||
-            !await secureEquals(
-                providedWebhookSecret,
-                expectedWebhookSecret
-            )
-        ) {
-
-            return jsonResponse(
-                {
-                    error:
-                        'Solicitud no autorizada.'
-                },
-                401
-            );
-
-        }
-
-
-        let payload:
-            unknown;
-
-
-        try {
-
-            payload =
-                await request.json();
-
-        } catch {
-
-            return jsonResponse(
-                {
-                    error:
-                        'Payload JSON inválido.'
-                },
-                400
-            );
-
-        }
-
-
-        if (!isObject(payload)) {
-
-            return jsonResponse(
-                {
-                    error:
-                        'Payload inválido.'
-                },
-                400
-            );
-
-        }
-
-
-        if (
-            payload.type !==
-                'INSERT'
-            ||
-            payload.schema !==
-                'public'
-            ||
-            payload.table !==
-                'notifications'
-        ) {
-
-            return jsonResponse({
-
-                ok:
-                    true,
-
-                processed:
-                    false,
-
-                reason:
-                    'ignored_event'
-
-            });
-
-        }
-
-
-        if (!isObject(payload.record)) {
-
-            return jsonResponse(
-                {
-                    error:
-                        'Registro de notificación inválido.'
-                },
-                400
-            );
-
-        }
-
-
-        const notificationId =
-            parsePositiveSafeInteger(
-                payload.record.id
-            );
-
-
-        if (!notificationId) {
-
-            return jsonResponse(
-                {
-                    error:
-                        'notification_id inválido.'
-                },
-                400
-            );
-
-        }
-
-
-        if (
-            payload.record.tipo !==
-                'tarea_asignada'
-            ||
-            payload.record.email_status !==
-                'pending'
-        ) {
-
-            return jsonResponse({
-
-                ok:
-                    true,
-
-                processed:
-                    false,
-
-                notification_id:
-                    notificationId,
-
-                reason:
-                    'not_an_assignment_email'
-
-            });
-
-        }
-
-
-        const supabaseUrl =
-            Deno.env.get(
-                'SUPABASE_URL'
-            );
-
-
-        const serviceRoleKey =
-            Deno.env.get(
-                'SUPABASE_SERVICE_ROLE_KEY'
-            );
-
-
-        if (
-            !supabaseUrl
-            ||
-            !serviceRoleKey
-        ) {
-
-            console.error(
-                'Variables administrativas de Supabase incompletas.'
-            );
-
-
-            return jsonResponse(
-                {
-                    error:
-                        'Configuración del servidor incompleta.'
-                },
-                500
-            );
-
-        }
-
-
-        const adminClient =
-            createClient(
-
-                supabaseUrl,
-
-                serviceRoleKey,
-
-                {
-
-                    auth: {
-
-                        persistSession:
-                            false,
-
-                        autoRefreshToken:
-                            false
-
-                    }
-
-                }
-
-            );
-
-
-        let activeClaim:
-            ClaimedEmail
-            | null =
-                null;
-
-
-        let activeProvider =
-            'brevo';
-
-
-        try {
-
-            const {
-                data:
-                    claimData,
-                error:
-                    claimError
-            } =
-                await adminClient
-                    .rpc(
-                        'claim_task_assignment_email',
-                        {
-                            p_notification_id:
-                                notificationId
-                        }
-                    );
-
-
-            if (claimError) {
-
-                console.error(
-                    'send-task-assignment-email claim:',
-                    notificationId,
-                    claimError.message
-                );
-
-
-                return jsonResponse(
-                    {
-                        error:
-                            'No fue posible reclamar la notificación.'
-                    },
-                    500
-                );
-
-            }
-
-
-            const rawClaim =
-                Array.isArray(
-                    claimData
-                )
-
-                    ? claimData[0]
-
-                    : claimData;
-
-
-            if (!rawClaim) {
-
-                return jsonResponse({
-
-                    ok:
-                        true,
-
-                    processed:
-                        false,
-
-                    notification_id:
-                        notificationId,
-
-                    reason:
-                        'not_claimable'
-
-                });
-
-            }
-
-
-            activeClaim =
-                parseClaimedEmail(
-                    rawClaim
-                );
-
-
-            if (!activeClaim) {
-
-                console.error(
-                    'Claim inválido:',
-                    notificationId
-                );
-
-
-                return jsonResponse(
-                    {
-                        error:
-                            'La reclamación devolvió datos inválidos.'
-                    },
-                    500
-                );
-
-            }
-
-
-            const recipient =
-                activeClaim.recipient
-                    ?.toLowerCase()
-                    .trim()
-                ??
-                null;
-
-
-            if (
-                activeClaim.profile_active !==
-                true
-            ) {
-
-                const updated =
-                    await markSkipped(
-                        adminClient,
-                        activeClaim,
-                        'El Técnico está inactivo o no tiene un perfil válido.',
-                        recipient
-                    );
-
-
-                return jsonResponse(
-                    {
-
-                        ok:
-                            updated,
-
-                        processed:
-                            updated,
-
-                        status:
-                            'skipped',
-
-                        notification_id:
-                            notificationId
-
-                    },
-                    updated
-                        ? 200
-                        : 500
-                );
-
-            }
-
-
-            if (
-                !recipient
-                ||
-                !isValidEmail(
-                    recipient
-                )
-            ) {
-
-                const updated =
-                    await markSkipped(
-                        adminClient,
-                        activeClaim,
-                        'El Técnico no tiene un email válido.',
-                        null
-                    );
-
-
-                return jsonResponse(
-                    {
-
-                        ok:
-                            updated,
-
-                        processed:
-                            updated,
-
-                        status:
-                            'skipped',
-
-                        notification_id:
-                            notificationId
-
-                    },
-                    updated
-                        ? 200
-                        : 500
-                );
-
-            }
-
-
-            if (
-                !activeClaim.task_id
-                ||
-                !activeClaim.task_title
-            ) {
-
-                const updated =
-                    await markSkipped(
-                        adminClient,
-                        activeClaim,
-                        'La tarea vinculada no existe o no tiene título.',
-                        recipient
-                    );
-
-
-                return jsonResponse(
-                    {
-
-                        ok:
-                            updated,
-
-                        processed:
-                            updated,
-
-                        status:
-                            'skipped',
-
-                        notification_id:
-                            notificationId
-
-                    },
-                    updated
-                        ? 200
-                        : 500
-                );
-
-            }
-
-
-            if (
-                !activeClaim.email_idempotency_key
-                ||
-                !isUuid(
-                    activeClaim.email_idempotency_key
-                )
-            ) {
-
-                const updated =
-                    await markFailed(
-                        adminClient,
-                        activeClaim,
-                        'La notificación no tiene una clave de idempotencia válida.',
-                        recipient
-                    );
-
-
-                return jsonResponse(
-                    {
-
-                        ok:
-                            false,
-
-                        processed:
-                            updated,
-
-                        status:
-                            'failed',
-
-                        notification_id:
-                            notificationId
-
-                    },
-                    500
-                );
-
-            }
-
-
-            const brevoApiKey =
-                Deno.env.get(
-                    'BREVO_API_KEY'
-                )
-                    ?.trim()
-                ??
-                '';
-
-
-            const senderEmail =
-                Deno.env.get(
-                    'BREVO_SENDER_EMAIL'
-                )
-                    ?.trim()
-                    .toLowerCase()
-                ??
-                '';
-
-
-            const brevoSandboxMode =
-                normalizeString(
-                    Deno.env.get(
-                        'BREVO_SANDBOX_MODE'
-                    )
-                )
-                    .toLowerCase() ===
-                'true';
-
-
-            activeProvider =
-                brevoSandboxMode
-                    ? 'brevo_sandbox'
-                    : 'brevo';
-
-
-            if (
-                !brevoApiKey
-                ||
-                !isValidEmail(
-                    senderEmail
-                )
-            ) {
-
-                const updated =
-                    await markFailed(
-                        adminClient,
-                        activeClaim,
-                        'La configuración de Brevo está incompleta.',
-                        recipient
-                    );
-
-
-                return jsonResponse(
-                    {
-
-                        ok:
-                            false,
-
-                        processed:
-                            updated,
-
-                        status:
-                            'failed',
-
-                        notification_id:
-                            notificationId
-
-                    },
-                    500
-                );
-
-            }
-
-
-            const technicianName =
-                activeClaim.technician_name
-                    ?.slice(
-                        0,
-                        120
-                    )
-                ??
-                null;
-
-
-            const emailContent =
-                buildEmailContent(
-                    technicianName,
-                    activeClaim.task_title
-                );
-
-
-            const recipientDefinition =
-                technicianName
-
-                    ? {
-                        email:
-                            recipient,
-                        name:
-                            technicianName
-                    }
-
-                    : {
-                        email:
-                            recipient
-                    };
-
-
-            const brevoHeaders:
-                Record<string, string> = {
-
-                    Accept:
-                        'application/json',
-
-                    'Content-Type':
-                        'application/json',
-
-                    'api-key':
-                        brevoApiKey
-
-                };
-
-
-            if (brevoSandboxMode) {
-
-                brevoHeaders[
-                    'X-Sib-Sandbox'
-                ] =
-                    'drop';
-
-            }
-
-
-            const brevoResponse =
-                await fetch(
-
-                    BREVO_ENDPOINT,
-
-                    {
-
-                        method:
-                            'POST',
-
-                        headers:
-                            brevoHeaders,
-
-                        body:
-                            JSON.stringify({
-
-                                sender: {
-
-                                    name:
-                                        SENDER_NAME,
-
-                                    email:
-                                        senderEmail
-
-                                },
-
-                                to: [
-                                    recipientDefinition
-                                ],
-
-                                subject:
-                                    EMAIL_SUBJECT,
-
-                                tags: [
-                                    TASKVOICE_EMAIL_TAG,
-                                    `${TASKVOICE_NOTIFICATION_TAG_PREFIX}${notificationId}`
-                                ],
-
-
-                                htmlContent:
-                                    emailContent
-                                        .htmlContent,
-
-                                textContent:
-                                    emailContent
-                                        .textContent,
-
-                                headers: {
-
-                                    idempotencyKey:
-                                        activeClaim
-                                            .email_idempotency_key
-
-                                }
-
-                            }),
-
-                        signal:
-                            AbortSignal.timeout(
-                                6_000
-                            )
-
-                    }
-
-                );
-
-
-            const providerText =
-                await brevoResponse
-                    .text();
-
-
-            const providerResult =
-                parseProviderResult(
-                    providerText
-                );
-
-
-            if (
-                brevoResponse.ok
-                ||
-                isIdempotencyDuplicate(
-                    providerResult
-                )
-            ) {
-
-                if (brevoSandboxMode) {
-
-                    const updated =
-                        await markSandboxAccepted(
-                            adminClient,
-                            activeClaim,
-                            recipient,
-                            providerResult
-                                .messageId
-                        );
-
-
-                    return jsonResponse(
-                        {
-
-                            ok:
-                                updated,
-
-                            processed:
-                                updated,
-
-                            status:
-                                'skipped',
-
-                            sandbox:
-                                true,
-
-                            notification_id:
-                                notificationId
-
-                        },
-                        updated
-                            ? 200
-                            : 500
-                    );
-
-                }
-
-
-                const updated =
-                    await markSent(
-                        adminClient,
-                        activeClaim,
-                        recipient,
-                        providerResult
-                            .messageId
-                    );
-
-
-                if (!updated) {
-
-                    return jsonResponse(
-                        {
-                            error:
-                                'Brevo aceptó el email, pero no pudo actualizarse el outbox.'
-                        },
-                        500
-                    );
-
-                }
-
-
-                return jsonResponse({
-
-                    ok:
-                        true,
-
-                    processed:
-                        true,
-
-                    status:
-                        'sent',
-
-                    notification_id:
-                        notificationId
-
-                });
-
-            }
-
-
-            const updated =
-                await markFailed(
-                    adminClient,
-                    activeClaim,
-                    providerErrorMessage(
-                        brevoResponse.status,
-                        providerResult
-                    ),
-                    recipient,
-                    brevoSandboxMode
-                        ? 'brevo_sandbox'
-                        : 'brevo'
-                );
-
-
-            return jsonResponse(
-                {
-
-                    ok:
-                        false,
-
-                    processed:
-                        updated,
-
-                    status:
-                        'failed',
-
-                    notification_id:
-                        notificationId
-
-                },
-                502
-            );
-
-
-        } catch (error) {
-
-            const reason =
-                `Error interno: ${errorMessage(error)}`;
-
-
-            console.error(
-                'send-task-assignment-email:',
-                notificationId,
-                reason
-            );
-
-
-            if (activeClaim) {
-
-                try {
-
-                    await markFailed(
-                        adminClient,
-                        activeClaim,
-                        reason,
-                        activeClaim.recipient,
-                        activeProvider
-                    );
-
-                } catch (updateError) {
-
-                    console.error(
-                        'send-task-assignment-email recovery update:',
-                        notificationId,
-                        errorMessage(
-                            updateError
-                        )
-                    );
-
-                }
-
-            }
-
-
-            return jsonResponse(
-                {
-                    error:
-                        'Error interno procesando el email.'
-                },
-                500
-            );
-
-        }
-
+      return jsonResponse(
+        {
+          error: "No fue posible reclamar la notificación.",
+        },
+        500,
+      );
     }
 
-);
+    const rawClaim = Array.isArray(claimData) ? claimData[0] : claimData;
+
+    if (!rawClaim) {
+      return jsonResponse({
+        ok: true,
+
+        processed: false,
+
+        notification_id: notificationId,
+
+        reason: "not_claimable",
+      });
+    }
+
+    activeClaim = parseClaimedEmail(rawClaim);
+
+    if (!activeClaim) {
+      console.error("Claim inválido:", notificationId);
+
+      return jsonResponse(
+        {
+          error: "La reclamación devolvió datos inválidos.",
+        },
+        500,
+      );
+    }
+
+    const recipient = activeClaim.recipient?.toLowerCase().trim() ?? null;
+
+    if (activeClaim.profile_active !== true) {
+      const updated = await markSkipped(
+        adminClient,
+        activeClaim,
+        "El Técnico está inactivo o no tiene un perfil válido.",
+        recipient,
+      );
+
+      return jsonResponse(
+        {
+          ok: updated,
+
+          processed: updated,
+
+          status: "skipped",
+
+          notification_id: notificationId,
+        },
+        updated ? 200 : 500,
+      );
+    }
+
+    if (!recipient || !isValidEmail(recipient)) {
+      const updated = await markSkipped(
+        adminClient,
+        activeClaim,
+        "El Técnico no tiene un email válido.",
+        null,
+      );
+
+      return jsonResponse(
+        {
+          ok: updated,
+
+          processed: updated,
+
+          status: "skipped",
+
+          notification_id: notificationId,
+        },
+        updated ? 200 : 500,
+      );
+    }
+
+    if (!activeClaim.task_id || !activeClaim.task_title) {
+      const updated = await markSkipped(
+        adminClient,
+        activeClaim,
+        "La tarea vinculada no existe o no tiene título.",
+        recipient,
+      );
+
+      return jsonResponse(
+        {
+          ok: updated,
+
+          processed: updated,
+
+          status: "skipped",
+
+          notification_id: notificationId,
+        },
+        updated ? 200 : 500,
+      );
+    }
+
+    if (
+      !activeClaim.email_idempotency_key ||
+      !isUuid(activeClaim.email_idempotency_key)
+    ) {
+      const updated = await markFailed(
+        adminClient,
+        activeClaim,
+        "La notificación no tiene una clave de idempotencia válida.",
+        recipient,
+      );
+
+      return jsonResponse(
+        {
+          ok: false,
+
+          processed: updated,
+
+          status: "failed",
+
+          notification_id: notificationId,
+        },
+        500,
+      );
+    }
+
+    const brevoApiKey = Deno.env.get("BREVO_API_KEY")?.trim() ?? "";
+
+    const senderEmail =
+      Deno.env.get("BREVO_SENDER_EMAIL")?.trim().toLowerCase() ?? "";
+
+    const brevoSandboxMode =
+      normalizeString(Deno.env.get("BREVO_SANDBOX_MODE")).toLowerCase() ===
+      "true";
+
+    activeProvider = brevoSandboxMode ? "brevo_sandbox" : "brevo";
+
+    if (!brevoApiKey || !isValidEmail(senderEmail)) {
+      const updated = await markFailed(
+        adminClient,
+        activeClaim,
+        "La configuración de Brevo está incompleta.",
+        recipient,
+      );
+
+      return jsonResponse(
+        {
+          ok: false,
+
+          processed: updated,
+
+          status: "failed",
+
+          notification_id: notificationId,
+        },
+        500,
+      );
+    }
+
+    const technicianName = activeClaim.technician_name?.slice(0, 120) ?? null;
+
+    const emailContent = buildEmailContent(
+      technicianName,
+      activeClaim.task_title,
+    );
+
+    const recipientDefinition = technicianName
+      ? {
+          email: recipient,
+          name: technicianName,
+        }
+      : {
+          email: recipient,
+        };
+
+    const brevoHeaders: Record<string, string> = {
+      Accept: "application/json",
+
+      "Content-Type": "application/json",
+
+      "api-key": brevoApiKey,
+    };
+
+    if (brevoSandboxMode) {
+      brevoHeaders["X-Sib-Sandbox"] = "drop";
+    }
+
+    const brevoResponse = await fetch(
+      BREVO_ENDPOINT,
+
+      {
+        method: "POST",
+
+        headers: brevoHeaders,
+
+        body: JSON.stringify({
+          sender: {
+            name: SENDER_NAME,
+
+            email: senderEmail,
+          },
+
+          to: [recipientDefinition],
+
+          subject: EMAIL_SUBJECT,
+
+          tags: [
+            TASKVOICE_EMAIL_TAG,
+            `${TASKVOICE_NOTIFICATION_TAG_PREFIX}${notificationId}`,
+          ],
+
+          htmlContent: emailContent.htmlContent,
+
+          textContent: emailContent.textContent,
+
+          headers: {
+            idempotencyKey: activeClaim.email_idempotency_key,
+          },
+        }),
+
+        signal: AbortSignal.timeout(6_000),
+      },
+    );
+
+    const providerText = await brevoResponse.text();
+
+    const providerResult = parseProviderResult(providerText);
+
+    if (brevoResponse.ok || isIdempotencyDuplicate(providerResult)) {
+      if (brevoSandboxMode) {
+        const updated = await markSandboxAccepted(
+          adminClient,
+          activeClaim,
+          recipient,
+          providerResult.messageId,
+        );
+
+        return jsonResponse(
+          {
+            ok: updated,
+
+            processed: updated,
+
+            status: "skipped",
+
+            sandbox: true,
+
+            notification_id: notificationId,
+          },
+          updated ? 200 : 500,
+        );
+      }
+
+      const updated = await markSent(
+        adminClient,
+        activeClaim,
+        recipient,
+        providerResult.messageId,
+      );
+
+      if (!updated) {
+        return jsonResponse(
+          {
+            error:
+              "Brevo aceptó el email, pero no pudo actualizarse el outbox.",
+          },
+          500,
+        );
+      }
+
+      return jsonResponse({
+        ok: true,
+
+        processed: true,
+
+        status: "sent",
+
+        notification_id: notificationId,
+      });
+    }
+
+    const updated = await markFailed(
+      adminClient,
+      activeClaim,
+      providerErrorMessage(brevoResponse.status, providerResult),
+      recipient,
+      brevoSandboxMode ? "brevo_sandbox" : "brevo",
+    );
+
+    return jsonResponse(
+      {
+        ok: false,
+
+        processed: updated,
+
+        status: "failed",
+
+        notification_id: notificationId,
+      },
+      502,
+    );
+  } catch (error) {
+    const reason = `Error interno: ${errorMessage(error)}`;
+
+    console.error("send-task-assignment-email:", notificationId, reason);
+
+    if (activeClaim) {
+      try {
+        await markFailed(
+          adminClient,
+          activeClaim,
+          reason,
+          activeClaim.recipient,
+          activeProvider,
+        );
+      } catch (updateError) {
+        console.error(
+          "send-task-assignment-email recovery update:",
+          notificationId,
+          errorMessage(updateError),
+        );
+      }
+    }
+
+    return jsonResponse(
+      {
+        error: "Error interno procesando el email.",
+      },
+      500,
+    );
+  }
+});
