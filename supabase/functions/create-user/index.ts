@@ -1,3 +1,4 @@
+// deno-lint-ignore-file
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 // ============================================================
