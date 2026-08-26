@@ -1,31 +1,25 @@
 <!doctype html>
-
 <html lang="es">
 
 <head>
 
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>AB TaskVoice | Mis tareas
-    </title>
-    <link rel="icon" href="img/icon-512.png" sizes="any">
+    <title>AB TaskVoice | Mis tareas</title>
 
+    <link rel="icon" href="img/icon-512.png" sizes="any" />
 
-    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/base.css" />
 
+    <link rel="stylesheet" href="../css/worker.css" />
 
-    <link rel="stylesheet" href="../css/worker.css">
+    <link rel="stylesheet" href="../css/worker-self-task.css" />
 
-
-    <link rel="stylesheet" href="../css/worker-self-task.css">
-
-
-    <link rel="stylesheet" href="../css/technician-layout-v1.css">
+    <link rel="stylesheet" href="../css/technician-layout-v1.css" />
 
 </head>
-
 
 <body class="worker-body" data-technician-page="tasks">
 
@@ -33,146 +27,94 @@
 
     <div class="technician-page-shell">
 
-
-
-        <!-- ======================================================
-         TOPBAR
-    ======================================================= -->
+        <!-- === TOPBAR === -->
 
         <header class="worker-topbar">
 
             <div class="technician-topbar-left">
 
                 <div class="technician-page-heading">
+
                     <h1>Tareas</h1>
+
                     <p>Gestión y seguimiento de tareas</p>
+
                 </div>
 
             </div>
 
         </header>
 
-
-
-        <!-- ======================================================
-         CONTENIDO
-    ======================================================= -->
+        <!-- === CONTENIDO === -->
 
         <main class="worker-main">
 
-
-            <!-- ==================================================
-             BIENVENIDA
-        =================================================== -->
+            <!-- === BIENVENIDA === -->
 
             <section class="worker-hero">
 
-                <span class="worker-eyebrow">
-                    Panel del técnico
-                </span>
-
+                <span class="worker-eyebrow"> Panel técnico </span>
 
                 <h1>
-
                     Hola,
-                    <span id="userName">
-                        ...
-                    </span>
-
+                    <span id="userName"> ... </span>
                 </h1>
 
-
-                <p>
-                    Estas son las tareas que tenés asignadas.
-                </p>
-
+                <p>Estas son las tareas que tenés asignadas.</p>
 
                 <div class="worker-hero-actions">
 
                     <a href="./tarea-nueva.html" class="worker-new-task-link">
-                        + Nueva tarea
+                        Crear Nueva Tarea
                     </a>
 
                 </div>
 
             </section>
 
-
-
-            <!-- ==================================================
-             ESTADÍSTICAS
-        =================================================== -->
+            <!-- === ESTADÍSTICAS === -->
 
             <section class="worker-stats">
 
-
                 <article class="worker-stat-card stat-open">
 
-                    <span class="worker-stat-label">
-                        Por iniciar
-                    </span>
+                    <span class="worker-stat-label"> Por iniciar </span>
 
-                    <strong id="openCount" class="worker-stat-value">
-                        0
-                    </strong>
+                    <strong id="openCount" class="worker-stat-value"> 0 </strong>
 
                 </article>
-
-
 
                 <article class="worker-stat-card stat-progress">
 
-                    <span class="worker-stat-label">
-                        En progreso
-                    </span>
+                    <span class="worker-stat-label"> En progreso </span>
 
-                    <strong id="progressCount" class="worker-stat-value">
-                        0
-                    </strong>
+                    <strong id="progressCount" class="worker-stat-value"> 0 </strong>
 
                 </article>
 
-
-
                 <article class="worker-stat-card stat-completed">
 
-                    <span class="worker-stat-label">
-                        Completadas
-                    </span>
+                    <span class="worker-stat-label"> Completadas </span>
 
-                    <strong id="completedCount" class="worker-stat-value">
-                        0
-                    </strong>
+                    <strong id="completedCount" class="worker-stat-value"> 0 </strong>
 
                 </article>
 
             </section>
 
-
-
-            <!-- ==================================================
-             MIS TAREAS
-        =================================================== -->
+            <!-- === MIS TAREAS === -->
 
             <section class="worker-panel">
 
-
                 <div class="worker-panel-header">
-
 
                     <div class="worker-panel-title">
 
-                        <h2>
-                            Mis tareas
-                        </h2>
+                        <h2>Mis tareas</h2>
 
-                        <p id="taskCount">
-                            Cargando...
-                        </p>
+                        <p id="taskCount">Cargando...</p>
 
                     </div>
-
-
 
                     <!-- FILTROS -->
 
@@ -182,16 +124,13 @@
                             Todas
                         </button>
 
-
                         <button class="worker-filter-button" type="button" data-filter="inicio">
                             Por iniciar
                         </button>
 
-
                         <button class="worker-filter-button" type="button" data-filter="en_progreso">
                             En progreso
                         </button>
-
 
                         <button class="worker-filter-button" type="button" data-filter="completada">
                             Completadas
@@ -201,52 +140,33 @@
 
                 </div>
 
-
-
                 <!-- CARGANDO -->
 
-                <div id="loading" class="worker-loading">
-                    Cargando tus tareas...
-                </div>
-
-
+                <div id="loading" class="worker-loading">Cargando tus tareas...</div>
 
                 <!-- SIN TAREAS -->
 
                 <div id="emptyState" class="worker-empty hidden">
 
-                    <strong>
-                        No hay tareas para mostrar
-                    </strong>
+                    <strong> No hay tareas para mostrar </strong>
 
-                    <p>
-                        No tenés tareas dentro de este filtro.
-                    </p>
+                    <p>No tenés tareas dentro de este filtro.</p>
 
                 </div>
-
-
 
                 <!-- LISTA -->
 
                 <div id="tasksList" class="worker-task-list hidden"></div>
 
-
             </section>
 
         </main>
 
-
-
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-
-
     <script type="module" src="../js/components/technician-layout-v1.js"></script>
-
     <script type="module" src="../js/pages/worker-home.js"></script>
-
 
 </body>
 

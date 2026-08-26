@@ -1,394 +1,231 @@
 <!doctype html>
-
 <html lang="es">
 
 <head>
 
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>AB TaskVoice | Nueva tarea</title>
-    <link rel="icon" href="img/icon-512.png" sizes="any">
 
+    <link rel="icon" href="img/icon-512.png" sizes="any" />
 
-    <link
-        rel="stylesheet"
-        href="../css/base.css"
-    >
+    <link rel="stylesheet" href="../css/base.css" />
 
+    <link rel="stylesheet" href="../css/worker.css" />
 
-    <link
-        rel="stylesheet"
-        href="../css/worker.css"
-    >
+    <link rel="stylesheet" href="../css/worker-self-task.css" />
 
-
-    <link
-        rel="stylesheet"
-        href="../css/worker-self-task.css"
-    >
-
-
-    <link
-        rel="stylesheet"
-        href="../css/technician-layout-v1.css"
-    >
+    <link rel="stylesheet" href="../css/technician-layout-v1.css" />
 
 </head>
-
 
 <body class="worker-body" data-technician-page="tasks">
 
     <aside id="technicianSidebar"></aside>
 
     <div class="technician-page-shell">
+        <!-- === TOPBAR === -->
 
+        <header class="worker-topbar">
 
+            <div class="technician-topbar-left">
 
-    <!-- ======================================================
-         TOPBAR
-    ======================================================= -->
+                <div class="technician-page-heading">
 
-    <header class="worker-topbar">
+                    <h1>Nueva tarea</h1>
 
-        <div class="technician-topbar-left">
+                    <p>Registro de una nueva tarea operativa</p>
 
-            <div class="technician-page-heading">
-                <h1>Nueva tarea</h1>
-                <p>Registro de una nueva tarea operativa</p>
+                </div>
+
             </div>
 
-        </div>
+        </header>
 
-    </header>
+        <!-- === CONTENIDO === -->
 
+        <main class="worker-main worker-self-task-main">
 
+            <a href="./inicio.html" class="worker-self-task-back">
+                ← Volver a mis tareas
+            </a>
 
-    <!-- ======================================================
-         CONTENIDO
-    ======================================================= -->
+            <section class="worker-self-task-card">
 
-    <main class="worker-main worker-self-task-main">
+                <header class="worker-self-task-header">
 
+                    <span class="worker-eyebrow"> Autogestión </span>
 
-        <a
-            href="./inicio.html"
-            class="worker-self-task-back"
-        >
-            ← Volver a mis tareas
-        </a>
+                    <h1>Nueva tarea</h1>
 
+                    <p>
+                        Registrá una tarea para realizarla vos mismo. Quedará asignada y
+                        aceptada automáticamente.
+                    </p>
 
-        <section class="worker-self-task-card">
+                </header>
 
+                <form id="selfTaskForm" class="worker-self-task-form">
 
-            <header class="worker-self-task-header">
-
-                <span class="worker-eyebrow">
-                    Autogestión
-                </span>
-
-
-                <h1>
-                    Nueva tarea
-                </h1>
-
-
-                <p>
-                    Registrá una tarea para realizarla vos mismo.
-                    Quedará asignada y aceptada automáticamente.
-                </p>
-
-            </header>
-
-
-
-            <form
-                id="selfTaskForm"
-                class="worker-self-task-form"
-            >
-
-
-                <!-- ==================================================
-                     TÍTULO
-                =================================================== -->
-
-                <div class="worker-self-task-field">
-
-                    <label for="titulo">
-                        Título <span class="worker-self-task-required">*</span>
-                    </label>
-
-
-                    <input
-                        id="titulo"
-                        type="text"
-                        maxlength="150"
-                        autocomplete="off"
-                        required
-                    >
-
-                </div>
-
-
-
-                <!-- ==================================================
-                     DESCRIPCIÓN
-                =================================================== -->
-
-                <div class="worker-self-task-field">
-
-                    <label for="descripcion">
-                        Descripción
-                    </label>
-
-
-                    <textarea
-                        id="descripcion"
-                        rows="6"
-                        placeholder="Describí brevemente la tarea a realizar..."
-                    ></textarea>
-
-                </div>
-
-
-
-                <!-- ==================================================
-                     LUGAR / TURNO
-                =================================================== -->
-
-                <div class="worker-self-task-grid">
+                    <!-- === TÍTULO === -->
 
                     <div class="worker-self-task-field">
 
-                        <label for="lugar">
-                            Lugar
+                        <label for="titulo">
+                            Título <span class="worker-self-task-required">*</span>
                         </label>
 
-
-                        <select id="lugar">
-
-                            <option value="">
-                                Seleccionar lugar...
-                            </option>
-
-                        </select>
+                        <input id="titulo" type="text" maxlength="150" autocomplete="off" required />
 
                     </div>
 
+                    <!-- === DESCRIPCIÓN === -->
 
                     <div class="worker-self-task-field">
 
-                        <label for="turno">
-                            Turno
-                        </label>
+                        <label for="descripcion"> Descripción </label>
 
-
-                        <select id="turno">
-
-                            <option value="">
-                                Seleccionar turno...
-                            </option>
-
-                        </select>
+                        <textarea id="descripcion" rows="6"
+                            placeholder="Describí brevemente la tarea a realizar..."></textarea>
 
                     </div>
 
-                </div>
+                    <!-- === LUGAR / TURNO === -->
+
+                    <div class="worker-self-task-grid">
 
 
+                        <div class="worker-self-task-field">
+                            <label for="lugar"> Lugar </label>
 
-                <!-- ==================================================
-                     TICKET / MANTENIMIENTO
-                =================================================== -->
+                            <select id="lugar">
 
-                <div class="worker-self-task-grid">
+                                <option value="">Seleccionar lugar...</option>
 
-                    <div class="worker-self-task-field">
+                            </select>
 
-                        <label for="ticketNumber">
-                            N° Ticket
-                        </label>
+                        </div>
 
+                        <div class="worker-self-task-field">
 
-                        <input
-                            id="ticketNumber"
-                            type="text"
-                            maxlength="100"
-                            autocomplete="off"
-                            placeholder="Ej.: INC-12345"
-                        >
+                            <label for="turno"> Turno </label>
 
-                    </div>
+                            <select id="turno">
 
+                                <option value="">Seleccionar turno...</option>
 
-                    <div class="worker-self-task-field">
+                            </select>
 
-                        <label for="maintenanceType">
-                            Tipo de mantenimiento
-                        </label>
-
-
-                        <select id="maintenanceType">
-
-                            <option value="">
-                                Seleccionar tipo...
-                            </option>
-
-                        </select>
+                        </div>
 
                     </div>
 
-                </div>
+                    <!-- === TICKET / MANTENIMIENTO === -->
 
+                    <div class="worker-self-task-grid">
 
+                        <div class="worker-self-task-field">
 
-                <!-- ==================================================
-                     PRIORIDAD / FECHA
-                =================================================== -->
+                            <label for="ticketNumber"> N° Ticket </label>
 
-                <div class="worker-self-task-grid">
+                            <input id="ticketNumber" type="text" maxlength="100" autocomplete="off"
+                                placeholder="Ej.: INC-12345" />
 
-                    <div class="worker-self-task-field">
+                        </div>
 
-                        <label for="prioridad">
-                            Prioridad
-                        </label>
+                        <div class="worker-self-task-field">
 
+                            <label for="maintenanceType"> Tipo de mantenimiento </label>
 
-                        <select id="prioridad">
+                            <select id="maintenanceType">
 
-                            <option value="baja">
-                                Baja
-                            </option>
+                                <option value="">Seleccionar tipo...</option>
 
-                            <option value="normal" selected>
-                                Normal
-                            </option>
+                            </select>
 
-                            <option value="alta">
-                                Alta
-                            </option>
-
-                            <option value="urgente">
-                                Urgente
-                            </option>
-
-                        </select>
+                        </div>
 
                     </div>
 
+                    <!-- === PRIORIDAD / FECHA === -->
 
-                    <div class="worker-self-task-field">
+                    <div class="worker-self-task-grid">
 
-                        <label for="fechaLimite">
-                            Fecha límite
-                        </label>
+                        <div class="worker-self-task-field">
 
+                            <label for="prioridad"> Prioridad </label>
 
-                        <input
-                            id="fechaLimite"
-                            type="date"
-                        >
+                            <select id="prioridad">
 
-                    </div>
+                                <option value="baja">Baja</option>
 
-                </div>
+                                <option value="normal" selected>Normal</option>
 
+                                <option value="alta">Alta</option>
 
+                                <option value="urgente">Urgente</option>
 
-                <!-- ==================================================
-                     HORA
-                =================================================== -->
+                            </select>
 
-                <div class="worker-self-task-grid worker-self-task-time-grid">
+                        </div>
 
-                    <div class="worker-self-task-field">
+                        <div class="worker-self-task-field">
 
-                        <label for="horaLimite">
-                            Hora límite
-                        </label>
+                            <label for="fechaLimite"> Fecha límite </label>
 
+                            <input id="fechaLimite" type="date" />
 
-                        <input
-                            id="horaLimite"
-                            type="time"
-                        >
+                        </div>
 
                     </div>
 
-                </div>
+                    <!-- === HORA === -->
 
+                    <div class="worker-self-task-grid worker-self-task-time-grid">
 
+                        <div class="worker-self-task-field">
 
-                <!-- ==================================================
-                     MENSAJE
-                =================================================== -->
+                            <label for="horaLimite"> Hora límite </label>
 
-                <div
-                    id="formMessage"
-                    class="worker-self-task-message"
-                    aria-live="polite"
-                ></div>
+                            <input id="horaLimite" type="time" />
 
+                        </div>
 
+                    </div>
 
-                <!-- ==================================================
-                     ACCIONES
-                =================================================== -->
+                    <!-- === MENSAJE === -->
 
-                <div class="worker-self-task-actions">
+                    <div id="formMessage" class="worker-self-task-message" aria-live="polite"></div>
 
-                    <a
-                        href="./inicio.html"
-                        class="worker-self-task-cancel"
-                    >
-                        Cancelar
-                    </a>
+                    <!-- === ACCIONES === -->
 
+                    <div class="worker-self-task-actions">
 
-                    <button
-                        id="saveButton"
-                        type="submit"
-                        class="worker-self-task-submit"
-                    >
-                        Crear tarea
-                    </button>
+                        <a href="./inicio.html" class="worker-self-task-cancel">
+                            Cancelar
+                        </a>
 
-                </div>
+                        <button id="saveButton" type="submit" class="worker-self-task-submit">
+                            Crear tarea
+                        </button>
 
+                    </div>
 
-            </form>
+                </form>
 
-        </section>
+            </section>
 
-    </main>
+        </main>
 
+    </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-        </div>
+    <script type="module" src="../js/components/technician-layout-v1.js"></script>
 
-
-<script
-        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-    ></script>
-
-
-    
-    <script
-        type="module"
-        src="../js/components/technician-layout-v1.js"
-    ></script>
-
-<script
-        type="module"
-        src="../js/pages/worker-self-task-form-v1.js"
-    ></script>
-
+    <script type="module" src="../js/pages/worker-self-task-form-v1.js"></script>
 
 </body>
 
