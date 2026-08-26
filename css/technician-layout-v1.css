@@ -2,21 +2,25 @@
    AB TASKVOICE
    technician-layout-v1.css
 
-   Sidebar profesional del Panel Técnico.
+   Layout del Panel Técnico con el mismo formato visual del
+   Panel Admin y navegación independiente por rol.
    ============================================================ */
 
 :root {
-  --technician-sidebar-width: 236px;
-  --technician-sidebar-bg: #101d38;
-  --technician-sidebar-border: rgba(255, 255, 255, 0.08);
-  --technician-sidebar-text: #dbe7ff;
-  --technician-sidebar-muted: #8ea2c6;
-  --technician-sidebar-active: rgba(59, 130, 246, 0.18);
-  --technician-sidebar-active-border: #60a5fa;
+  --technician-sidebar-width: 260px;
+  --technician-primary: #1f5eff;
+  --technician-background: #f5f7fb;
+  --technician-surface: #ffffff;
+  --technician-border: #e5e9f0;
+  --technician-text: #172033;
+  --technician-text-secondary: #667085;
+  --technician-sidebar-bg: #111827;
+  --technician-sidebar-text: #d1d5db;
 }
 
 .technician-layout-enabled {
   min-width: 0;
+  background: var(--technician-background);
 }
 
 .technician-page-shell {
@@ -25,6 +29,10 @@
   margin-left: var(--technician-sidebar-width);
 }
 
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
+
 .technician-sidebar {
   position: fixed;
   inset: 0 auto 0 0;
@@ -32,123 +40,122 @@
   width: var(--technician-sidebar-width);
   display: flex;
   flex-direction: column;
-  border-right: 1px solid var(--technician-sidebar-border);
   background: var(--technician-sidebar-bg);
   color: #ffffff;
-  box-shadow: 14px 0 35px rgba(15, 23, 42, 0.08);
 }
 
 .technician-sidebar-header {
-  min-height: 78px;
+  min-height: 82px;
   display: flex;
   align-items: center;
-  gap: 11px;
-  padding: 16px 17px;
-  border-bottom: 1px solid var(--technician-sidebar-border);
+  gap: 0.8rem;
+  padding: 1.1rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .technician-sidebar-logo {
-  width: 41px;
-  height: 41px;
-  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 11px;
-  background: #ffffff;
-  color: #101d38;
-  font-size: 13px;
-  font-weight: 900;
-  letter-spacing: -0.02em;
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--technician-primary);
+}
+
+.technician-sidebar-logo img {
+  width: 40px;
+  height: 40px;
+  display: block;
+  object-fit: cover;
 }
 
 .technician-sidebar-brand {
   min-width: 0;
-  display: flex;
-  flex-direction: column;
 }
 
 .technician-sidebar-brand strong {
+  display: block;
   overflow: hidden;
   color: #ffffff;
-  font-size: 14px;
+  font-size: 1.05rem;
   line-height: 1.25;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .technician-sidebar-brand span {
-  margin-top: 3px;
-  color: var(--technician-sidebar-muted);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.045em;
-  text-transform: uppercase;
+  display: block;
+  max-width: 150px;
+  margin-top: 0.15rem;
+  overflow: hidden;
+  color: #9ca3af;
+  font-size: 0.75rem;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .technician-sidebar-close {
   display: none;
   width: 36px;
   height: 36px;
+  flex: 0 0 36px;
+  align-items: center;
+  justify-content: center;
   margin-left: auto;
-  border: 0;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.08);
+  background: transparent;
   color: #ffffff;
-  font-size: 24px;
+  font-size: 1.5rem;
   line-height: 1;
+  cursor: pointer;
 }
 
-.technician-sidebar-section-label {
-  padding: 22px 18px 9px;
-  color: var(--technician-sidebar-muted);
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-}
+/* ============================================================
+   NAVEGACIÓN
+   ============================================================ */
 
 .technician-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  padding: 0 11px;
+  flex: 1;
+  padding: 1rem 0.75rem;
 }
 
 .technician-nav-item {
-  min-height: 45px;
+  min-height: 46px;
   display: flex;
   align-items: center;
-  gap: 11px;
-  padding: 0 12px;
-  border: 1px solid transparent;
-  border-radius: 9px;
+  gap: 0.8rem;
+  margin-bottom: 0.25rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 8px;
   color: var(--technician-sidebar-text);
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 0.95rem;
+  font-weight: 500;
   text-decoration: none;
   transition:
     background 0.15s ease,
-    border-color 0.15s ease,
     color 0.15s ease;
 }
 
 .technician-nav-item:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.07);
   color: #ffffff;
 }
 
 .technician-nav-item.active {
-  border-color: rgba(96, 165, 250, 0.2);
-  border-left-color: var(--technician-sidebar-active-border);
-  background: var(--technician-sidebar-active);
+  background: var(--technician-primary);
   color: #ffffff;
 }
 
 .technician-nav-icon {
-  width: 20px;
-  height: 20px;
-  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -164,136 +171,217 @@
   stroke-linejoin: round;
 }
 
+/* ============================================================
+   USUARIO / CERRAR SESIÓN
+   ============================================================ */
+
 .technician-sidebar-footer {
-  margin-top: auto;
-  padding: 17px 18px 20px;
-  border-top: 1px solid var(--technician-sidebar-border);
+  padding: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.technician-sidebar-role {
-  display: inline-flex;
-  min-height: 25px;
+.technician-sidebar-user {
+  display: flex;
   align-items: center;
-  padding: 3px 9px;
-  border-radius: 999px;
-  background: rgba(96, 165, 250, 0.16);
-  color: #bfdbfe;
-  font-size: 9px;
-  font-weight: 900;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
+  gap: 0.7rem;
 }
 
-.technician-sidebar-footer small {
+.technician-user-avatar {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #374151;
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.technician-user-info {
+  min-width: 0;
+}
+
+.technician-user-info strong {
   display: block;
-  margin-top: 8px;
-  color: var(--technician-sidebar-muted);
-  font-size: 10px;
-  line-height: 1.45;
+  max-width: 150px;
+  overflow: hidden;
+  color: #ffffff;
+  font-size: 0.85rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.technician-user-info span {
+  display: block;
+  margin-top: 0.1rem;
+  color: #9ca3af;
+  font-size: 0.72rem;
+}
+
+.technician-logout-button {
+  width: 100%;
+  min-height: 42px;
+  margin-top: 0.9rem;
+  padding: 0.65rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 7px;
+  background: transparent;
+  color: #d1d5db;
+  font: inherit;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.technician-logout-button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+}
+
+.technician-logout-button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+/* ============================================================
+   TOPBAR CON TÍTULO DE PÁGINA
+   ============================================================ */
+
+.technician-layout-enabled .worker-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  min-height: 82px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid var(--technician-border);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: none;
+}
+
+.technician-topbar-left {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.technician-page-heading {
+  min-width: 0;
+}
+
+.technician-page-heading h1 {
+  margin: 0;
+  color: var(--technician-text);
+  font-size: 1.45rem;
+  line-height: 1.2;
+}
+
+.technician-page-heading p {
+  margin: 0.25rem 0 0;
+  overflow: hidden;
+  color: var(--technician-text-secondary);
+  font-size: 0.85rem;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .technician-menu-button {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
   display: none;
-  width: 39px;
-  height: 39px;
-  flex: 0 0 auto;
   align-items: center;
   justify-content: center;
   flex-direction: column;
   gap: 4px;
   padding: 0;
-  border: 1px solid #dbe3ef;
-  border-radius: 9px;
+  border: 1px solid var(--technician-border);
+  border-radius: 8px;
   background: #ffffff;
+  cursor: pointer;
 }
 
 .technician-menu-button span {
-  width: 17px;
+  width: 18px;
   height: 2px;
   border-radius: 2px;
-  background: #334155;
+  background: #374151;
 }
 
 .technician-sidebar-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 150;
   display: none;
-  border: 0;
-  background: rgba(15, 23, 42, 0.45);
-}
-
-/* El topbar permanece dentro del área útil, no debajo del sidebar. */
-.technician-page-shell > .worker-topbar {
-  z-index: 100;
 }
 
 /* ============================================================
    TABLET / MÓVIL
    ============================================================ */
 
-@media (max-width: 900px) {
+@media (max-width: 760px) {
 
   .technician-page-shell {
     margin-left: 0;
   }
 
   .technician-sidebar {
-    width: min(286px, 86vw);
-    transform: translateX(-105%);
-    transition: transform 0.2s ease;
+    width: min(var(--technician-sidebar-width), 88vw);
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
   }
 
   .technician-sidebar-open .technician-sidebar {
     transform: translateX(0);
   }
 
+  .technician-sidebar-close {
+    display: flex;
+  }
+
+  .technician-sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 150;
+    border: 0;
+    background: rgba(0, 0, 0, 0.35);
+  }
+
   .technician-sidebar-open .technician-sidebar-overlay {
     display: block;
   }
 
-  .technician-sidebar-close {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
   .technician-menu-button {
     display: flex;
+  }
+
+  .technician-layout-enabled .worker-topbar {
+    padding: 1rem;
   }
 
 }
 
 /* ============================================================
-   CELULAR
+   CELULAR PEQUEÑO
    ============================================================ */
 
-@media (max-width: 650px) {
-
-  .technician-menu-button {
-    width: 38px;
-    height: 38px;
-  }
+@media (max-width: 480px) {
 
   .technician-layout-enabled .worker-topbar {
-    padding-left: 14px;
-    padding-right: 14px;
+    align-items: flex-start;
   }
 
-  .technician-layout-enabled .worker-brand {
-    gap: 8px;
+  .technician-page-heading h1 {
+    font-size: 1.25rem;
   }
 
-  .technician-layout-enabled .worker-brand-logo {
-    width: 38px;
-    height: 38px;
-  }
-
-  .technician-layout-enabled .worker-brand-text strong {
-    font-size: 14px;
-  }
-
-  .technician-layout-enabled .worker-brand-text small {
+  .technician-page-heading p {
     display: none;
   }
 

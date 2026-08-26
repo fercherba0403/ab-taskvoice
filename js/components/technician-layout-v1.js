@@ -2,20 +2,22 @@
 // AB TASKVOICE
 // technician-layout-v1.js
 //
-// Navegación compartida del Panel Técnico.
-//
-// IMPORTANTE:
-// - No decide permisos.
-// - No reemplaza requireRole().
-// - Solo administra navegación / sidebar / menú móvil.
+// Layout compartido del Panel Técnico.
+// Replica la estructura visual del Panel Admin sin compartir
+// navegación, permisos ni decisiones de autorización.
 // ============================================================
+
+import {
+    logout
+} from '../core/auth.js';
+
 
 const ICONS = {
 
     tasks: `
         <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M9 5h11M9 12h11M9 19h11"></path>
-            <path d="M4 5h.01M4 12h.01M4 19h.01"></path>
+            <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+            <path d="m8 12 2.5 2.5L16 9"></path>
         </svg>
     `,
 
@@ -116,23 +118,19 @@ function renderSidebar() {
 
 
     sidebar.innerHTML = `
-
         <div class="technician-sidebar-header">
-
             <div class="technician-sidebar-logo">
-                AB
+                <img
+                    src="../img/icon-512.png"
+                    alt=""
+                    width="40"
+                    height="40"
+                >
             </div>
 
             <div class="technician-sidebar-brand">
-
-                <strong>
-                    AB TaskVoice
-                </strong>
-
-                <span>
-                    Panel Técnico
-                </span>
-
+                <strong>AB TaskVoice</strong>
+                <span>TaskVoice AUBASA</span>
             </div>
 
             <button
@@ -143,14 +141,7 @@ function renderSidebar() {
             >
                 ×
             </button>
-
         </div>
-
-
-        <div class="technician-sidebar-section-label">
-            Operación
-        </div>
-
 
         <nav
             class="technician-nav"
@@ -159,20 +150,120 @@ function renderSidebar() {
             ${navigation}
         </nav>
 
-
         <div class="technician-sidebar-footer">
+            <div class="technician-sidebar-user">
+                <span
+                    id="technicianUserAvatar"
+                    class="technician-user-avatar"
+                    aria-hidden="true"
+                >
+                    --
+                </span>
 
-            <span class="technician-sidebar-role">
-                Técnico
-            </span>
+                <div class="technician-user-info">
+                    <strong id="topbarUserName">...</strong>
+                    <span>Técnico</span>
+                </div>
+            </div>
 
-            <small>
-                Acceso personal y operativo
-            </small>
-
+            <button
+                id="logoutButton"
+                class="technician-logout-button"
+                type="button"
+            >
+                Cerrar sesión
+            </button>
         </div>
-
     `;
+
+}
+
+
+function getInitials(
+    fullName
+) {
+
+    const words =
+        fullName
+            .trim()
+            .split(/\s+/)
+            .filter(
+                word =>
+                    word
+                    &&
+                    word !== '...'
+            );
+
+
+    if (words.length === 0) {
+
+        return '--';
+
+    }
+
+
+    const firstInitial =
+        words[0][0] ?? '';
+
+    const lastInitial =
+        words.length > 1
+            ? words[words.length - 1][0] ?? ''
+            : '';
+
+
+    return `${firstInitial}${lastInitial}`
+        .toLocaleUpperCase('es-AR');
+
+}
+
+
+function bindUserPresentation() {
+
+    const userName =
+        document.getElementById(
+            'topbarUserName'
+        );
+
+    const avatar =
+        document.getElementById(
+            'technicianUserAvatar'
+        );
+
+
+    if (!userName || !avatar) {
+
+        return;
+
+    }
+
+
+    const updateAvatar = () => {
+
+        avatar.textContent =
+            getInitials(
+                userName.textContent ?? ''
+            );
+
+    };
+
+
+    updateAvatar();
+
+
+    const observer =
+        new MutationObserver(
+            updateAvatar
+        );
+
+
+    observer.observe(
+        userName,
+        {
+            childList: true,
+            characterData: true,
+            subtree: true
+        }
+    );
 
 }
 
@@ -225,13 +316,13 @@ function ensureOverlay() {
 
 function ensureMenuButton() {
 
-    const brand =
+    const topbarLeft =
         document.querySelector(
-            '.worker-topbar .worker-brand'
+            '.technician-topbar-left'
         );
 
 
-    if (!brand) {
+    if (!topbarLeft) {
 
         return null;
 
@@ -276,6 +367,11 @@ function ensureMenuButton() {
         'technicianSidebar'
     );
 
+    button.setAttribute(
+        'aria-expanded',
+        'false'
+    );
+
     button.innerHTML = `
         <span></span>
         <span></span>
@@ -283,7 +379,7 @@ function ensureMenuButton() {
     `;
 
 
-    brand.prepend(
+    topbarLeft.prepend(
         button
     );
 
@@ -293,20 +389,88 @@ function ensureMenuButton() {
 }
 
 
+function setSidebarState(
+    open
+) {
+
+    document.body.classList.toggle(
+        'technician-sidebar-open',
+        open
+    );
+
+
+    document
+        .getElementById(
+            'technicianMenuButton'
+        )
+        ?.setAttribute(
+            'aria-expanded',
+            String(open)
+        );
+
+}
+
+
 function closeSidebar() {
 
-    document.body.classList.remove(
-        'technician-sidebar-open'
-    );
+    setSidebarState(false);
 
 }
 
 
 function openSidebar() {
 
-    document.body.classList.add(
-        'technician-sidebar-open'
-    );
+    setSidebarState(true);
+
+}
+
+
+async function handleLogout(
+    event
+) {
+
+    const button =
+        event.currentTarget;
+
+
+    if (!(button instanceof HTMLButtonElement)) {
+
+        return;
+
+    }
+
+
+    const originalText =
+        button.textContent;
+
+
+    button.disabled = true;
+    button.textContent = 'Cerrando...';
+
+
+    try {
+
+        await logout();
+
+        window.location.href =
+            '../index.html';
+
+    } catch (error) {
+
+        console.error(
+            'Error cerrando la sesión:',
+            error
+        );
+
+        button.disabled = false;
+        button.textContent =
+            originalText;
+
+        window.alert(
+            'No fue posible cerrar la sesión. Intentá nuevamente.'
+        );
+
+    }
 
 }
 
@@ -324,18 +488,33 @@ function bindEvents() {
             'technicianSidebarClose'
         );
 
+    const logoutButton =
+        document.getElementById(
+            'logoutButton'
+        );
+
 
     menuButton?.addEventListener(
         'click',
         openSidebar
     );
 
-
     closeButton?.addEventListener(
         'click',
         closeSidebar
     );
 
+    if (
+        document.body.dataset.technicianLayoutLogout ===
+        'true'
+    ) {
+
+        logoutButton?.addEventListener(
+            'click',
+            handleLogout
+        );
+
+    }
 
     overlay.addEventListener(
         'click',
@@ -385,7 +564,7 @@ function initializeTechnicianLayout() {
     );
 
     renderSidebar();
-
+    bindUserPresentation();
     bindEvents();
 
 }
