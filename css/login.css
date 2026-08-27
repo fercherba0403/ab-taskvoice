@@ -117,7 +117,7 @@
    ============================================================ */
 
 @media (min-width: 900px) and (hover: hover) and (pointer: fine) {
-  .login-container {
+  .login-access-container {
     display: grid;
     grid-template-columns: minmax(0, 430px) minmax(260px, 320px);
     gap: 2rem;

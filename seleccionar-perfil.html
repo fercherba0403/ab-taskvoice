@@ -15,53 +15,61 @@
 
   <link rel="stylesheet" href="./css/base.css" />
 
-  <link rel="stylesheet" href="./css/login.css" />
+  <link rel="stylesheet" href="./css/login.css?v=20260827-01" />
 
-  <link rel="stylesheet" href="./css/profile-selector.css" />
+  <link rel="stylesheet" href="./css/profile-selector.css?v=20260827-01" />
 
 </head>
 
-<body class="login-page">
+<body class="login-page profile-selector-page">
 
   <main class="login-container profile-selector-container">
 
-    <section class="login-card profile-selector-card">
+    <section class="login-card profile-selector-card" aria-labelledby="profileSelectorTitle">
 
-      <div class="login-brand">
+      <header class="profile-selector-header">
 
-        <div class="icon">
+        <div class="profile-selector-brand">
 
-          <img src="/img/icon-512.png" alt="logoAB" />
+          <img class="profile-selector-logo" src="/img/icon-512.png" alt="" width="84" height="84" />
+
+          <div>
+
+            <p class="profile-selector-eyebrow">AB TaskVoice</p>
+
+            <h1 id="profileSelectorTitle">Elegí cómo ingresar</h1>
+
+          </div>
 
         </div>
 
-        <h1>Elegir perfil</h1>
-
-        <p>
-          Hola <strong id="profileUserName">...</strong>, seleccioná cómo querés ingresar.
+        <p class="profile-selector-greeting">
+          Hola, <strong id="profileUserName">...</strong>. Tu cuenta tiene más de un perfil habilitado.
         </p>
 
-      </div>
+      </header>
 
-      <div id="profileSelectorLoading" class="profile-selector-loading">
+      <div id="profileSelectorLoading" class="profile-selector-loading" aria-live="polite">
         Cargando perfiles...
       </div>
 
       <div id="profileSelectorContent" class="hidden">
 
-        <div id="profileOptions" class="profile-options"></div>
+        <div id="profileOptions" class="profile-options" role="group" aria-label="Perfiles disponibles"></div>
 
-        <button type="button" id="profileLogoutButton" class="btn btn-primary">
-          Cerrar sesión
-        </button>
+        <div class="profile-selector-actions">
+
+          <button type="button" id="profileLogoutButton" class="profile-logout-button">
+            Cerrar sesión
+          </button>
+
+        </div>
 
       </div>
 
-      <footer class="login-footer">
+      <footer class="profile-selector-footer">
 
-        <p>AB TaskVoice</p>
-
-        <small>Acceso según perfil habilitado</small>
+        Seleccioná el perfil correspondiente a la tarea que vas a realizar.
 
       </footer>
 

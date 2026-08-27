@@ -43,6 +43,8 @@ function createProfileButton(role, label, profile) {
 
   button.className = "profile-option";
 
+  button.dataset.role = role;
+
   const title = document.createElement("strong");
 
   title.textContent = label;
