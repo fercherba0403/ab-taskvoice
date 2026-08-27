@@ -23,6 +23,10 @@ export const supabase = window.supabase.createClient(
             autoRefreshToken: true,
 
             detectSessionInUrl: true,
+
+            experimental: {
+                passkey: true,
+            },
         },
     },
 );
