@@ -18,11 +18,12 @@ import {
 
 import {
   getPasskeyErrorCode,
+  isMobilePasskeyDevice,
   isPasskeyUserCancellation,
   rememberPasskeyEnrollmentForUser,
   requestPasskeyEnrollmentAfterPasswordLogin,
   supportsPlatformPasskeys,
-} from "../components/passkey-enrollment-v1.js?v=20260828-01";
+} from "../components/passkey-enrollment-v1.js?v=20260828-02";
 
 const form = document.getElementById("loginForm");
 
@@ -199,7 +200,7 @@ passkeyLoginButton.addEventListener("click", async () => {
 
 async function configurePasskeyLogin() {
   try {
-    if (!(await supportsPlatformPasskeys())) {
+    if (!isMobilePasskeyDevice() || !(await supportsPlatformPasskeys())) {
       return;
     }
 

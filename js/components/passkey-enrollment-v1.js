@@ -87,6 +87,23 @@ function isUserRememberedAsEnrolled(userId) {
   return getEnrolledUsers().includes(userId);
 }
 
+export function isMobilePasskeyDevice() {
+  const clientHintMobile = navigator.userAgentData?.mobile;
+
+  if (typeof clientHintMobile === "boolean") {
+    return clientHintMobile;
+  }
+
+  const userAgent = navigator.userAgent ?? "";
+
+  const isIphone = /iPhone|iPod/i.test(userAgent);
+
+  const isAndroidPhone =
+    /Android/i.test(userAgent) && /Mobile/i.test(userAgent);
+
+  return isIphone || isAndroidPhone;
+}
+
 export async function supportsPlatformPasskeys() {
   if (
     !window.isSecureContext ||
@@ -339,7 +356,7 @@ export async function initializePasskeyEnrollment() {
     return;
   }
 
-  if (!(await supportsPlatformPasskeys())) {
+  if (!isMobilePasskeyDevice() || !(await supportsPlatformPasskeys())) {
     clearPendingEnrollmentRequest();
 
     return;
