@@ -23,7 +23,7 @@
 
   <link rel="stylesheet" href="./css/base.css" />
 
-  <link rel="stylesheet" href="./css/login.css?v=20260827-01" />
+  <link rel="stylesheet" href="./css/login.css?v=20260828-01" />
 
 </head>
 
@@ -82,6 +82,21 @@
           Ingresar
         </button>
 
+        <div id="passkeyDivider" class="login-method-divider" aria-hidden="true" hidden>
+          <span>o</span>
+        </div>
+
+        <button type="button" id="passkeyLoginButton" class="btn passkey-login-button" hidden>
+
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
+            <path
+              d="M7.5 2a5.5 5.5 0 0 0-1.93 10.65L3.2 15.02a1 1 0 0 0-.29.7V19a1 1 0 0 0 1 1H7v-2h2v-2h2.28l1.07-1.07A5.5 5.5 0 1 0 7.5 2Zm0 2a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7Zm0 2a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z" />
+          </svg>
+
+          <span>Ingresar con acceso rápido</span>
+
+        </button>
+
       </form>
 
       <footer class="login-footer">
@@ -115,7 +130,7 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.4"></script>
-  <script type="module" src="./js/pages/login-v3.js?v=20260827-02"></script>
+  <script type="module" src="./js/pages/login-v3.js?v=20260828-01"></script>
 
 
 </body>

@@ -94,6 +94,54 @@
   font-weight: 600;
 }
 
+.login-method-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #94a3b8;
+  font-size: 0.82rem;
+}
+
+.login-method-divider::before,
+.login-method-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #e2e8f0;
+}
+
+.login-method-divider[hidden],
+.passkey-login-button[hidden] {
+  display: none;
+}
+
+.passkey-login-button {
+  width: 100%;
+  gap: 0.65rem;
+  color: #1f4fbf;
+  background: #ffffff;
+  border: 1px solid #9db4dc;
+}
+
+.passkey-login-button:hover:not(:disabled) {
+  background: #f3f7ff;
+  border-color: #1f5eff;
+}
+
+.passkey-login-button:focus-visible {
+  outline: 3px solid rgba(31, 94, 255, 0.3);
+  outline-offset: 2px;
+}
+
+.passkey-login-button svg {
+  flex: 0 0 auto;
+  fill: currentColor;
+}
+
+.form-message.info {
+  color: #1d4f91;
+}
+
 .login-footer {
   margin-top: 2rem;
   padding-top: 1.25rem;

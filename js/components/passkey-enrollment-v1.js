@@ -71,7 +71,11 @@ function getEnrolledUsers() {
   }
 }
 
-function rememberEnrolledUser(userId) {
+export function rememberPasskeyEnrollmentForUser(userId) {
+  if (typeof userId !== "string" || !userId) {
+    return;
+  }
+
   const users = new Set(getEnrolledUsers());
 
   users.add(userId);
@@ -83,7 +87,7 @@ function isUserRememberedAsEnrolled(userId) {
   return getEnrolledUsers().includes(userId);
 }
 
-async function supportsPlatformPasskeys() {
+export async function supportsPlatformPasskeys() {
   if (
     !window.isSecureContext ||
     typeof window.PublicKeyCredential !== "function" ||
@@ -107,7 +111,7 @@ async function supportsPlatformPasskeys() {
   }
 }
 
-function getErrorCode(error) {
+export function getPasskeyErrorCode(error) {
   return (
     error?.code ??
     error?.cause?.code ??
@@ -116,7 +120,7 @@ function getErrorCode(error) {
   );
 }
 
-function isUserCancellation(error) {
+export function isPasskeyUserCancellation(error) {
   const names = [
     error?.name,
     error?.cause?.name,
@@ -265,17 +269,17 @@ function createEnrollmentNotice(userId) {
         throw error;
       }
 
-      rememberEnrolledUser(userId);
+      rememberPasskeyEnrollmentForUser(userId);
 
       showCompletion(
         "Acceso rápido activado correctamente en este dispositivo.",
         "success",
       );
     } catch (error) {
-      const errorCode = getErrorCode(error);
+      const errorCode = getPasskeyErrorCode(error);
 
       if (errorCode === "webauthn_credential_exists") {
-        rememberEnrolledUser(userId);
+        rememberPasskeyEnrollmentForUser(userId);
 
         showCompletion(
           "El acceso rápido ya estaba disponible en este dispositivo.",
@@ -285,7 +289,7 @@ function createEnrollmentNotice(userId) {
         return;
       }
 
-      if (isUserCancellation(error)) {
+      if (isPasskeyUserCancellation(error)) {
         showCompletion(
           "No se activó el acceso rápido. Podés continuar usando la aplicación normalmente.",
           "neutral",

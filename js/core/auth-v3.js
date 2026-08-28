@@ -36,6 +36,20 @@ export async function login(email, password) {
   return data;
 }
 
+export async function loginWithPasskey() {
+  const { data, error } = await supabase.auth.signInWithPasskey();
+
+  if (error) {
+    throw error;
+  }
+
+  // El perfil activo pertenece a la sesión anterior y no debe
+  // reutilizarse después de una autenticación con passkey.
+  clearActiveRole();
+
+  return data;
+}
+
 // ============================================================
 // LOGOUT
 // ============================================================
