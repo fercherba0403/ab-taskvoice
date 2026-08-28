@@ -15,6 +15,10 @@ import {
   requiresPasswordChange,
 } from "../core/auth-v3.js";
 
+import {
+  requestPasskeyEnrollmentAfterPasswordLogin,
+} from "../components/passkey-enrollment-v1.js";
+
 const form = document.getElementById("loginForm");
 
 const emailInput = document.getElementById("email");
@@ -101,6 +105,8 @@ form.addEventListener("submit", async (event) => {
 
       return;
     }
+
+    requestPasskeyEnrollmentAfterPasswordLogin();
 
     showMessage("Ingreso correcto.", "success");
 
