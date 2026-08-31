@@ -5,7 +5,7 @@
 
 import {
     requireRole
-} from '../core/auth.js';
+} from '../core/auth.js?v=20260831-01';
 
 import {
     acceptTask,

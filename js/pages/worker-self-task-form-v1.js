@@ -7,7 +7,7 @@
 // autenticado por seguridad de backend.
 // ============================================================
 
-import { logout, requireRole } from "../core/auth.js";
+import { logout, requireRole } from "../core/auth.js?v=20260831-01";
 
 import {
     getLocations,

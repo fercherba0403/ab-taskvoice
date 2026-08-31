@@ -8,7 +8,7 @@
 // mediante task_assignees.
 // ============================================================
 
-import { logout, requireRole } from "../core/auth.js";
+import { logout, requireRole } from "../core/auth.js?v=20260831-01";
 
 import { getMyWorkerTasks } from "../services/tasks.js";
 

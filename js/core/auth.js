@@ -5,4 +5,4 @@
 // Puente de compatibilidad hacia auth-v3.js.
 // ============================================================
 
-export * from "./auth-v3.js";
+export * from "./auth-v3.js?v=20260831-01";

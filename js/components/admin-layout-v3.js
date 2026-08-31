@@ -10,7 +10,7 @@
 // - Registros y Configuración permanecen ocultos hasta su implementación.
 // ============================================================
 
-import { logout, requireRole } from "../core/auth.js";
+import { logout, requireRole } from "../core/auth.js?v=20260831-01";
 
 import { supabase } from "../core/supabase.js";
 

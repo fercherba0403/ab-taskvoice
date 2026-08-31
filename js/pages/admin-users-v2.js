@@ -3,7 +3,7 @@
 // admin-users-v2.js
 // ============================================================
 
-import { initAdminLayout } from "../components/admin-layout-v3.js";
+import { initAdminLayout } from "../components/admin-layout-v3.js?v=20260831-01";
 
 import { getUsers } from "../services/users-v2.js";
 
