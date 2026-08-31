@@ -8,13 +8,14 @@
 import {
   getCurrentProfile,
   getCurrentUser,
+  enforceSessionLifetime,
   login,
   loginWithPasskey,
   logout,
   redirectAfterAuthentication,
   redirectToPasswordChange,
   requiresPasswordChange,
-} from "../core/auth-v3.js?v=20260828-01";
+} from "../core/auth-v3.js?v=20260831-01";
 
 import {
   getPasskeyErrorCode,
@@ -102,6 +103,15 @@ async function completeAuthentication({
 
 function showUrlMessage() {
   const params = new URLSearchParams(window.location.search);
+
+  if (params.get("session_expired") === "1") {
+    showMessage(
+      "La sesión venció por seguridad. Ingresá nuevamente.",
+      "info",
+    );
+
+    return;
+  }
 
   if (params.get("password_changed") === "1") {
     showMessage(
@@ -214,6 +224,12 @@ async function configurePasskeyLogin() {
 
 async function checkExistingSession() {
   try {
+    const lifetimeStatus = await enforceSessionLifetime("./");
+
+    if (lifetimeStatus !== "active") {
+      return;
+    }
+
     const user = await getCurrentUser();
 
     if (!user) {

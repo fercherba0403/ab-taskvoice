@@ -7,7 +7,7 @@
 // navegación, permisos ni decisiones de autorización.
 // ============================================================
 
-import { logout } from "../core/auth.js";
+import { logout } from "../core/auth.js?v=20260831-01";
 
 const ICONS = {
     tasks: `

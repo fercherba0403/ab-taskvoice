@@ -12,7 +12,18 @@
 
 import { supabase } from "./supabase.js";
 
+import {
+  broadcastSessionExpiration,
+  broadcastSessionLogout,
+  clearSessionLifetime,
+  monitorSessionLifetime,
+  registerSessionLifetime,
+  stopSessionLifetimeMonitor,
+} from "./session-timeout-v1.js?v=20260831-01";
+
 const ACTIVE_ROLE_KEY = "taskvoice_active_role";
+
+let browserSessionClosure = null;
 
 // ============================================================
 // LOGIN
@@ -29,6 +40,8 @@ export async function login(email, password) {
     throw error;
   }
 
+  registerSessionLifetime(data.session);
+
   // Una sesión nueva debe elegir nuevamente el perfil activo
   // cuando el usuario tenga más de uno.
   clearActiveRole();
@@ -43,6 +56,8 @@ export async function loginWithPasskey() {
     throw error;
   }
 
+  registerSessionLifetime(data.session);
+
   // El perfil activo pertenece a la sesión anterior y no debe
   // reutilizarse después de una autenticación con passkey.
   clearActiveRole();
@@ -55,6 +70,9 @@ export async function loginWithPasskey() {
 // ============================================================
 
 export async function logout() {
+  stopSessionLifetimeMonitor();
+  broadcastSessionLogout();
+  clearSessionLifetime();
   clearActiveRole();
 
   const { error } = await supabase.auth.signOut();
@@ -62,6 +80,60 @@ export async function logout() {
   if (error) {
     throw error;
   }
+}
+
+async function closeBrowserSession(rootPrefix, reason) {
+  if (browserSessionClosure) {
+    return browserSessionClosure;
+  }
+
+  browserSessionClosure = (async () => {
+    stopSessionLifetimeMonitor();
+    clearSessionLifetime();
+    clearActiveRole();
+
+    try {
+      const { error } = await supabase.auth.signOut({ scope: "local" });
+
+      if (error) {
+        console.error("Error cerrando la sesión local:", error);
+      }
+    } catch (error) {
+      console.error("Error cerrando la sesión local:", error);
+    }
+
+    const query = reason === "expired" ? "?session_expired=1" : "";
+
+    window.location.replace(`${rootPrefix}index.html${query}`);
+  })();
+
+  return browserSessionClosure;
+}
+
+export async function enforceSessionLifetime(rootPrefix = "./") {
+  const { data, error } = await supabase.auth.getSession();
+
+  if (error || !data.session) {
+    stopSessionLifetimeMonitor();
+    clearSessionLifetime();
+    clearActiveRole();
+
+    return "missing";
+  }
+
+  const state = monitorSessionLifetime(data.session, (reason) =>
+    closeBrowserSession(rootPrefix, reason),
+  );
+
+  if (state.expired) {
+    broadcastSessionExpiration();
+
+    await closeBrowserSession(rootPrefix, "expired");
+
+    return "expired";
+  }
+
+  return state.active ? "active" : "missing";
 }
 
 // ============================================================
@@ -315,6 +387,16 @@ export async function redirectAfterAuthentication(profile, rootPrefix = "./") {
 // ============================================================
 
 export async function requireRole(allowedRoles, rootPrefix = "../") {
+  const lifetimeStatus = await enforceSessionLifetime(rootPrefix);
+
+  if (lifetimeStatus !== "active") {
+    if (lifetimeStatus === "missing") {
+      window.location.replace(`${rootPrefix}index.html`);
+    }
+
+    return null;
+  }
+
   const user = await getCurrentUser();
 
   if (!user) {

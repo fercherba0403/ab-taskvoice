@@ -8,12 +8,13 @@
 import { supabase } from "../core/supabase.js";
 
 import {
+  enforceSessionLifetime,
   getCurrentProfile,
   getCurrentUser,
   logout,
   redirectAfterAuthentication,
   requiresPasswordChange,
-} from "../core/auth-v3.js";
+} from "../core/auth-v3.js?v=20260831-01";
 
 const form = document.getElementById("passwordChangeForm");
 const newPasswordInput = document.getElementById("newPassword");
@@ -158,6 +159,12 @@ form.addEventListener("submit", async (event) => {
 
 async function initialize() {
   try {
+    const lifetimeStatus = await enforceSessionLifetime("./");
+
+    if (lifetimeStatus === "expired") {
+      return;
+    }
+
     const user = await getCurrentUser();
 
     if (!user) {

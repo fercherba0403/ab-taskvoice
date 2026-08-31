@@ -6,6 +6,7 @@
 // ============================================================
 
 import {
+  enforceSessionLifetime,
   getCurrentProfile,
   getCurrentUser,
   getMyRoles,
@@ -14,7 +15,7 @@ import {
   redirectToPasswordChange,
   requiresPasswordChange,
   setActiveRole,
-} from "../core/auth-v3.js";
+} from "../core/auth-v3.js?v=20260831-01";
 
 const loading = document.getElementById("profileSelectorLoading");
 
@@ -82,6 +83,12 @@ logoutButton.addEventListener("click", async () => {
 
 async function initialize() {
   try {
+    const lifetimeStatus = await enforceSessionLifetime("./");
+
+    if (lifetimeStatus === "expired") {
+      return;
+    }
+
     const user = await getCurrentUser();
 
     if (!user) {

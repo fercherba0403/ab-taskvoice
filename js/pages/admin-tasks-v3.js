@@ -8,7 +8,7 @@
 // - ticket
 // ============================================================
 
-import { initAdminLayout } from "../components/admin-layout-v3.js";
+import { initAdminLayout } from "../components/admin-layout-v3.js?v=20260831-01";
 
 import { getLocations, getTasks, getTechnicians } from "../services/tasks.js";
 

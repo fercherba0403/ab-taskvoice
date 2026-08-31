@@ -5,7 +5,7 @@
 // Búsqueda Operativa del equipo para el Panel Técnico.
 // ============================================================
 
-import { logout, requireRole } from "../core/auth.js";
+import { logout, requireRole } from "../core/auth.js?v=20260831-01";
 
 import {
     getLocations,

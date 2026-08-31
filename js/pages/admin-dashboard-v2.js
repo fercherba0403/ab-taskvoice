@@ -9,7 +9,7 @@ import {
     initAdminLayout,
     setAdminTopbarSubtitle,
     showAdminToast,
-} from "../components/admin-layout-v3.js";
+} from "../components/admin-layout-v3.js?v=20260831-01";
 
 import { getDashboardData } from "../services/dashboard.js";
 
