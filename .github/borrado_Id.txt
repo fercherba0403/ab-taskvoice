@@ -1,0 +1,47 @@
+En Supabase:
+
+Abrí SQL Editor.
+Seleccioná New query.
+Pegá el código completo.
+Modificar X1 y X2 por los numeros entre los cuales se van a borrar los Ids
+Presioná Run una sola vez.
+El resultado final debe mostrar:
+
+
+
+begin;
+
+-- Evita que la operación quede esperando indefinidamente.
+set local lock_timeout = '10s';
+set local statement_timeout = '60s';
+
+-- Desactiva temporalmente el trigger que intenta auditar
+-- las asignaciones eliminadas por la cascada.
+alter table public.task_assignees
+disable trigger task_assignee_audit_trigger;
+
+-- Elimina exclusivamente las tareas con ID del 1 al 20.
+-- Las relaciones configuradas con ON DELETE CASCADE
+-- también serán eliminadas.
+with deleted_tasks as (
+    delete from public.tasks
+    where id between X1 and X2
+    returning id
+)
+select
+    count(*) as tareas_eliminadas,
+    min(id) as primer_id_eliminado,
+    max(id) as ultimo_id_eliminado
+from deleted_tasks;
+
+-- Reactiva el trigger antes de confirmar la transacción.
+alter table public.task_assignees
+enable trigger task_assignee_audit_trigger;
+
+commit;
+
+-- Verificación final: debe devolver 0.
+select
+    count(*) as tareas_restantes
+from public.tasks
+where id between X1 and X2;
